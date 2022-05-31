@@ -8,7 +8,7 @@ namespace InstrumentControl
 {
 	public static class MzLibProgram
 	{
-		public static void Main(string[] args)
+		public static void MzLibProgramMain(string[] args)
 		{
 
 			FusionLumosAPI api = InitializeConnection();

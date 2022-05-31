@@ -67,7 +67,7 @@ namespace InstrumentControl
 			{
 				// need to quickly convert to something else
 				// ScanProcessingQueue.Enqueue(scan);
-				ScanProcessingQueue.Enqueue(new MsDataScan(scan));
+				//ScanProcessingQueue.Enqueue(new MsDataScan(scan));				LOOK HERE!!! This line is commented out until we switch from MsDataScans to MzSpectrum objects
 			}
 			// Perform data processing below here. For clarity, use the minimum
 			// number of method calls possible, preferablly a single method,
