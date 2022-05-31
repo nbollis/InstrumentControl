@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public class BoxcarFraggerTask
+    public class BoxcarFraggerTask : IBoxcarScan, IMS2Scan
     {
     }
 }

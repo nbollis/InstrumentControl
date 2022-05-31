@@ -43,13 +43,13 @@ namespace InstrumentControl
         /// Main method of this class, receives the set of scans and returns the averaged scan
         /// </summary>
         /// <param name="scans"></param>
-        public static MsDataScan AverageScans(List<MsDataScan> scans)
+        public static MzSpectrum AverageSpectra(List<MzSpectrum> scans)
         {
             // TODO: Normaize intensities to TIC
 
             // TODO: Allign Spectra
 
-            MsDataScan compositeSpectra = CombineSpectra(scans);
+            MzSpectrum compositeSpectra = CombineSpectra(scans);
 
             return compositeSpectra;
         }
@@ -437,13 +437,13 @@ namespace InstrumentControl
         /// Calls the specific merging function based upon the current static field SpecrimMergingType
         /// </summary>
         /// <param name="scans"></param>
-        public static MsDataScan CombineSpectra(List<MsDataScan> scans)
+        public static MzSpectrum CombineSpectra(List<MzSpectrum> scans)
         {
-            MsDataScan compositeSpectrum = null;
+            MzSpectrum compositeSpectrum = null;
             switch (SpectrumMergingType)
             {
                 case SpectrumMergingType.SpectrumBinning:
-                    //compositeSpectrum = SpectrumBinning(scans, BinSize);
+                    compositeSpectrum = SpectrumBinning(scans, BinSize);
                     break;
 
                 case SpectrumMergingType.MostSimilarSpectrum:
@@ -458,7 +458,7 @@ namespace InstrumentControl
         /// </summary>
         /// <param name="scans">scans to be combined</param>
         /// <returns>MSDataScan with merged values</returns>
-        public static void SpectrumBinning(List<MsDataScan> scans, double binSize)
+        public static MzSpectrum SpectrumBinning(List<MzSpectrum> scans, double binSize)
         {
             // calculate the bins to be utilizied
             int scanCount = scans.Count();
@@ -466,8 +466,8 @@ namespace InstrumentControl
             double max = 0;
             foreach (var scan in scans)
             {
-                min = Math.Min((double)scan.MassSpectrum.FirstX, min);
-                max = Math.Max((double)scan.MassSpectrum.LastX, max);
+                min = Math.Min((double)scan.FirstX, min);
+                max = Math.Max((double)scan.LastX, max);
             }
             int numberOfBins = (int)Math.Ceiling((max - min) * (1 / binSize));
 
@@ -478,16 +478,16 @@ namespace InstrumentControl
             // go through each scan and place each (m/z, int) from the spectra into a jagged array
             for (int i = 0; i < scans.Count(); i++)
             {
-                for (int j = 0; j < scans[i].MassSpectrum.XArray.Length; j++)
+                for (int j = 0; j < scans[i].XArray.Length; j++)
                 {
-                    int binIndex = (int)Math.Floor((scans[i].MassSpectrum.XArray[j] - min) / binSize);
+                    int binIndex = (int)Math.Floor((scans[i].XArray[j] - min) / binSize);
                     if (xValuesArray[binIndex] == null)
                     {
                         xValuesArray[binIndex] = new double[scanCount];
                         yValuesArray[binIndex] = new double[scanCount];
                     }
-                    xValuesArray[binIndex][i] = scans[i].MassSpectrum.XArray[j];
-                    yValuesArray[binIndex][i] = scans[i].MassSpectrum.YArray[j];
+                    xValuesArray[binIndex][i] = scans[i].XArray[j];
+                    yValuesArray[binIndex][i] = scans[i].YArray[j];
                 }
             }
 
@@ -524,13 +524,12 @@ namespace InstrumentControl
 
             // Create new MsDataScan to return
             MzRange range = new(min, max);
-            //MsDataScan mergedScan = new(scans, xArray, yArray, ScanNum, range);
-            ScanNum++;
+            MzSpectrum mergedSpectra = new(xArray, yArray, true);
 
-            //return mergedScan;
+            return mergedSpectra;
         }
 
-        public static void MostSimilarSpectrum(List<MsDataScan> scans)
+        public static void MostSimilarSpectrum(List<MzSpectrum> scans)
         {
 
         }

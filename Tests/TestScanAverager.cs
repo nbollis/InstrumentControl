@@ -26,20 +26,19 @@ namespace Tests
 		{
 			string filepath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");
 			List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath);
-			List<MsDataScan> averagedScans = new List<MsDataScan>();
+			List<MzSpectrum> averagedSpectra = new List<MzSpectrum>();
 
 			// average all scans in groups of five from the yeast fraction
 			for(int i = 0; i < scans.Count; i += 5)
             {
 				var fiveScans = scans.GetRange(i, 5);
-				var averagedScan = ScanAverager.AverageScans(fiveScans);
-				averagedScans.Add(averagedScan);
+				var averagedSpectrum = ScanAverager.AverageSpectra(fiveScans.Select(p => p.MassSpectrum).ToList());
+				averagedSpectra.Add(averagedSpectrum);
             }
 
 			string outputPath = @"C:\Users\Nic\Desktop\OuputFolder\InstrumentControl\TestingmzMLGeneration\testing.mzML";
-			TEMPWriteCombinedScansAsmzML.SaveMergedScanAsMzml(averagedScans, outputPath);
-
-			var reloadedScans = MS1DatabaseParser.LoadAllScansFromFile(outputPath);
+			//TEMPWriteCombinedScansAsmzML.SaveMergedScanAsMzml(averagedSpectra, outputPath);
+			//var reloadedScans = MS1DatabaseParser.LoadAllScansFromFile(outputPath);
 
 			ScanAverager.ResetValues();
 		}
