@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InstrumentControl", "InstrumentControl\InstrumentControl.csproj", "{BB0DD92A-18EA-4BF7-969B-B6276D7CEF2D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB0DD92A-18EA-4BF7-969B-B6276D7CEF2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB0DD92A-18EA-4BF7-969B-B6276D7CEF2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB0DD92A-18EA-4BF7-969B-B6276D7CEF2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB0DD92A-18EA-4BF7-969B-B6276D7CEF2D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EAE43141-596F-40BC-A8E9-DB22938D5668}
+	EndGlobalSection
+EndGlobal
