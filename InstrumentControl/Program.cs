@@ -2,66 +2,54 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using InstrumentControl.Util;
 
-namespace InstrumentControl 
+namespace InstrumentControl
 {
     class Program
-    {
-        private List<NumberAverager> processedData = new List<NumberAverager>();
-        public List<NumberAverager> ProcessedData { get { return this.processedData; } set { this.processedData = value; } }
-
+    { 
         static void Main(string[] args)
         {
-            // for running from console one of many app options: 
-            // swithc(args)
-            // case 1: App1
-            // case 2: App2
-
-
-
-            Program program = new Program();
-            List<NumberAverager> processedAverager = new();
-            ProgramHelpers prg = new(5);
-            Random rand = new Random(1551);
-            prg.ThresholdReached += program.Prg_ThresholdReached;
-            int i = 0;
-            while (i < 100)
+            FusionLumosAPI api = InitializeConnection();
+            Application application;
+            ScanQueue scanQueue = new ScanQueue(5);
+            switch (args[0])
             {
-                prg.AddValueToQueue(ValueGenerator.CreateValue(5, rand));
-                if (i % 5 == 0) Console.WriteLine("fifth val generated");
-                i++;
+                case "WholeChargeEnvelopeFragmentation":
+                    application = new WholeChargeEnvelopeFragmentationApplication();
+                    break;
+
+                default:
+                    Debugger.Break();
+                    return;
             }
-            Console.WriteLine();
-            Console.WriteLine("Averages:");
-            foreach (NumberAverager nAvg in program.ProcessedData)
+            scanQueue.ThresholdReached += application.ProcessScans;
+
+            // main loop 
+            while (api.InstAccessContainer.ServiceConnected)
             {
-                Console.WriteLine(nAvg.Average.ToString());
-            }
+                // MsScanArrived is an event.
+                // The += means "subscribes to".
+                // So the data.Receiver.MSScanContainer_MsScanArrived method is
+                // subscribed to the MsScanArrived event and will be called when the event is raised.
+
+                /* Technically, multiple methods can subscribe to the same event, 
+				 * however, it is likely doing so would require multithreading. 
+				 * You would need to have multiple objects working with a single IMsScan object, 
+				 * and I'm not sure how you would pass a single IMsScan to multiple threads yet
+				 */
+                api.MSScanContainer.MsScanArrived += scanQueue.AddValueToQueue;
+            }            
         }
-        private async void Prg_ThresholdReached(object? sender, ThresholdReachedEventArgs e)
+
+        // Instantiates the FusionLumosAPI and starts both online access and instrument access
+        private static FusionLumosAPI InitializeConnection()
         {
-            var t = Task.Run(() =>
-            {
-                ProcessedData.Add(new NumberAverager(e.Data));
-            });
-            await Task.Yield();
-            await t;
-            Console.WriteLine("Scan averaged!");
-        }
-        private void Prg_ThresholdNonAsync(object? sender, ThresholdReachedEventArgs e)
-        {
-            ProcessedData.Add(new NumberAverager(e.Data));
-            Console.WriteLine("Scan averaged!");
-        }
-    }
-    public static class ValueGenerator
-    {
-        public static double CreateValue(int millisecondDelay, Random rnd)
-        {
-            //Thread.Sleep(millisecondDelay);
-            double value = rnd.NextDouble();
-            //Console.WriteLine(value.ToString());
-            return value;
+            FusionLumosAPI api = new();
+            api.StartOnlineAccess(); // call to start online connection. Need to add event and error handling. 
+            api.GetInstAccess(1); // access instrument and fills the FusionLumosAPI class properties. 
+            return api;
         }
     }
 }

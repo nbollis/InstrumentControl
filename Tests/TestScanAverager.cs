@@ -26,21 +26,22 @@ namespace Tests
 		{
 			string filepath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");
 			List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath);
+			List<MzSpectrum> spectra = scans.Select(p => p.MassSpectrum).ToList();
 			List<MzSpectrum> averagedSpectra = new List<MzSpectrum>();
 
 			// average all scans in groups of five from the yeast fraction
 			for(int i = 0; i < scans.Count; i += 5)
             {
-				var fiveScans = scans.GetRange(i, 5);
-				var averagedSpectrum = ScanAverager.AverageSpectra(fiveScans.Select(p => p.MassSpectrum).ToList());
-				averagedSpectra.Add(averagedSpectrum);
+				var fiveSpectra = spectra.GetRange(i, 5);
+				var taskResult = new SpectrumAveragingTask(fiveSpectra).Run();
+				averagedSpectra.Add(taskResult.CompositeSpectrum);
             }
 
 			string outputPath = @"C:\Users\Nic\Desktop\OuputFolder\InstrumentControl\TestingmzMLGeneration\testing.mzML";
 			//TEMPWriteCombinedScansAsmzML.SaveMergedScanAsMzml(averagedSpectra, outputPath);
 			//var reloadedScans = MS1DatabaseParser.LoadAllScansFromFile(outputPath);
 
-			ScanAverager.ResetValues();
+			SpectrumAveragingTask.ResetValues();
 		}
 
 		[Test]
@@ -50,8 +51,8 @@ namespace Tests
 
 			double[] test = { 10, 9, 8, 7, 6, 5 };
 			double[] expected = { 9, 8, 7, 6 };
-			double[] minMaxClipped = ScanAverager.MinMaxClipping(test);
-			Assert.AreEqual(expected, minMaxClipped);
+			double[] minMaxClipped = SpectrumAveragingTask.MinMaxClipping(test);
+			Assert.That(minMaxClipped, Is.EqualTo(expected));
 
 			#endregion
 
@@ -59,79 +60,79 @@ namespace Tests
 
 			test = new double[] { 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0 };
 			expected = new double[] { 90, 80, 70, 60, 50, 40, 30, 20, 10 };
-			double[] percentileClipped = ScanAverager.PercentileClipping(test, 0.9);
-			Assert.AreEqual(expected, percentileClipped);
+			double[] percentileClipped = SpectrumAveragingTask.PercentileClipping(test, 0.9);
+			Assert.That(percentileClipped, Is.EqualTo(expected));
 
 			test = new double[] { 100, 80, 60, 50, 40, 30, 20, 10, 0 };
 			expected = new double[] { 60, 50, 40, 30, 20, 10 };
-			percentileClipped = ScanAverager.PercentileClipping(test, 0.9);
-			Assert.AreEqual(expected, percentileClipped);
+			percentileClipped = SpectrumAveragingTask.PercentileClipping(test, 0.9);
+			Assert.That(percentileClipped, Is.EqualTo(expected));
 
 			#endregion
 
 			#region Sigma Clipping
 
 			test = new double[] { 100, 80, 60, 50, 40, 30, 20, 10, 0 };
-			double[] sigmaClipped = ScanAverager.SigmaClipping(test, 1.5, 1.5);
+			double[] sigmaClipped = SpectrumAveragingTask.SigmaClipping(test, 1.5, 1.5);
 			expected = new double[] { 50, 40, 30, 20, 10 };
-			Assert.AreEqual(expected, sigmaClipped);
+			Assert.That(sigmaClipped, Is.EqualTo(expected));
 
 			test = new double[] { 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0 };
-			sigmaClipped = ScanAverager.SigmaClipping(test, 1, 1);
+			sigmaClipped = SpectrumAveragingTask.SigmaClipping(test, 1, 1);
 			expected = new double[] { 50 };
-			Assert.AreEqual(expected, sigmaClipped);
+			Assert.That(sigmaClipped, Is.EqualTo(expected));
 
-			sigmaClipped = ScanAverager.SigmaClipping(test, 1.3, 1.3);
+			sigmaClipped = SpectrumAveragingTask.SigmaClipping(test, 1.3, 1.3);
 			expected = new double[] { 60, 50, 40 };
-			Assert.AreEqual(expected, sigmaClipped);
+			Assert.That(sigmaClipped, Is.EqualTo(expected));
 
-			sigmaClipped = ScanAverager.SigmaClipping(test, 1.5, 1.5);
+			sigmaClipped = SpectrumAveragingTask.SigmaClipping(test, 1.5, 1.5);
 			expected = new double[] { 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0 };
-			Assert.AreEqual(expected, sigmaClipped);
+			Assert.That(sigmaClipped, Is.EqualTo(expected));
 
 			#endregion
 
 			#region Windsorized Sigma Clipping
 
 			test = new double[] { 100, 80, 60, 50, 40, 30, 20, 10, 0 };
-			double[] windsorizedSigmaClipped = ScanAverager.WinsorizedSigmaClipping(test, 1.5, 1.5);
+			double[] windsorizedSigmaClipped = SpectrumAveragingTask.WinsorizedSigmaClipping(test, 1.5, 1.5);
 			expected = new double[] { 60, 50, 40, 30, 20, 10, 0 };
-			Assert.AreEqual(expected, windsorizedSigmaClipped);
+			Assert.That(windsorizedSigmaClipped, Is.EqualTo(expected));
 
 			test = new double[] { 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0 };
-			windsorizedSigmaClipped = ScanAverager.WinsorizedSigmaClipping(test, 1, 1);
+			windsorizedSigmaClipped = SpectrumAveragingTask.WinsorizedSigmaClipping(test, 1, 1);
 			expected = new double[] { 60, 50, 40 };
-			Assert.AreEqual(expected, windsorizedSigmaClipped);
+			Assert.That(windsorizedSigmaClipped, Is.EqualTo(expected));
 
-			windsorizedSigmaClipped = ScanAverager.WinsorizedSigmaClipping(test, 1.3, 1.3);
+			windsorizedSigmaClipped = SpectrumAveragingTask.WinsorizedSigmaClipping(test, 1.3, 1.3);
 			expected = new double[] { 60, 50, 40 };
-			Assert.AreEqual(expected, windsorizedSigmaClipped);
+			Assert.That(windsorizedSigmaClipped, Is.EqualTo(expected));
 
-			windsorizedSigmaClipped = ScanAverager.WinsorizedSigmaClipping(test, 1.5, 1.5);
+			windsorizedSigmaClipped = SpectrumAveragingTask.WinsorizedSigmaClipping(test, 1.5, 1.5);
 			expected = new double[] { 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0 };
-			Assert.AreEqual(expected, windsorizedSigmaClipped);
+			Assert.That(windsorizedSigmaClipped, Is.EqualTo(expected));
 
 			#endregion
 
 			#region Averaged Sigma Clipping
 
 			test = new double[] { 100, 80, 60, 50, 40, 30, 20, 10, 0 };
-			double[] averagedSigmaClipping = ScanAverager.AveragedSigmaClipping(test, 3, 3);
+			double[] averagedSigmaClipping = SpectrumAveragingTask.AveragedSigmaClipping(test, 3, 3);
 			expected = new double[] { 80, 60, 50, 40, 30, 20, 10, 0 };
-			Assert.AreEqual(expected, averagedSigmaClipping);
+			Assert.That(averagedSigmaClipping, Is.EqualTo(expected));
 
 			test = new double[] { 100, 95, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0 };
-			averagedSigmaClipping = ScanAverager.AveragedSigmaClipping(test, 1, 1);
+			averagedSigmaClipping = SpectrumAveragingTask.AveragedSigmaClipping(test, 1, 1);
 			expected = new double[] { 70, 60, 50, 40, 30, };
-			Assert.AreEqual(expected, averagedSigmaClipping);
+			Assert.That(averagedSigmaClipping, Is.EqualTo(expected));
 
-			averagedSigmaClipping = ScanAverager.AveragedSigmaClipping(test, 1.3, 1.3);
+			averagedSigmaClipping = SpectrumAveragingTask.AveragedSigmaClipping(test, 1.3, 1.3);
 			expected = new double[] { 80, 70, 60, 50, 40, 30, 20 };
-			Assert.AreEqual(expected, averagedSigmaClipping);
+			Assert.That(averagedSigmaClipping, Is.EqualTo(expected));
 
-			averagedSigmaClipping = ScanAverager.AveragedSigmaClipping(test, 1.5, 1.5);
+			averagedSigmaClipping = SpectrumAveragingTask.AveragedSigmaClipping(test, 1.5, 1.5);
 			expected = new double[] { 80, 70, 60, 50, 40, 30, 20 };
-			Assert.AreEqual(expected, averagedSigmaClipping);
+			Assert.That(averagedSigmaClipping, Is.EqualTo(expected));
 
 			#endregion
 
@@ -142,13 +143,13 @@ namespace Tests
         {
 			double[] values = new double[] { 10, 0 };
 			double[] weights = new double[] { 8, 2 };
-			double average = ScanAverager.CalculateAverage(values, weights);
-			Assert.AreEqual(8, average);
+			double average = SpectrumAveragingTask.CalculateAverage(values, weights);
+			Assert.That(average, Is.EqualTo(8));
 
 			values = new double[] { 10, 2, 0 };
 			weights = new double[] { 9, 1, 0 };
-			average = ScanAverager.CalculateAverage(values, weights);
-			Assert.AreEqual(9.200, Math.Round(average,4));
+			average = SpectrumAveragingTask.CalculateAverage(values, weights);
+			Assert.That(Math.Round(average,4), Is.EqualTo(9.200));
         }
 
 		[Test]
@@ -156,62 +157,62 @@ namespace Tests
         {
 			double[] test = new double[] { 10, 8, 6, 5, 4, 3, 2, 1 };
 			double[] weights = new double[test.Length];
-			ScanAverager.WeightByNormalDistribution(test, ref weights);
-			double weightedAverage = ScanAverager.CalculateAverage(test, weights);
-			Assert.AreEqual(4.5460 , Math.Round(weightedAverage,4));
+			SpectrumAveragingTask.WeightByNormalDistribution(test, ref weights);
+			double weightedAverage = SpectrumAveragingTask.CalculateAverage(test, weights);
+			Assert.That(Math.Round(weightedAverage,4), Is.EqualTo(4.5460));
 
 			weights = new double[test.Length];
-			ScanAverager.WeightByCauchyDistribution(test, ref weights);
-			weightedAverage = ScanAverager.CalculateAverage(test, weights);
-			Assert.AreEqual(4.6411, Math.Round(weightedAverage, 4));
+			SpectrumAveragingTask.WeightByCauchyDistribution(test, ref weights);
+			weightedAverage = SpectrumAveragingTask.CalculateAverage(test, weights);
+			Assert.That(Math.Round(weightedAverage, 4), Is.EqualTo(4.6411));
 
 			weights = new double[test.Length];
-			ScanAverager.WeightByPoissonDistribution(test, ref weights);
-			weightedAverage = ScanAverager.CalculateAverage(test, weights);
-			Assert.AreEqual(4.2679, Math.Round(weightedAverage, 4));
+			SpectrumAveragingTask.WeightByPoissonDistribution(test, ref weights);
+			weightedAverage = SpectrumAveragingTask.CalculateAverage(test, weights);
+			Assert.That(Math.Round(weightedAverage, 4), Is.EqualTo(4.2679));
 
 			weights = new double[test.Length];
-			ScanAverager.WeightByGammaDistribution(test, ref weights);
-			weightedAverage = ScanAverager.CalculateAverage(test, weights);
-			Assert.AreEqual(4.1638, Math.Round(weightedAverage, 4));
+			SpectrumAveragingTask.WeightByGammaDistribution(test, ref weights);
+			weightedAverage = SpectrumAveragingTask.CalculateAverage(test, weights);
+			Assert.That(Math.Round(weightedAverage, 4), Is.EqualTo(4.1638));
         }
 
 		[Test]
 		public static void TestSetValuesAndRejectOutliersSwitch()
         {
-			ScanAverager.ResetValues();
-			Assert.That(ScanAverager.RejectionType == RejectionType.NoRejection);
-			Assert.AreEqual(ScanAverager.Percentile, 0.9);
-			Assert.AreEqual(ScanAverager.MinSigmaValue, 1.3);
-			Assert.AreEqual(ScanAverager.MaxSigmaValue, 1.3);
+			SpectrumAveragingTask.ResetValues();
+			Assert.That(SpectrumAveragingTask.RejectionType == RejectionType.NoRejection);
+			Assert.That(0.9, Is.EqualTo(SpectrumAveragingTask.Percentile));
+			Assert.That(1.3, Is.EqualTo(SpectrumAveragingTask.MinSigmaValue));
+			Assert.That(1.3, Is.EqualTo(SpectrumAveragingTask.MaxSigmaValue));
 
-			ScanAverager.SetValues(RejectionType.MinMaxClipping, WeightingType.NoWeight, .8, 2, 4);
-			Assert.That(ScanAverager.RejectionType == RejectionType.MinMaxClipping);
-			Assert.AreEqual(ScanAverager.Percentile, 0.8);
-			Assert.AreEqual(ScanAverager.MinSigmaValue, 2);
-			Assert.AreEqual(ScanAverager.MaxSigmaValue, 4);
+			SpectrumAveragingTask.SetValues(RejectionType.MinMaxClipping, WeightingType.NoWeight, .8, 2, 4);
+			Assert.That(SpectrumAveragingTask.RejectionType == RejectionType.MinMaxClipping);
+			Assert.That(0.8, Is.EqualTo(SpectrumAveragingTask.Percentile));
+			Assert.That(2, Is.EqualTo(SpectrumAveragingTask.MinSigmaValue));
+			Assert.That(4, Is.EqualTo(SpectrumAveragingTask.MaxSigmaValue));
 
-			ScanAverager.ResetValues();
+			SpectrumAveragingTask.ResetValues();
 			double[] test = new double[] { 10, 8, 6, 5, 4, 2, 0 };
-			double[] output = ScanAverager.RejectOutliers(test);
+			double[] output = SpectrumAveragingTask.RejectOutliers(test);
 			double[] expected = new double[] { 10, 8, 6, 5, 4, 2, 0 };
-			Assert.AreEqual(expected, output);
+			Assert.That(output, Is.EqualTo(expected));
 
-			ScanAverager.SetValues(rejectionType: RejectionType.MinMaxClipping);
-			Assert.That(ScanAverager.RejectionType == RejectionType.MinMaxClipping);
-			output = ScanAverager.RejectOutliers(test);
+			SpectrumAveragingTask.SetValues(rejectionType: RejectionType.MinMaxClipping);
+			Assert.That(SpectrumAveragingTask.RejectionType == RejectionType.MinMaxClipping);
+			output = SpectrumAveragingTask.RejectOutliers(test);
 			expected = new double[] { 8, 6, 5, 4, 2 };
-			Assert.AreEqual(expected, output);
+			Assert.That(output, Is.EqualTo(expected));
 
-			ScanAverager.SetValues(rejectionType: RejectionType.PercentileClipping);
-			Assert.That(ScanAverager.RejectionType == RejectionType.PercentileClipping);
-			ScanAverager.SetValues(rejectionType: RejectionType.SigmaClipping);
-			Assert.That(ScanAverager.RejectionType == RejectionType.SigmaClipping);
-			ScanAverager.SetValues(rejectionType: RejectionType.WinsorizedSigmaClipping);
-			Assert.That(ScanAverager.RejectionType == RejectionType.WinsorizedSigmaClipping);
-			ScanAverager.SetValues(rejectionType: RejectionType.AveragedSigmaClipping);
-			Assert.That(ScanAverager.RejectionType == RejectionType.AveragedSigmaClipping);
-			ScanAverager.ResetValues();
+			SpectrumAveragingTask.SetValues(rejectionType: RejectionType.PercentileClipping);
+			Assert.That(SpectrumAveragingTask.RejectionType == RejectionType.PercentileClipping);
+			SpectrumAveragingTask.SetValues(rejectionType: RejectionType.SigmaClipping);
+			Assert.That(SpectrumAveragingTask.RejectionType == RejectionType.SigmaClipping);
+			SpectrumAveragingTask.SetValues(rejectionType: RejectionType.WinsorizedSigmaClipping);
+			Assert.That(SpectrumAveragingTask.RejectionType == RejectionType.WinsorizedSigmaClipping);
+			SpectrumAveragingTask.SetValues(rejectionType: RejectionType.AveragedSigmaClipping);
+			Assert.That(SpectrumAveragingTask.RejectionType == RejectionType.AveragedSigmaClipping);
+			SpectrumAveragingTask.ResetValues();
 		}
 
 	}

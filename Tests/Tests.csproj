@@ -22,4 +22,13 @@
     <ProjectReference Include="..\InstrumentControl\InstrumentControl.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="DataFiles\TDYeastFractionMMResult.psmtsv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="DataFiles\TDYeastFractionMS1.mzML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
