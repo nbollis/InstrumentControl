@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public class ChargeStateEnvelopeSelectorTask
+    public class ChargeStateEnvelopeSelectorTask : InstrumentControlTask
     {
+        public ChargeStateEnvelopeSelectorTask() : base(MyTask.ChargeStateEnvelope)
+        {
+        }
+
+        public override TaskResults RunSpecific()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

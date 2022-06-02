@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Tests
 {
-    public static class TestScanAverager
+    public static class TestSpectrumAveragingTask
     {
 
 		// TESTING IDEA: take scans, group them into five, send them through with different parametes
@@ -27,15 +27,27 @@ namespace Tests
 			string filepath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");
 			List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath);
 			List<MzSpectrum> spectra = scans.Select(p => p.MassSpectrum).ToList();
+			double[] totalIonCurrent = scans.Select(p => p.TotalIonCurrent).ToArray();
 			List<MzSpectrum> averagedSpectra = new List<MzSpectrum>();
+			int spectraToSend = 5;
+			double[][] xArrays = new double[spectraToSend][];
+			double[][] yArrays = new double[spectraToSend][];
+			double[] totalIonCurrents = new double[spectraToSend];
 
 			// average all scans in groups of five from the yeast fraction
-			for(int i = 0; i < scans.Count; i += 5)
+			for (int i = 0; i < scans.Count; i += spectraToSend)
             {
-				var fiveSpectra = spectra.GetRange(i, 5);
-				var taskResult = new SpectrumAveragingTask(fiveSpectra).Run();
+				for (int j = 0; j < spectraToSend; j++)
+                {
+					xArrays[j] = scans[i + j].MassSpectrum.XArray;
+					yArrays[j] = scans[i + j].MassSpectrum.YArray;
+				}
+				
+				var fiveTICs = totalIonCurrent[i .. (i + spectraToSend)];
+				var taskResult = new SpectrumAveragingTask(xArrays, yArrays, fiveTICs).Run();
 				averagedSpectra.Add(taskResult.CompositeSpectrum);
             }
+
 
 			string outputPath = @"C:\Users\Nic\Desktop\OuputFolder\InstrumentControl\TestingmzMLGeneration\testing.mzML";
 			//TEMPWriteCombinedScansAsmzML.SaveMergedScanAsMzml(averagedSpectra, outputPath);
@@ -143,12 +155,12 @@ namespace Tests
         {
 			double[] values = new double[] { 10, 0 };
 			double[] weights = new double[] { 8, 2 };
-			double average = SpectrumAveragingTask.CalculateAverage(values, weights);
+			double average = SpectrumAveragingTask.MergePeakValuesToAverage(values, weights);
 			Assert.That(average, Is.EqualTo(8));
 
 			values = new double[] { 10, 2, 0 };
 			weights = new double[] { 9, 1, 0 };
-			average = SpectrumAveragingTask.CalculateAverage(values, weights);
+			average = SpectrumAveragingTask.MergePeakValuesToAverage(values, weights);
 			Assert.That(Math.Round(average,4), Is.EqualTo(9.200));
         }
 
@@ -158,22 +170,22 @@ namespace Tests
 			double[] test = new double[] { 10, 8, 6, 5, 4, 3, 2, 1 };
 			double[] weights = new double[test.Length];
 			SpectrumAveragingTask.WeightByNormalDistribution(test, ref weights);
-			double weightedAverage = SpectrumAveragingTask.CalculateAverage(test, weights);
+			double weightedAverage = SpectrumAveragingTask.MergePeakValuesToAverage(test, weights);
 			Assert.That(Math.Round(weightedAverage,4), Is.EqualTo(4.5460));
 
 			weights = new double[test.Length];
 			SpectrumAveragingTask.WeightByCauchyDistribution(test, ref weights);
-			weightedAverage = SpectrumAveragingTask.CalculateAverage(test, weights);
+			weightedAverage = SpectrumAveragingTask.MergePeakValuesToAverage(test, weights);
 			Assert.That(Math.Round(weightedAverage, 4), Is.EqualTo(4.6411));
 
 			weights = new double[test.Length];
 			SpectrumAveragingTask.WeightByPoissonDistribution(test, ref weights);
-			weightedAverage = SpectrumAveragingTask.CalculateAverage(test, weights);
+			weightedAverage = SpectrumAveragingTask.MergePeakValuesToAverage(test, weights);
 			Assert.That(Math.Round(weightedAverage, 4), Is.EqualTo(4.2679));
 
 			weights = new double[test.Length];
 			SpectrumAveragingTask.WeightByGammaDistribution(test, ref weights);
-			weightedAverage = SpectrumAveragingTask.CalculateAverage(test, weights);
+			weightedAverage = SpectrumAveragingTask.MergePeakValuesToAverage(test, weights);
 			Assert.That(Math.Round(weightedAverage, 4), Is.EqualTo(4.1638));
         }
 

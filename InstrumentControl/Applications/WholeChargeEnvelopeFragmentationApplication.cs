@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MassSpectrometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,11 +10,7 @@ namespace InstrumentControl
 {
     public class WholeChargeEnvelopeFragmentationApplication : Application
     {
-        // receive scans
-        // pull metadata async(List<IMsScan> scans)
-        // average scans(List<MzSpectrum> scans.Select(p => p.MassSpectrum).ToList());
-        // get envelopes
-        // fragment envelopes
+        
 
 
         public WholeChargeEnvelopeFragmentationApplication() : base(MyApplication.WholeChargeStateEnvelopeFragmentation)
@@ -21,14 +18,37 @@ namespace InstrumentControl
 
         }
 
+        /// <summary>
+        /// Event that is fired when the ScanQueue reaches its threshold and this is the selected application
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e">Data contains a list of IMsScans to be processed</param>
+        /// <exception cref="NotImplementedException"></exception>
         public override void ProcessScans(object? sender, ThresholdReachedEventArgs e)
         {
+            // pull metadata async(List<IMsScan> scans)
+            TaskResults metaData;
+
+            // average scans
+            int scans = e.Data.Count;
+            MzSpectrum[] spectra = new MzSpectrum[scans];
+            double[][] xArrays = new double[scans][];
+            double[][] yArrays = new double[scans][];
+            double[] totalIonCurrents = new double[scans];
+            for (int i = 0; i < scans; i++)
+            {
+                xArrays[i] = e.Data[i].Centroids.Select(c => c.Mz).ToArray();
+                yArrays[i] = e.Data[i].Centroids.Select(c => c.Intensity).ToArray();
+                totalIonCurrents[i] = double.Parse(e.Data[i].Header["Total Ion Current"]); 
+            }
+            //TaskResults combinedSpectra = new SpectrumAveragingTask(spectra, totalIonCurrents).RunSpecific();
+            TaskResults combinedSpectra = new SpectrumAveragingTask(xArrays, yArrays, totalIonCurrents).RunSpecific();
+
+            // get envelopes
 
 
+            // fragment envelopes
 
-
-
-            throw new NotImplementedException();
         }
     }
 }

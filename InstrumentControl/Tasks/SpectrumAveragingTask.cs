@@ -22,8 +22,11 @@ namespace InstrumentControl
     {
         #region Public Properties
         // properties
-        public List<MzSpectrum> Spectra { get; set; }
-        public MzSpectrum CompositeSpectrum { get; set; }
+        public MzSpectrum[] Spectra { get; set; }
+        public double[][] XArrays { get; set; }
+        public double[][] YArrays { get; set; }
+        public double[] TotalIonCurrent { get; set; }
+        public MzSpectrum? CompositeSpectrum { get; set; }
 
         // settings
         public static RejectionType RejectionType { get; set; } = RejectionType.NoRejection;
@@ -38,10 +41,20 @@ namespace InstrumentControl
 
         #region Constructor
 
-        public SpectrumAveragingTask(List<MzSpectrum> spectra) : base(MyTask.SpectrumAveraging)
+        public SpectrumAveragingTask(MzSpectrum[] spectra, double[] totalIonCurrent) : base(MyTask.SpectrumAveraging)
         {
             Spectra = spectra;
+            TotalIonCurrent = totalIonCurrent;
         }
+
+        public SpectrumAveragingTask(double[][] xArrays, double[][] yArrays, double[] totalIonCurrent) : base(MyTask.SpectrumAveraging)
+        {
+            XArrays = xArrays;
+            YArrays = yArrays;
+            TotalIonCurrent = totalIonCurrent;
+        }
+
+
 
         #endregion
 
@@ -53,12 +66,21 @@ namespace InstrumentControl
         /// <returns></returns>
         public override TaskResults RunSpecific()
         {
-            // TODO: Normalize Intensities to TIC
+            // Normalize Intensities to TIC
+            double maxCurrent = TotalIonCurrent.Max();
+            for (int i = 0; i < TotalIonCurrent.Length; i++)
+            {
+                double current = TotalIonCurrent[i];
+                for (int j = 0; j < YArrays[i].Length; j++)
+                {
+                    YArrays[i][j] = YArrays[i][j] / TotalIonCurrent[i];
+                }
+            }
 
             // TODO: Allign Spectra
 
             // Average Spectrum
-            CompositeSpectrum = CombineSpectra(Spectra);
+            CompositeSpectrum = CombineSpectra(XArrays, YArrays, TotalIonCurrent.Length);
             TaskResults = new TaskResults(this);
             return TaskResults;
         }
@@ -72,7 +94,7 @@ namespace InstrumentControl
         {
             double[] trimmedArray = RejectOutliers(mzInitialArray);
             double[] weights = CalculateWeights(trimmedArray, WeightingType);
-            double average = CalculateAverage(trimmedArray, weights);
+            double average = MergePeakValuesToAverage(trimmedArray, weights);
 
             return average;
         }
@@ -83,7 +105,7 @@ namespace InstrumentControl
         /// <param name="mzValues">array of mz values to evaluate </param>
         /// <param name="weights">relative weight assigned to each of the mz values</param>
         /// <returns></returns>
-        public static double CalculateAverage(double[] mzValues, double[] weights)
+        public static double MergePeakValuesToAverage(double[] mzValues, double[] weights)
         {
             double numerator = 0;
             for (int i = 0; i < mzValues.Count(); i++)
@@ -446,18 +468,18 @@ namespace InstrumentControl
         /// Calls the specific merging function based upon the current static field SpecrimMergingType
         /// </summary>
         /// <param name="scans"></param>
-        public static MzSpectrum CombineSpectra(List<MzSpectrum> scans)
+        public static MzSpectrum CombineSpectra(double[][] xArrays, double[][] yArrays, int numSpectra)
         {
             MzSpectrum compositeSpectrum = null;
             switch (SpectrumMergingType)
             {
                 case SpectrumMergingType.SpectrumBinning:
-                    compositeSpectrum = SpectrumBinning(scans, BinSize);
+                    compositeSpectrum = SpectrumBinning(xArrays, yArrays, BinSize, numSpectra);
                     break;
 
                     
                 case SpectrumMergingType.MostSimilarSpectrum:
-                    MostSimilarSpectrum(scans);
+                    MostSimilarSpectrum();
                     break;
             }
             return compositeSpectrum;
@@ -468,36 +490,33 @@ namespace InstrumentControl
         /// </summary>
         /// <param name="scans">scans to be combined</param>
         /// <returns>MSDataScan with merged values</returns>
-        public static MzSpectrum SpectrumBinning(List<MzSpectrum> scans, double binSize)
+        public static MzSpectrum SpectrumBinning(double[][] xArrays, double[][] yArrays, double binSize, int numSpectra)
         {
             // calculate the bins to be utilizied
-            int scanCount = scans.Count();
             double min = 100000;
             double max = 0;
-            foreach (var scan in scans)
+            for (int i = 0; i < numSpectra; i++)
             {
-                min = Math.Min((double)scan.FirstX, min);
-                max = Math.Max((double)scan.LastX, max);
+                min = Math.Min(xArrays[i][0], min);
+                max = Math.Max(xArrays[i].Max(), max);
             }
             int numberOfBins = (int)Math.Ceiling((max - min) * (1 / binSize));
-
-            (double, double)[][] bins = new (double, double)[numberOfBins][];
 
             double[][] xValuesArray = new double[numberOfBins][];
             double[][] yValuesArray = new double[numberOfBins][];
             // go through each scan and place each (m/z, int) from the spectra into a jagged array
-            for (int i = 0; i < scans.Count(); i++)
+            for (int i = 0; i < numSpectra; i++)
             {
-                for (int j = 0; j < scans[i].XArray.Length; j++)
+                for (int j = 0; j < xArrays[i].Length; j++)
                 {
-                    int binIndex = (int)Math.Floor((scans[i].XArray[j] - min) / binSize);
+                    int binIndex = (int)Math.Floor((xArrays[i][j] - min) / binSize);
                     if (xValuesArray[binIndex] == null)
                     {
-                        xValuesArray[binIndex] = new double[scanCount];
-                        yValuesArray[binIndex] = new double[scanCount];
+                        xValuesArray[binIndex] = new double[numSpectra];
+                        yValuesArray[binIndex] = new double[numSpectra];
                     }
-                    xValuesArray[binIndex][i] = scans[i].XArray[j];
-                    yValuesArray[binIndex][i] = scans[i].YArray[j];
+                    xValuesArray[binIndex][i] = xArrays[i][j];
+                    yValuesArray[binIndex][i] = xArrays[i][j];
                 }
             }
 
@@ -508,7 +527,7 @@ namespace InstrumentControl
             RejectionType = RejectionType.BelowThresholdRejection;
             for (int i = 0; i < yValuesArray.Length; i++)
             {
-                yValuesArray[i] = RejectOutliers(yValuesArray[i], scanCount);
+                yValuesArray[i] = RejectOutliers(yValuesArray[i], numSpectra);
                 if (yValuesArray[i] == null)
                 {
                     xValuesArray[i] = null;
@@ -534,12 +553,11 @@ namespace InstrumentControl
 
             // Create new MsDataScan to return
             MzRange range = new(min, max);
-            MzSpectrum mergedSpectra = new(xArray, yArray, true);
+            MzSpectrum mergedSpectra = new(xArray, yArray, false);
 
             return mergedSpectra;
         }
-
-        public static MzSpectrum MostSimilarSpectrum(List<MzSpectrum> scans)
+        public static MzSpectrum MostSimilarSpectrum()
         {
             throw new NotImplementedException();
         }

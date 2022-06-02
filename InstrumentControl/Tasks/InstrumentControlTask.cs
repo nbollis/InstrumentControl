@@ -11,7 +11,7 @@ namespace InstrumentControl
         #region Properties
 
         protected MyTask TaskType { get; set; }
-        protected TaskResults TaskResults { get; set; }
+        protected TaskResults? TaskResults { get; set; }
 
         #endregion
 
