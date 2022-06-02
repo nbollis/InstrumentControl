@@ -71,7 +71,6 @@ namespace Tests
 		[Test]
 		public static void TestTimingOfProteoformProcessingEngine()
         {
-
 			Loaders.LoadElements();
 			int threads = 20;
 			string filepath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");

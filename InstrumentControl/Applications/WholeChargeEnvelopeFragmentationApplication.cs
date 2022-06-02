@@ -28,7 +28,7 @@ namespace InstrumentControl
         {
             // pull metadata async(List<IMsScan> scans)
             TaskResults metaData;
-
+            
             // average scans
             int scans = e.Data.Count;
             MzSpectrum[] spectra = new MzSpectrum[scans];
