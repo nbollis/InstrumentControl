@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UsefulProteomicsDatabases;
 
 namespace Tests
 {
@@ -70,6 +71,8 @@ namespace Tests
 		[Test]
 		public static void TestTimingOfProteoformProcessingEngine()
         {
+
+			Loaders.LoadElements();
 			int threads = 20;
 			string filepath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");
 			List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath);

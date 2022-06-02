@@ -68,15 +68,19 @@ namespace InstrumentControl
         {
             // Normalize Intensities to TIC
             double maxCurrent = TotalIonCurrent.Max();
+            var AverageIntensity = new double[TotalIonCurrent.Length];
+            var AverageIntensityAfter = new double[TotalIonCurrent.Length];
             for (int i = 0; i < TotalIonCurrent.Length; i++)
             {
                 double current = TotalIonCurrent[i];
+                AverageIntensity[i] = YArrays[i].Average();
                 for (int j = 0; j < YArrays[i].Length; j++)
                 {
-                    YArrays[i][j] = YArrays[i][j] / TotalIonCurrent[i];
+                    YArrays[i][j] = YArrays[i][j] / current * maxCurrent;
                 }
+                AverageIntensityAfter[i] = YArrays[i].Average();
             }
-
+            
             // TODO: Allign Spectra
 
             // Average Spectrum

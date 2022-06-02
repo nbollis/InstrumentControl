@@ -49,7 +49,7 @@ namespace Tests
             }
 
 
-			string outputPath = @"C:\Users\Nic\Desktop\OuputFolder\InstrumentControl\TestingmzMLGeneration\testing.mzML";
+			//string outputPath = @"C:\Users\Nic\Desktop\OuputFolder\InstrumentControl\TestingmzMLGeneration\testing.mzML";
 			//TEMPWriteCombinedScansAsmzML.SaveMergedScanAsMzml(averagedSpectra, outputPath);
 			//var reloadedScans = MS1DatabaseParser.LoadAllScansFromFile(outputPath);
 
