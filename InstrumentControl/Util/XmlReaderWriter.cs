@@ -9,12 +9,9 @@ using System.Xml.Serialization;
 
 namespace TheKitchen
 {
-    public class XmlReaderWriter
+    public static class XmlReaderWriter
     {
         public static object SaveFileDialog { get; private set; }
-
-
-
 
         /// <summary>
         /// Writes the given object instance to an XML file.

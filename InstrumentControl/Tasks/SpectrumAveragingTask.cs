@@ -81,7 +81,7 @@ namespace InstrumentControl
                 AverageIntensityAfter[i] = YArrays[i].Average();
             }
             
-            // TODO: Allign Spectra
+            // TODO: Allign Spectra - Possibly use the ScanLowMass and ScanHighMass numbers from the header of the IMsScan
 
             // Average Spectrum
             CompositeSpectrum = CombineSpectra(XArrays, YArrays, TotalIonCurrent.Length);
