@@ -31,7 +31,7 @@
 			<Private>true</Private>
 		</Reference>
 		<Reference Include="ESAPI-1.0">
-			<HintPath>..\..\mzLibAustinInstrumentCongrol\InstrumentControl\ThermoIAPIDependencies\lib\exactive\ESAPI-1.0.dll</HintPath>
+			<HintPath>ThermoIAPIDependencies\lib\exactive\ESAPI-1.0.dll</HintPath>
 			<Private>true</Private>
 		</Reference>
 		<Reference Include="ESAPI-1.1">

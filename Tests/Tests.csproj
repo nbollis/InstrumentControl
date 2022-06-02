@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\AustinInstrumentalControl\IMSScanClassExtensions\IMSScanClassExtensions.csproj" />
+    <ProjectReference Include="..\IMSScanClassExtensions\IMSScanClassExtensions.csproj" />
     <ProjectReference Include="..\InstrumentControl\InstrumentControl.csproj" />
   </ItemGroup>
 
