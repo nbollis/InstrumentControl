@@ -41,13 +41,13 @@ namespace InstrumentControl
 
         #region Constructor
 
-        public SpectrumAveragingTask(MzSpectrum[] spectra, double[] totalIonCurrent) : base(MyTask.SpectrumAveraging)
+        public SpectrumAveragingTask(MzSpectrum[] spectra, double[] totalIonCurrent) : base(TaskType.SpectrumAveraging)
         {
             Spectra = spectra;
             TotalIonCurrent = totalIonCurrent;
         }
 
-        public SpectrumAveragingTask(double[][] xArrays, double[][] yArrays, double[] totalIonCurrent) : base(MyTask.SpectrumAveraging)
+        public SpectrumAveragingTask(double[][] xArrays, double[][] yArrays, double[] totalIonCurrent) : base(TaskType.SpectrumAveraging)
         {
             XArrays = xArrays;
             YArrays = yArrays;
@@ -85,7 +85,7 @@ namespace InstrumentControl
 
             // Average Spectrum
             CompositeSpectrum = CombineSpectra(XArrays, YArrays, TotalIonCurrent.Length);
-            TaskResults = new TaskResults(this);
+            //TaskResults = new TaskResults(this);
             return TaskResults;
         }
 

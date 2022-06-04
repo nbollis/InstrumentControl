@@ -8,7 +8,7 @@ namespace InstrumentControl
 {
     public class ChargeStateEnvelopeSelectorTask : InstrumentControlTask
     {
-        public ChargeStateEnvelopeSelectorTask() : base(MyTask.ChargeStateEnvelope)
+        public ChargeStateEnvelopeSelectorTask() : base(TaskType.ChargeStateEnvelope)
         {
         }
 

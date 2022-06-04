@@ -41,6 +41,15 @@ namespace InstrumentControl
                 yArrays[i] = e.Data[i].Centroids.Select(c => c.Intensity).ToArray();
                 totalIonCurrents[i] = double.Parse(e.Data[i].Header["Total Ion Current"]); 
             }
+            NormalizationTask normalization = new NormalizationTask(TaskType.Normalization);
+            normalization.XArrays = xArrays;
+            normalization.YArrays = yArrays;
+            normalization.TotalIonCurrent = totalIonCurrents;
+            ISpectraManipulator normResult = (ISpectraManipulator)normalization.RunSpecific();
+            AlignmentTask alignment = new AlignmentTask(TaskType.Alignment, normResult);
+            ISpectraManipulator alignmentResult = (ISpectraManipulator)alignment.RunSpecific();
+
+
             //TaskResults combinedSpectra = new SpectrumAveragingTask(spectra, totalIonCurrents).RunSpecific();
             TaskResults combinedSpectra = new SpectrumAveragingTask(xArrays, yArrays, totalIonCurrents).RunSpecific();
 

@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public enum MyTask
+    public enum TaskType
     {
+        Normalization,
+        Alignment,
         SpectrumAveraging,
         ChargeStateEnvelope,
         BoxcarFragger

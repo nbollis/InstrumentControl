@@ -8,7 +8,7 @@ namespace InstrumentControl
 {
     public class PullMetaDataTask : InstrumentControlTask
     {
-        public PullMetaDataTask(MyTask taskType) : base(taskType)
+        public PullMetaDataTask(TaskType taskType) : base(taskType)
         {
         }
 

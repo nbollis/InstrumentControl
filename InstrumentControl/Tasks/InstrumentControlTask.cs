@@ -8,14 +8,11 @@ namespace InstrumentControl
 {
     public abstract class InstrumentControlTask 
     {
-        #region Properties
 
-        protected MyTask TaskType { get; set; }
+        protected TaskType TaskType { get; set; }
         protected TaskResults? TaskResults { get; set; }
 
-        #endregion
-
-        public InstrumentControlTask(MyTask taskType)
+        public InstrumentControlTask(TaskType taskType)
         {
             TaskType = taskType;
         }
