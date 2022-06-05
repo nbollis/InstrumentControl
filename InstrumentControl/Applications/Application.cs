@@ -9,11 +9,8 @@ namespace InstrumentControl
 {
     public abstract class Application
     {
-        #region Properties
 
         protected MyApplication ApplicationType { get; set; }
-
-        #endregion
 
 
         public Application(MyApplication applicationType)
@@ -22,5 +19,6 @@ namespace InstrumentControl
         }
 
         public abstract void ProcessScans(object? sender, ThresholdReachedEventArgs e);
+
     }
 }

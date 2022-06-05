@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public interface ISpectraManipulator
+    public interface ISpectraData
     {
         public double[][] XArrays { get; set; }
         public double[][] YArrays { get; set; }
         public double[] TotalIonCurrent { get; set; }
         
+
     }
 }

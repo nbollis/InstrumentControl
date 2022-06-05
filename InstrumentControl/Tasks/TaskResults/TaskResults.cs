@@ -1,4 +1,6 @@
-﻿using MassSpectrometry;
+﻿using InstrumentControl.Tasks;
+using InstrumentControl.Tasks.ScanProducerTasks;
+using MassSpectrometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,9 +14,11 @@ namespace InstrumentControl
     /// </summary>
     public abstract class TaskResults
     {
-        public TaskResults(InstrumentControlTask task)
+        
+
+        public TaskResults()
         {
-            
+
         }
     }
 }

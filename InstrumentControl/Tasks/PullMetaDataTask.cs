@@ -1,4 +1,6 @@
-﻿using System;
+﻿using InstrumentControl.Tasks;
+using InstrumentControl.Tasks.ScanProducerTasks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +14,7 @@ namespace InstrumentControl
         {
         }
 
-        public override TaskResults RunSpecific()
+        public override void RunSpecific()
         {
             throw new NotImplementedException();
         }

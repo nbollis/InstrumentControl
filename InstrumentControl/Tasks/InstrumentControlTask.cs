@@ -6,24 +6,22 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public abstract class InstrumentControlTask 
+    public abstract class InstrumentControlTask
     {
 
         protected TaskType TaskType { get; set; }
-        protected TaskResults? TaskResults { get; set; }
 
         public InstrumentControlTask(TaskType taskType)
         {
             TaskType = taskType;
         }
 
-        public TaskResults Run()
+        public void Run()
         {
-            var myTaskResult = RunSpecific();
-            return myTaskResult;
+            RunSpecific();
         }
 
-        public abstract TaskResults RunSpecific();
+        public abstract void RunSpecific();
 
     }
 }

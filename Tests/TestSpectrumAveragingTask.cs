@@ -44,8 +44,8 @@ namespace Tests
 				}
 				
 				var fiveTICs = totalIonCurrent[i .. (i + spectraToSend)];
-				var taskResult = new SpectrumAveragingTask(xArrays, yArrays, fiveTICs).Run();
-				averagedSpectra.Add(taskResult.CompositeSpectrum);
+				//var taskResult = new SpectrumAveragingTask(xArrays, yArrays, fiveTICs).Run();
+		
             }
 
 

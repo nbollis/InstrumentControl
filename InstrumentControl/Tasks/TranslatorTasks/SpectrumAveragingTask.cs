@@ -1,4 +1,5 @@
-﻿using MassSpectrometry;
+﻿using InstrumentControl.Tasks.ScanProducerTasks;
+using MassSpectrometry;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.Statistics;
 using MzLibUtil;
@@ -64,7 +65,7 @@ namespace InstrumentControl
         /// Performs the main operations of this task
         /// </summary>
         /// <returns></returns>
-        public override TaskResults RunSpecific()
+        public override void RunSpecific()
         {
             // Normalize Intensities to TIC
             double maxCurrent = TotalIonCurrent.Max();
@@ -80,13 +81,12 @@ namespace InstrumentControl
                 }
                 AverageIntensityAfter[i] = YArrays[i].Average();
             }
-            
+
             // TODO: Allign Spectra - Possibly use the ScanLowMass and ScanHighMass numbers from the header of the IMsScan
 
             // Average Spectrum
             CompositeSpectrum = CombineSpectra(XArrays, YArrays, TotalIonCurrent.Length);
-            //TaskResults = new TaskResults(this);
-            return TaskResults;
+            
         }
 
         /// <summary>
@@ -481,7 +481,7 @@ namespace InstrumentControl
                     compositeSpectrum = SpectrumBinning(xArrays, yArrays, BinSize, numSpectra);
                     break;
 
-                    
+
                 case SpectrumMergingType.MostSimilarSpectrum:
                     MostSimilarSpectrum();
                     break;

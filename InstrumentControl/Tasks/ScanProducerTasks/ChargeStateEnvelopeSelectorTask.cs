@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InstrumentControl
+namespace InstrumentControl.Tasks.ScanProducerTasks
 {
     public class ChargeStateEnvelopeSelectorTask : InstrumentControlTask
     {
@@ -12,7 +12,7 @@ namespace InstrumentControl
         {
         }
 
-        public override TaskResults RunSpecific()
+        public override void RunSpecific()
         {
             throw new NotImplementedException();
         }
