@@ -7,24 +7,16 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public class PreProcessingData 
+    public interface ISpectraProcesor
     {
-        public int ScansToProcess { get; set; }
-        public double MinX { get; set; }
-        public double MaxX { get; set; }
-        public double[][] XArrays { get; set; }
-        public double[][] YArrays { get; set; }
-        public double[] TotalIonCurrent { get; set; }
-        
-        public void SetData(double[][] xarr, double[][] yarr, double[] tic)
-        {
-            XArrays = xarr;
-            YArrays = yarr;
-            TotalIonCurrent = tic;
-            ScansToProcess = xarr.Count();
-        }
+        protected static int ScansToProcess { get; set; }
+        protected static double MinX { get; set; }
+        protected static double MaxX { get; set; }
+        protected static double[][] XArrays { get; set; }
+        protected static double[][] YArrays { get; set; }
+        protected static double[] TotalIonCurrent { get; set; }
 
-        public void SetData(List<MsDataScan> scans)
+        public static void SetData(List<MsDataScan> scans)
         {
             ScansToProcess = scans.Count;
             XArrays = scans.Select(p => p.MassSpectrum.XArray).ToArray();
@@ -34,6 +26,14 @@ namespace InstrumentControl
             double? max = scans.Select(p => p.MassSpectrum.LastX).Average();
             MinX = min ??= 200;
             MaxX = max ??= 2000;
+        }
+
+        public static void SetData(double[][] xarr, double[][] yarr, double[] tic)
+        {
+            XArrays = xarr;
+            YArrays = yarr;
+            TotalIonCurrent = tic;
+            ScansToProcess = xarr.Count();
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using InstrumentControl.Tasks.DataHandlerTasks;
-using MassSpectrometry;
+﻿using MassSpectrometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,24 +11,24 @@ namespace InstrumentControl
     public class WholeChargeEnvelopeFragmentationApplication : Application
     {
         
-        public Queue<PreProcessingTask> DataHandlerTasks = new Queue<PreProcessingTask>();
-        public PreProcessingData DataHandlerTaskResults { get; set; }
-        public AveragingTask AveragingTask { get; set; }
+        public override Queue<InstrumentControlTask> TaskQueue { get; set; } = new Queue<InstrumentControlTask>();
+        public override List<InstrumentControlTask> TaskList { get; set; } = new List<InstrumentControlTask>();
+
+        public InstrumentControlTask AveragingTask { get; set; }
 
         public WholeChargeEnvelopeFragmentationApplication() : base(MyApplication.WholeChargeStateEnvelopeFragmentation)
         {
-            // set data preprocessing tasks
-            PreProcessingData results = new();
-            DataHandlerTasks.Enqueue(new NormalizationTask(TaskType.Normalization, ref results));
-            DataHandlerTasks.Enqueue(new StandardizationTask(TaskType.Standardization, ref results));
+            // set spectra preprocessing tasks
+            TaskList.Add(new NormalizationTask(TaskType.Normalization));
+            TaskList.Add(new StandardizationTask(TaskType.Standardization));
 
-            // set data averaging tasks
-            AveragingTask = new SpectrumAveragingTask(TaskType.SpectrumAveraging, ref results);
+            // set spectra averaging tasks
+            AveragingTask = new SpectrumAveragingTask(TaskType.SpectrumAveraging);
+            TaskList.Add(AveragingTask);
 
             // set scan returning tasks
 
-            // save reference as instance data so it doesnt get garbage collected
-            DataHandlerTaskResults = results;
+            EnqueueSelectTasks();
         }
 
         /// <summary>
@@ -40,7 +39,6 @@ namespace InstrumentControl
         /// <exception cref="NotImplementedException"></exception>
         public override void ProcessScans(object? sender, ThresholdReachedEventArgs e)
         {
-
             // TODO: pull metadata async(List<IMsScan> scans)
             
             // pull out relevant scan data
@@ -56,21 +54,22 @@ namespace InstrumentControl
             }
 
             // perform data handling tasks
-            DataHandlerTaskResults.SetData(xArrays, yArrays, totalIonCurrents);
-            while (DataHandlerTasks.Count > 0)
+            ISpectraProcesor.SetData(xArrays, yArrays, totalIonCurrents);
+            while (TaskQueue.Count > 0)
             {
-                DataHandlerTasks.Dequeue().Run();
+                TaskQueue.Dequeue().Run();
             }
 
-            // perform translator task
-            AveragingTask.Run();
-            MzSpectrum compositeSpectra = AveragingTask.CompositeSpectrum;
+            MzSpectrum compositeSpectra = ISpectraAverager.CompositeSpectrum;
 
             // perform scan creation tasks
 
             // get envelopes
 
             // fragment envelopes
+
+            // reset scans for next run
+            EnqueueSelectTasks();
         }
 
 
@@ -89,14 +88,14 @@ namespace InstrumentControl
             }
 
             // perform data handling tasks
-            DataHandlerTaskResults.SetData(xArrays, yArrays, totalIonCurrents);
-            while (DataHandlerTasks.Count > 0)
+            ISpectraProcesor.SetData(xArrays, yArrays, totalIonCurrents);
+            while (TaskQueue.Count > 0)
             {
-                DataHandlerTasks.Dequeue().Run();
+                TaskQueue.Dequeue().Run();
             }
 
-            AveragingTask.Run();
-            MzSpectrum compositeSpectra = AveragingTask.CompositeSpectrum;
+
+            MzSpectrum compositeSpectra = ISpectraAverager.CompositeSpectrum;
         }
     }
 }

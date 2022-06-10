@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public class BoxcarFraggerTask : InstrumentControlTask
+    public class ChargeStateEnvelopeSelectorTask : InstrumentControlTask
     {
-        public BoxcarFraggerTask(TaskType taskType) : base(TaskType.BoxcarFragger)
+        public ChargeStateEnvelopeSelectorTask() : base(TaskType.ChargeStateEnvelope)
         {
         }
 

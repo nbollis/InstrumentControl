@@ -6,6 +6,7 @@ using MassSpectrometry;
 using InstrumentControl;
 using UsefulProteomicsDatabases;
 using MzLibUtil;
+using InstrumentControl.Tasks;
 
 namespace Tests
 {
@@ -16,12 +17,12 @@ namespace Tests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            PreProcessingData result = new PreProcessingData();
+
             string filepath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");
             List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath);
 
-            result.SetData(scans.Where(p => p.MsnOrder == 1).ToList().GetRange(10, 5));
-            StandardizationTask = new StandardizationTask(TaskType.Standardization, ref result);
+            ISpectraProcesor.SetData(scans.Where(p => p.MsnOrder == 1).ToList().GetRange(10, 5));
+            StandardizationTask = new StandardizationTask(TaskType.Standardization);
         }
 
         [Test]

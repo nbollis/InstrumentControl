@@ -7,23 +7,23 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public class StandardizationTask : PreProcessingTask
+    public class StandardizationTask : InstrumentControlTask, ISpectraProcesor
     {
-    
-        public StandardizationTask(TaskType taskType, ref PreProcessingData spectraData) : base(taskType, ref spectraData)
+
+        public StandardizationTask(TaskType taskType) : base(taskType)
         {
         }
 
-        public override PreProcessingData SpectraData { get; set; }
+        //public override PreProcessingData SpectraData { get; set; }
 
         public override void RunSpecific()
         {
-            for (int i = 0; i < SpectraData.ScansToProcess; i++)
+            for (int i = 0; i < ISpectraProcesor.ScansToProcess; i++)
             {
-                double[] yarrayNew = new double[SpectraData.YArrays[i].Length];
-                double[] xarrayNew = CreateStandardMZAxis((SpectraData.MinX, SpectraData.MaxX), 0.001);
-                ResampleDataAndInterpolate(SpectraData.YArrays[i], ref yarrayNew);
-                SpectraData.YArrays[i] = yarrayNew;
+                double[] yarrayNew = new double[ISpectraProcesor.YArrays[i].Length];
+                double[] xarrayNew = CreateStandardMZAxis((ISpectraProcesor.MinX, ISpectraProcesor.MaxX), 0.001);
+                ResampleDataAndInterpolate(ISpectraProcesor.YArrays[i], ref yarrayNew);
+                ISpectraProcesor.YArrays[i] = yarrayNew;
             }
         }
         public static double[] CreateStandardMZAxis((double, double) range, double massAccuracy)
@@ -38,7 +38,7 @@ namespace InstrumentControl
             // this is faster than the equivalent Linq method
             for (int i = 0; i < numberOfMzElements; i++)
             {
-                standardMzAxis[i] = lowValue + (i * massAccuracy);
+                standardMzAxis[i] = lowValue + i * massAccuracy;
             }
             return standardMzAxis;
         }
@@ -71,7 +71,7 @@ namespace InstrumentControl
             double valueLength = valueTo - valueFrom;
             for (int i = 0; i < destLength; i++)
             {
-                dest[destFrom + i] = valueFrom + (valueLength * i) / destLength;
+                dest[destFrom + i] = valueFrom + valueLength * i / destLength;
             }
         }
 

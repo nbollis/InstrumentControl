@@ -1,5 +1,4 @@
-﻿using InstrumentControl.Tasks.ScanProducerTasks;
-using MassSpectrometry;
+﻿using MassSpectrometry;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.Statistics;
 using MzLibUtil;
@@ -19,16 +18,9 @@ namespace InstrumentControl
     /// <summary>
     /// Class which takes input of n scans and averages them based upon the parameters set
     /// </summary>
-    public class SpectrumAveragingTask : AveragingTask
+    public class SpectrumAveragingTask : InstrumentControlTask, ISpectraAverager
     {
         #region Public Properties
-        // properties
-        public MzSpectrum[] Spectra { get; set; }
-        public double[][] XArrays { get; set; }
-        public double[][] YArrays { get; set; }
-        public double[] TotalIonCurrent { get; set; }
-        public override MzSpectrum? CompositeSpectrum { get; set; }
-        public override PreProcessingData SpectraData { get; set; }
 
         // settings
         public static RejectionType RejectionType { get; set; } = RejectionType.NoRejection;
@@ -43,9 +35,9 @@ namespace InstrumentControl
 
         #region Constructor
 
-        public SpectrumAveragingTask(TaskType taskType, ref PreProcessingData spectraData) : base(taskType, ref  spectraData)
+        public SpectrumAveragingTask(TaskType taskType) : base(taskType)
         {
-            SpectraData = spectraData;
+
         }
 
         #endregion
@@ -59,7 +51,7 @@ namespace InstrumentControl
         public override void RunSpecific()
         {
             // Average Spectrum
-            CompositeSpectrum = CombineSpectra(SpectraData.XArrays, SpectraData.YArrays, SpectraData.ScansToProcess);
+            ISpectraAverager.CompositeSpectrum = CombineSpectra(ISpectraProcesor.XArrays, ISpectraProcesor.YArrays, ISpectraProcesor.ScansToProcess);
         }
 
         /// <summary>
