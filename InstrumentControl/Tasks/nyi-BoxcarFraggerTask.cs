@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InstrumentControl
+namespace InstrumentControl.Tasks
 {
-    public class PullMetaDataTask : InstrumentControlTask
+    public class BoxcarFraggerTask : InstrumentControlTask
     {
-        public PullMetaDataTask(MyTask taskType) : base(taskType)
+        public BoxcarFraggerTask(TaskType taskType) : base(TaskType.BoxcarFragger)
         {
         }
 
-        public override TaskResults RunSpecific()
+        public override void RunSpecific()
         {
             throw new NotImplementedException();
         }

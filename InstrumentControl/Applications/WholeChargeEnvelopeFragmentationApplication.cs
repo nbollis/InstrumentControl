@@ -11,11 +11,24 @@ namespace InstrumentControl
     public class WholeChargeEnvelopeFragmentationApplication : Application
     {
         
+        public override Queue<InstrumentControlTask> TaskQueue { get; set; } = new Queue<InstrumentControlTask>();
+        public override List<InstrumentControlTask> TaskList { get; set; } = new List<InstrumentControlTask>();
 
+        public InstrumentControlTask AveragingTask { get; set; }
 
         public WholeChargeEnvelopeFragmentationApplication() : base(MyApplication.WholeChargeStateEnvelopeFragmentation)
         {
+            // set spectra preprocessing tasks
+            TaskList.Add(new NormalizationTask(TaskType.Normalization));
+            TaskList.Add(new StandardizationTask(TaskType.Standardization));
 
+            // set spectra averaging tasks
+            AveragingTask = new SpectrumAveragingTask(TaskType.SpectrumAveraging);
+            TaskList.Add(AveragingTask);
+
+            // set scan returning tasks
+
+            EnqueueSelectTasks();
         }
 
         /// <summary>
@@ -26,12 +39,10 @@ namespace InstrumentControl
         /// <exception cref="NotImplementedException"></exception>
         public override void ProcessScans(object? sender, ThresholdReachedEventArgs e)
         {
-            // pull metadata async(List<IMsScan> scans)
-            TaskResults metaData;
+            // TODO: pull metadata async(List<IMsScan> scans)
             
-            // average scans
+            // pull out relevant scan data
             int scans = e.Data.Count;
-            MzSpectrum[] spectra = new MzSpectrum[scans];
             double[][] xArrays = new double[scans][];
             double[][] yArrays = new double[scans][];
             double[] totalIonCurrents = new double[scans];
@@ -41,14 +52,50 @@ namespace InstrumentControl
                 yArrays[i] = e.Data[i].Centroids.Select(c => c.Intensity).ToArray();
                 totalIonCurrents[i] = double.Parse(e.Data[i].Header["Total Ion Current"]); 
             }
-            //TaskResults combinedSpectra = new SpectrumAveragingTask(spectra, totalIonCurrents).RunSpecific();
-            TaskResults combinedSpectra = new SpectrumAveragingTask(xArrays, yArrays, totalIonCurrents).RunSpecific();
+
+            // perform data handling tasks
+            ISpectraProcesor.SetData(xArrays, yArrays, totalIonCurrents);
+            while (TaskQueue.Count > 0)
+            {
+                TaskQueue.Dequeue().Run();
+            }
+
+            MzSpectrum compositeSpectra = ISpectraAverager.CompositeSpectrum;
+
+            // perform scan creation tasks
 
             // get envelopes
 
-
             // fragment envelopes
 
+            // reset scans for next run
+            EnqueueSelectTasks();
+        }
+
+
+        public void TestItOut(List<MzSpectrum> spectra, double[] tic)
+        {
+            // pull out relevant scan data
+            int scans = spectra.Count;
+            double[][] xArrays = new double[scans][];
+            double[][] yArrays = new double[scans][];
+            double[] totalIonCurrents = new double[scans];
+            for (int i = 0; i < scans; i++)
+            {
+                xArrays[i] = spectra[i].XArray;
+                yArrays[i] = spectra[i].YArray;
+                totalIonCurrents[i] = tic[i];
+            }
+
+            // perform data handling tasks
+            ISpectraProcesor.SetData(xArrays, yArrays, totalIonCurrents);
+            while (TaskQueue.Count > 0)
+            {
+                TaskQueue.Dequeue().Run();
+            }
+
+
+            MzSpectrum compositeSpectra = ISpectraAverager.CompositeSpectrum;
         }
     }
 }

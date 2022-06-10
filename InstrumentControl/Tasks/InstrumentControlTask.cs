@@ -1,32 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public abstract class InstrumentControlTask 
+    public abstract class InstrumentControlTask
     {
-        #region Properties
 
-        protected MyTask TaskType { get; set; }
-        protected TaskResults? TaskResults { get; set; }
+        protected TaskType TaskType { get; set; }
 
-        #endregion
-
-        public InstrumentControlTask(MyTask taskType)
+        public InstrumentControlTask(TaskType taskType)
         {
             TaskType = taskType;
         }
 
-        public TaskResults Run()
+        public void Run()
         {
-            var myTaskResult = RunSpecific();
-            return myTaskResult;
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            RunSpecific();
+            watch.Stop();
+            Console.WriteLine("Executed {0} Task in {1} ms", TaskType, watch.ElapsedMilliseconds);
         }
 
-        public abstract TaskResults RunSpecific();
+        public abstract void RunSpecific();
 
     }
 }

@@ -18,15 +18,9 @@ namespace InstrumentControl
     /// <summary>
     /// Class which takes input of n scans and averages them based upon the parameters set
     /// </summary>
-    public class SpectrumAveragingTask : InstrumentControlTask
+    public class SpectrumAveragingTask : InstrumentControlTask, ISpectraAverager
     {
         #region Public Properties
-        // properties
-        public MzSpectrum[] Spectra { get; set; }
-        public double[][] XArrays { get; set; }
-        public double[][] YArrays { get; set; }
-        public double[] TotalIonCurrent { get; set; }
-        public MzSpectrum? CompositeSpectrum { get; set; }
 
         // settings
         public static RejectionType RejectionType { get; set; } = RejectionType.NoRejection;
@@ -41,20 +35,10 @@ namespace InstrumentControl
 
         #region Constructor
 
-        public SpectrumAveragingTask(MzSpectrum[] spectra, double[] totalIonCurrent) : base(MyTask.SpectrumAveraging)
+        public SpectrumAveragingTask(TaskType taskType) : base(taskType)
         {
-            Spectra = spectra;
-            TotalIonCurrent = totalIonCurrent;
+
         }
-
-        public SpectrumAveragingTask(double[][] xArrays, double[][] yArrays, double[] totalIonCurrent) : base(MyTask.SpectrumAveraging)
-        {
-            XArrays = xArrays;
-            YArrays = yArrays;
-            TotalIonCurrent = totalIonCurrent;
-        }
-
-
 
         #endregion
 
@@ -64,29 +48,10 @@ namespace InstrumentControl
         /// Performs the main operations of this task
         /// </summary>
         /// <returns></returns>
-        public override TaskResults RunSpecific()
+        public override void RunSpecific()
         {
-            // Normalize Intensities to TIC
-            double maxCurrent = TotalIonCurrent.Max();
-            var AverageIntensity = new double[TotalIonCurrent.Length];
-            var AverageIntensityAfter = new double[TotalIonCurrent.Length];
-            for (int i = 0; i < TotalIonCurrent.Length; i++)
-            {
-                double current = TotalIonCurrent[i];
-                AverageIntensity[i] = YArrays[i].Average();
-                for (int j = 0; j < YArrays[i].Length; j++)
-                {
-                    YArrays[i][j] = YArrays[i][j] / current * maxCurrent;
-                }
-                AverageIntensityAfter[i] = YArrays[i].Average();
-            }
-            
-            // TODO: Allign Spectra - Possibly use the ScanLowMass and ScanHighMass numbers from the header of the IMsScan
-
             // Average Spectrum
-            CompositeSpectrum = CombineSpectra(XArrays, YArrays, TotalIonCurrent.Length);
-            TaskResults = new TaskResults(this);
-            return TaskResults;
+            ISpectraAverager.CompositeSpectrum = CombineSpectra(ISpectraProcesor.XArrays, ISpectraProcesor.YArrays, ISpectraProcesor.ScansToProcess);
         }
 
         /// <summary>
@@ -481,7 +446,7 @@ namespace InstrumentControl
                     compositeSpectrum = SpectrumBinning(xArrays, yArrays, BinSize, numSpectra);
                     break;
 
-                    
+
                 case SpectrumMergingType.MostSimilarSpectrum:
                     MostSimilarSpectrum();
                     break;
