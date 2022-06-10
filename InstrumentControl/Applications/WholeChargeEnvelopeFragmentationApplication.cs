@@ -12,14 +12,23 @@ namespace InstrumentControl
     public class WholeChargeEnvelopeFragmentationApplication : Application
     {
         
-        public Queue<DataHandlerTask> DataHandlerTasks = new Queue<DataHandlerTask>();
-        public DataHandlerTaskResult DataHandlerTaskResults { get; set; }
+        public Queue<PreProcessingTask> DataHandlerTasks = new Queue<PreProcessingTask>();
+        public PreProcessingData DataHandlerTaskResults { get; set; }
+        public AveragingTask AveragingTask { get; set; }
 
         public WholeChargeEnvelopeFragmentationApplication() : base(MyApplication.WholeChargeStateEnvelopeFragmentation)
         {
-            DataHandlerTaskResult results = new();
+            // set data preprocessing tasks
+            PreProcessingData results = new();
             DataHandlerTasks.Enqueue(new NormalizationTask(TaskType.Normalization, ref results));
-            DataHandlerTasks.Enqueue(new AlignmentTask(TaskType.Normalization, ref results));
+            DataHandlerTasks.Enqueue(new StandardizationTask(TaskType.Standardization, ref results));
+
+            // set data averaging tasks
+            AveragingTask = new SpectrumAveragingTask(TaskType.SpectrumAveraging, ref results);
+
+            // set scan returning tasks
+
+            // save reference as instance data so it doesnt get garbage collected
             DataHandlerTaskResults = results;
         }
 
@@ -32,8 +41,7 @@ namespace InstrumentControl
         public override void ProcessScans(object? sender, ThresholdReachedEventArgs e)
         {
 
-            // pull metadata async(List<IMsScan> scans)
-            TaskResults metaData;
+            // TODO: pull metadata async(List<IMsScan> scans)
             
             // pull out relevant scan data
             int scans = e.Data.Count;
@@ -53,13 +61,12 @@ namespace InstrumentControl
             {
                 DataHandlerTasks.Dequeue().Run();
             }
-            
+
             // perform translator task
+            AveragingTask.Run();
+            MzSpectrum compositeSpectra = AveragingTask.CompositeSpectrum;
 
             // perform scan creation tasks
-
-            //TaskResults combinedSpectra = new SpectrumAveragingTask(spectra, totalIonCurrents).RunSpecific();
-            //TaskResults combinedSpectra = new SpectrumAveragingTask(xArrays, yArrays, totalIonCurrents).RunSpecific();
 
             // get envelopes
 
@@ -87,6 +94,9 @@ namespace InstrumentControl
             {
                 DataHandlerTasks.Dequeue().Run();
             }
+
+            AveragingTask.Run();
+            MzSpectrum compositeSpectra = AveragingTask.CompositeSpectrum;
         }
     }
 }

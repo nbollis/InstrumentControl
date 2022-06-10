@@ -9,7 +9,7 @@ namespace InstrumentControl
     public enum TaskType
     {
         Normalization,
-        Alignment,
+        Standardization,
         SpectrumAveraging,
         ChargeStateEnvelope,
         BoxcarFragger

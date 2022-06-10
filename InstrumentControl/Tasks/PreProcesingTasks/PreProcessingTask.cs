@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public abstract class DataHandlerTask : InstrumentControlTask
+    public abstract class PreProcessingTask : InstrumentControlTask
     {
-        public abstract DataHandlerTaskResult SpectraData { get; set; }
-        protected DataHandlerTask(TaskType taskType, ref DataHandlerTaskResult spectraData) : base(taskType)
+        public abstract PreProcessingData SpectraData { get; set; }
+        protected PreProcessingTask(TaskType taskType, ref PreProcessingData spectraData) : base(taskType)
         {
             SpectraData = spectraData;
         }

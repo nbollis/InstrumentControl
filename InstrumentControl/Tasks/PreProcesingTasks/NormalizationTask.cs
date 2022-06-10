@@ -7,21 +7,22 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl.Tasks.DataHandlerTasks
 {
-    public class NormalizationTask : DataHandlerTask
+    public class NormalizationTask : PreProcessingTask
     {
-        public NormalizationTask(TaskType taskType, ref DataHandlerTaskResult spectraData) : base(taskType, ref spectraData)
+        public NormalizationTask(TaskType taskType, ref PreProcessingData spectraData) : base(taskType, ref spectraData)
         {
-            SpectraData = spectraData;
+
         }
 
-        public override DataHandlerTaskResult SpectraData { get; set; }
+        public override PreProcessingData SpectraData { get; set; }
 
+        // TODO: Actually normalize the spectra to TIC, instead of just filling space
         public override void RunSpecific()
         {
             double maxCurrent = SpectraData.TotalIonCurrent.Max();
             var AverageIntensity = new double[SpectraData.TotalIonCurrent.Length];
             var AverageIntensityAfter = new double[SpectraData.TotalIonCurrent.Length];
-            for (int i = 0; i < SpectraData.TotalIonCurrent.Length; i++)
+            for (int i = 0; i < SpectraData.ScansToProcess; i++)
             {
                 double current = SpectraData.TotalIonCurrent[i];
                 AverageIntensity[i] = SpectraData.YArrays[i].Average();

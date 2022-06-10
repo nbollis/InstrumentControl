@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,11 @@ namespace InstrumentControl
 
         public void Run()
         {
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
             RunSpecific();
+            watch.Stop();
+            Console.WriteLine("Executed {0} Task in {1} ms", TaskType, watch.ElapsedMilliseconds);
         }
 
         public abstract void RunSpecific();

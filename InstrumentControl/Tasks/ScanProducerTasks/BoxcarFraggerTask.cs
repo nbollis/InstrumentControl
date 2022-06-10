@@ -6,7 +6,15 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
-    public class BoxcarFraggerTask : IBoxcarScan, IMS2Scan
+    public class BoxcarFraggerTask : InstrumentControlTask
     {
+        public BoxcarFraggerTask(TaskType taskType) : base(TaskType.BoxcarFragger)
+        {
+        }
+
+        public override void RunSpecific()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
