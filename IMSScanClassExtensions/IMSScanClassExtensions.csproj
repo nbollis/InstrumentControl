@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="OxyPlot.Core" Version="2.1.0" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<Reference Include="API-1.1">
 			<HintPath>..\InstrumentControl\ThermoIAPIDependencies\lib\API-1.1.dll</HintPath>
