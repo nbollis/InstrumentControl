@@ -17,6 +17,7 @@
 	</ItemGroup>
 	
   <ItemGroup>
+    <PackageReference Include="Json.Net" Version="1.0.33" />
     <PackageReference Include="mzLib" Version="1.0.529" />
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
   </ItemGroup>
@@ -102,7 +103,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Folder Include="TaskData\" />
+	  <ProjectReference Include="..\IMSScanClassExtensions\IMSScanClassExtensions.csproj" />
 	</ItemGroup>
 
 </Project>

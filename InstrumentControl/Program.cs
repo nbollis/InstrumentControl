@@ -39,6 +39,7 @@ namespace InstrumentControl
 				 * You would need to have multiple objects working with a single IMsScan object, 
 				 * and I'm not sure how you would pass a single IMsScan to multiple threads yet
 				 */
+
                 api.MSScanContainer.MsScanArrived += scanQueue.AddValueToQueue;
             }            
         }
