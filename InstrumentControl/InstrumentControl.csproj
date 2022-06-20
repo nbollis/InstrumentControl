@@ -44,6 +44,9 @@
 			<HintPath>ThermoIAPIDependencies\lib\Fusion.API-1.0.dll</HintPath>
 			<Private>true</Private>
 		</Reference>
+		<Reference Include="IMSScanClassExtensions">
+		  <HintPath>..\IMSScanClassExtensions\obj\Debug\net6.0\ref\IMSScanClassExtensions.dll</HintPath>
+		</Reference>
 		<Reference Include="Spectrum-1.0">
 			<HintPath>ThermoIAPIDependencies\lib\Spectrum-1.0.dll</HintPath>
 			<Private>true</Private>
