@@ -39,22 +39,10 @@ namespace InstrumentControl
         /// <exception cref="NotImplementedException"></exception>
         public override void ProcessScans(object? sender, ThresholdReachedEventArgs e)
         {
-            // TODO: pull metadata async(List<IMsScan> scans)
-            
             // pull out relevant scan data
-            int scans = e.Data.Count;
-            double[][] xArrays = new double[scans][];
-            double[][] yArrays = new double[scans][];
-            double[] totalIonCurrents = new double[scans];
-            for (int i = 0; i < scans; i++)
-            {
-                xArrays[i] = e.Data[i].Centroids.Select(c => c.Mz).ToArray();
-                yArrays[i] = e.Data[i].Centroids.Select(c => c.Intensity).ToArray();
-                totalIonCurrents[i] = double.Parse(e.Data[i].Header["Total Ion Current"]); 
-            }
+            ISpectraProcesor.ProccessDataQueue(e.Data);
 
             // perform data handling tasks
-            ISpectraProcesor.SetData(xArrays, yArrays, totalIonCurrents);
             while (TaskQueue.Count > 0)
             {
                 TaskQueue.Dequeue().Run();
