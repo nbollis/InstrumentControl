@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace InstrumentControl
 {
+    /// <summary>
+    /// Interface to be inherited by all tasks who process spectral data before it is 
+    /// utilized to create a custom scan. The static members will be shared by all who
+    /// inherit. 
+    /// </summary>
     public interface ISpectraProcesor
     {
         protected static int ScansToProcess { get; set; }
@@ -16,6 +21,20 @@ namespace InstrumentControl
         protected static double[][] YArrays { get; set; }
         protected static double[] TotalIonCurrent { get; set; }
 
+        public static void ProccessDataQueue(List<SingleScanDataObject> scanDataObjects)
+        {
+            ScansToProcess = scanDataObjects.Count;
+            for (int i = 0; i < ScansToProcess; i++)
+            {
+                XArrays[i] = scanDataObjects[i].XArray;
+                YArrays[i] = scanDataObjects[i].YArray;
+                TotalIonCurrent[i] = scanDataObjects[i].TotalIonCurrent;
+            }
+        }
+
+
+
+        // all below will likely be removed or changed in the future 
         public static void SetData(List<MsDataScan> scans)
         {
             ScansToProcess = scans.Count;

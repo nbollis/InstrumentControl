@@ -17,6 +17,7 @@
 	</ItemGroup>
 	
   <ItemGroup>
+    <PackageReference Include="Json.Net" Version="1.0.33" />
     <PackageReference Include="mzLib" Version="1.0.529" />
     <PackageReference Include="OxyPlot.Core" Version="2.1.0" />
     <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
@@ -42,6 +43,9 @@
 		<Reference Include="Fusion.API-1.0">
 			<HintPath>ThermoIAPIDependencies\lib\Fusion.API-1.0.dll</HintPath>
 			<Private>true</Private>
+		</Reference>
+		<Reference Include="IMSScanClassExtensions">
+		  <HintPath>..\IMSScanClassExtensions\obj\Debug\net6.0\ref\IMSScanClassExtensions.dll</HintPath>
 		</Reference>
 		<Reference Include="Spectrum-1.0">
 			<HintPath>ThermoIAPIDependencies\lib\Spectrum-1.0.dll</HintPath>
@@ -103,7 +107,7 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-	  <Folder Include="TaskData\" />
+	  <ProjectReference Include="..\IMSScanClassExtensions\IMSScanClassExtensions.csproj" />
 	</ItemGroup>
 
 </Project>
