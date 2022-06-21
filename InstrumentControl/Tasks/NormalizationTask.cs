@@ -13,8 +13,6 @@ namespace InstrumentControl
 
         }
 
-        //public override PreProcessingData SpectraData { get; set; }
-
         // TODO: Actually normalize the spectra to TIC, instead of just filling space
         public override void RunSpecific()
         {

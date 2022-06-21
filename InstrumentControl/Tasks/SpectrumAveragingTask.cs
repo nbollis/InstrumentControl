@@ -485,7 +485,7 @@ namespace InstrumentControl
                         yValuesArray[binIndex] = new double[numSpectra];
                     }
                     xValuesArray[binIndex][i] = xArrays[i][j];
-                    yValuesArray[binIndex][i] = xArrays[i][j];
+                    yValuesArray[binIndex][i] = yArrays[i][j];
                 }
             }
 

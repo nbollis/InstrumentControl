@@ -9,7 +9,7 @@ namespace InstrumentControl
 {
     internal class ScanQueue
     {
-        Queue<IMsScan> DataToProcess { get; set; }
+        Queue<IMsScan> DataToProcess { get; set; } // convert to mz spectrum 
         int Threshold { get; set; }
         public event EventHandler<ThresholdReachedEventArgs>? ThresholdReached;
 

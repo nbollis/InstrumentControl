@@ -3,6 +3,7 @@ using InstrumentControl.Tasks;
 using MassSpectrometry;
 using MathNet.Numerics.Distributions;
 using NUnit.Framework;
+using OxyPlot;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,34 +28,61 @@ namespace Tests
 		[Test]
 		public static void TestSpectrumBinning()
 		{
+			string outputPath = @"C:\Users\Nic\Desktop\OuputFolder\InstrumentControl\TestingSpectraAveraging";
 			string filepath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");
-			List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath);
-			List<MzSpectrum> spectra = scans.Select(p => p.MassSpectrum).ToList();
-			double[] totalIonCurrent = scans.Select(p => p.TotalIonCurrent).ToArray();
-			List<MzSpectrum> averagedSpectra = new List<MzSpectrum>();
+			List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath).Where(p => p.MsnOrder == 1).ToList();
+			List<MsDataScan> reducedScans = scans.GetRange(400, 5);
+			SpectrumAveragingTask averagingTask = new(TaskType.SpectrumAveraging);
+			List<MzSpectrum> compositeSpectra = new();
 			int spectraToSend = 5;
-			double[][] xArrays = new double[spectraToSend][];
-			double[][] yArrays = new double[spectraToSend][];
-			double[] totalIonCurrents = new double[spectraToSend];
 
-			// average all scans in groups of five from the yeast fraction
-			for (int i = 0; i < scans.Count; i += spectraToSend)
+			if (false)
             {
-				for (int j = 0; j < spectraToSend; j++)
-                {
-					xArrays[j] = scans[i + j].MassSpectrum.XArray;
-					yArrays[j] = scans[i + j].MassSpectrum.YArray;
+				// average all scans in groups of five from the yeast fraction
+				for (int i = 0; i < scans.Count; i += spectraToSend)
+				{
+					ISpectraProcesor.SetData(scans.GetRange(i, spectraToSend));
+					averagingTask.Run();
+					compositeSpectra.Add(ISpectraAverager.CompositeSpectrum);
 				}
-				
-				var fiveTICs = totalIonCurrent[i .. (i + spectraToSend)];
-				//var taskResult = new SpectrumAveragingTask(xArrays, yArrays, fiveTICs).Run();
-		
+			}
+
+			// print each of the scans as png
+			string path;
+            foreach (var scan in reducedScans)
+            {
+				// convert to model and export as png
+				path = Path.Combine(outputPath, "raw_scan" + scan.OneBasedScanNumber + ".png");
+				PlotModel plot = SpectrumViewer.PlotMSDataScan(scan);
+				SpectrumViewer.WritePlotToPng(plot, path);
+
+				// export the mass spectra as txt
+				string txtpath = Path.Combine(outputPath, "raw_scan" + scan.OneBasedScanNumber + ".txt");
+				StringBuilder builder = new();
+				for (int i = 0; i < scan.MassSpectrum.XArray.Length; i++)
+				{
+					builder.Append(scan.MassSpectrum.XArray[i] + ":" + scan.MassSpectrum.YArray[i] + "\n");
+				}
+				File.WriteAllText(txtpath, builder.ToString());
+			}
+
+			// average and print the average as png
+			path = Path.Combine(outputPath, "CompositeSpectrum.png");
+			ISpectraProcesor.SetData(reducedScans);
+			averagingTask.Run();
+			PlotModel compositePlot = SpectrumViewer.CreatePlotModel(ISpectraAverager.CompositeSpectrum);
+			SpectrumViewer.WritePlotToPng(compositePlot, path);
+
+			MzSpectrum compositeSpectrum = ISpectraAverager.CompositeSpectrum;
+			path = Path.Combine(outputPath, "CompositeSpectra.txt");
+			StringBuilder sb = new();
+            for (int i = 0; i < compositeSpectrum.XArray.Length; i++)
+            {
+				sb.Append(compositeSpectrum.XArray[i] + ":" + compositeSpectrum.YArray[i] + "\n");
             }
+			File.WriteAllText(path, sb.ToString());
 
-
-			//string outputPath = @"C:\Users\Nic\Desktop\OuputFolder\InstrumentControl\TestingmzMLGeneration\testing.mzML";
-			//TEMPWriteCombinedScansAsmzML.SaveMergedScanAsMzml(averagedSpectra, outputPath);
-			//var reloadedScans = MS1DatabaseParser.LoadAllScansFromFile(outputPath);
+			
 
 			SpectrumAveragingTask.ResetValues();
 		}
