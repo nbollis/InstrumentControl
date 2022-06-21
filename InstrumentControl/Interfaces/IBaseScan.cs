@@ -114,5 +114,4 @@ namespace InstrumentControl.Interfaces
             throw new NotImplementedException(); 
         }
     }
-    
 }
