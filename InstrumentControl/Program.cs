@@ -57,5 +57,16 @@ namespace InstrumentControl
             api.GetInstAccess(1); // access instrument and fills the FusionLumosAPI class properties. 
             return api;
         }
+        /*
+         New code base structure: 
+            Applications combine tasks
+                Tasks contain data processing. 
+
+        Verb (application) -> Applications contain tasks (options) -> Data Processing Options (data processing settings)
+        Scan averaging: 
+            Verb/Application Layer: Average
+                Options: Normalization, Standardization, Averaging
+                    Data processing options: Averaging type, rejection, etc. 
+         */
     }
 }

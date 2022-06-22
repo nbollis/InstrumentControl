@@ -31,6 +31,23 @@ namespace IMSScanClassExtensions
 		}
 
 		/*
+		 * Does the same thing as GetValueFromHeaderDict, except on the scan trailer 
+		 * instead of the header. 
+		 */
+		public static T GetValueFromTrailerDict<T>(this IMsScan imsScan, string trailerValue)
+		{
+			bool success = imsScan.Trailer.TryGetValue(trailerValue, out string value);
+			if (success)
+			{
+				return (T)Convert.ChangeType(value, typeof(T));
+			}
+			else
+			{
+				return default(T);
+			}
+		}
+
+		/*
 		 * Function to retrieve the data in the IMsScan object and return a 
 		 * double[,] for easy construction into a MzSpectrum object. 
 		 */
@@ -52,23 +69,6 @@ namespace IMSScanClassExtensions
 				outputArray[i, 1] = yarray[i];
 			}
 			return outputArray;
-		}
-
-		/*
-		 * Does the same thing as GetValueFromHeaderDict, except on the scan trailer 
-		 * instead of the header. 
-		 */
-		public static T GetValueFromTrailerDict<T>(this IMsScan imsScan, string trailerValue)
-		{
-			bool success = imsScan.Trailer.TryGetValue(trailerValue, out string value);
-			if (success)
-			{
-				return (T)Convert.ChangeType(value, typeof(T));
-			}
-			else
-			{
-				return default(T);
-			}
 		}
 	}
 }

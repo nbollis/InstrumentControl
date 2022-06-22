@@ -108,6 +108,8 @@
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\IMSScanClassExtensions\IMSScanClassExtensions.csproj" />
+	  <ProjectReference Include="..\SpectrumAveraging\SpectrumAveraging.csproj" />
+	  <ProjectReference Include="..\TaskInterfaces\TaskInterfaces.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IMSScanClassExtensions", "IMSScanClassExtensions\IMSScanClassExtensions.csproj", "{07B31947-11C8-4B9A-B8CC-813FA9C8AB76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpectrumAveraging", "SpectrumAveraging\SpectrumAveraging.csproj", "{0F304F7B-50FF-4314-810A-BEB72140EE58}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpectrumAveraging", "SpectrumAveraging\SpectrumAveraging.csproj", "{0F304F7B-50FF-4314-810A-BEB72140EE58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskInterfaces", "TaskInterfaces\TaskInterfaces.csproj", "{786E2194-2F4A-4873-A6CD-A2C694F9C0C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{0F304F7B-50FF-4314-810A-BEB72140EE58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F304F7B-50FF-4314-810A-BEB72140EE58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F304F7B-50FF-4314-810A-BEB72140EE58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{786E2194-2F4A-4873-A6CD-A2C694F9C0C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{786E2194-2F4A-4873-A6CD-A2C694F9C0C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{786E2194-2F4A-4873-A6CD-A2C694F9C0C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{786E2194-2F4A-4873-A6CD-A2C694F9C0C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

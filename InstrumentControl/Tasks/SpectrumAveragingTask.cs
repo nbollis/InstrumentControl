@@ -1,11 +1,9 @@
 ﻿using MassSpectrometry;
 using MzLibUtil;
 using InstrumentControl.Interfaces; 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SpectrumAveraging;
+using TaskInterfaces; 
+
 
 namespace InstrumentControl
 {
@@ -17,38 +15,36 @@ namespace InstrumentControl
     /// <summary>
     /// Class which takes input of n scans and averages them based upon the parameters set
     /// </summary>
-    public class SpectrumAveragingTask : ISpectraAverager, ITask
+    public class SpectrumAveragingTask : InstrumentControlTask
     {
         #region Public Properties
-
-        // settings
-        public static RejectionType RejectionType { get; set; } = RejectionType.NoRejection;
-        public static WeightingType WeightingType { get; set; } = WeightingType.NoWeight;
-        public static SpectrumMergingType SpectrumMergingType { get; set; } = SpectrumMergingType.SpectrumBinning;
-        public static double Percentile { get; set; } = 0.9;
-        public static double MinSigmaValue { get; set; } = 1.3;
-        public static double MaxSigmaValue { get; set; } = 1.3;
-        public static double BinSize { get; set; } = 0.02;
+        public SpectrumAveragingOptions AveragingOptions { get; set; }
+        public double[] Data { get; set; }
+        // add property to include the data to be processed. 
 
         #endregion
 
         #region Constructor
 
-        public SpectrumAveragingTask(TaskType taskType) : base(taskType)
+        public SpectrumAveragingTask(double[] data, SpectrumAveragingOptions options)
         {
+            AveragingOptions = options;
+            Data = data; 
+        }
+        #endregion
 
+        #region Public Methods
+
+        public override void RunSpecific<T>(T options)
+        {
+            if(typeof(T) != typeof(SpectrumAveragingOptions))
+            {
+                throw new ArgumentException("Invalid options class for this class and method."); 
+            }
+            // implement the specific running here
         }
 
         #endregion
-        /// <summary>
-        /// Performs the main operations of this task
-        /// </summary>
-        /// <returns></returns>
-        public override void RunSpecific()
-        {
-                      
-        }
-
     }
 
 

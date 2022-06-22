@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CommandLine; 
+using CommandLine;
+using TaskInterfaces; 
 
 namespace SpectrumAveraging
 {
-    public class SpectrumAveragingOptions
+    public class SpectrumAveragingOptions : ITaskOptions<SpectrumAveragingOptions>
     {
         [Option('r', "rejection")]
         public RejectionType RejectionType { get; set; } = RejectionType.NoRejection;

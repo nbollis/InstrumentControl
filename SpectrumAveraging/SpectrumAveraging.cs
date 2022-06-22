@@ -4,7 +4,7 @@ using MassSpectrometry;
 using MzLibUtil; 
 namespace SpectrumAveraging
 {
-    public class SpectrumAveraging
+    public static class SpectrumAveraging
     {
         #region Public Methods
 
