@@ -11,7 +11,9 @@ namespace InstrumentControl
 {
     public class InstrumentControlTask
     { 
-        public virtual void RunSpecific<T>(T otpions) where T : ITaskOptions<T>
+        public virtual void RunSpecific<T, U>(T otpions, U? data) 
+            where T : ITaskOptions<T>
+            where U : IData<T>
         {
 
         }

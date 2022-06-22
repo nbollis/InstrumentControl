@@ -19,17 +19,15 @@ namespace InstrumentControl
     {
         #region Public Properties
         public SpectrumAveragingOptions AveragingOptions { get; set; }
-        public double[] Data { get; set; }
         // add property to include the data to be processed. 
 
         #endregion
 
         #region Constructor
 
-        public SpectrumAveragingTask(double[] data, SpectrumAveragingOptions options)
+        public SpectrumAveragingTask(SpectrumAveragingOptions options)
         {
             AveragingOptions = options;
-            Data = data; 
         }
         #endregion
 
