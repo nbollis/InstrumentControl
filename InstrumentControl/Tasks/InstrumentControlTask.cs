@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using CommandLine; 
 namespace InstrumentControl
 {
     public abstract class InstrumentControlTask
@@ -26,7 +26,6 @@ namespace InstrumentControl
             Console.WriteLine("Executed {0} Task in {1} ms", TaskType, watch.ElapsedMilliseconds);
         }
 
-        public abstract void RunSpecific();
-
+        public virtual void RunSpecific() { }
     }
 }
