@@ -9,5 +9,6 @@ namespace InstrumentControl
     public enum MyApplication
     {
         WholeChargeStateEnvelopeFragmentation,
+        TestApplicationToSaveAndAverageData,
     }
 }

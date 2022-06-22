@@ -14,8 +14,6 @@ namespace InstrumentControl
         {
         }
 
-        //public override PreProcessingData SpectraData { get; set; }
-
         public override void RunSpecific()
         {
             for (int i = 0; i < ISpectraProcesor.ScansToProcess; i++)
@@ -26,6 +24,7 @@ namespace InstrumentControl
                 ISpectraProcesor.YArrays[i] = yarrayNew;
             }
         }
+
         public static double[] CreateStandardMZAxis((double, double) range, double massAccuracy)
         {
             // mz space between the high and low values

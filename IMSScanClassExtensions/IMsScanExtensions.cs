@@ -70,19 +70,5 @@ namespace IMSScanClassExtensions
 				return default(T);
 			}
 		}
-
-		public static string ScanFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"IMsScanStrings.txt");
-		public static void JsonSerializeScan(this IMsScan imsScan)
-        {
-			using (StreamWriter streamWriter = File.AppendText(ScanFilePath))
-			{
-				streamWriter.WriteLine(JsonConvert.SerializeObject(imsScan));
-			}
-        }
-
-		public static IMsScan JsonDeserializeScan()
-        {
-			throw new NotImplementedException();
-        }
 	}
 }

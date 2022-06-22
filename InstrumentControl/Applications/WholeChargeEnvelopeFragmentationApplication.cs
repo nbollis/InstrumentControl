@@ -10,25 +10,17 @@ namespace InstrumentControl
 {
     public class WholeChargeEnvelopeFragmentationApplication : Application
     {
-        
-        public override Queue<InstrumentControlTask> TaskQueue { get; set; } = new Queue<InstrumentControlTask>();
         public override List<InstrumentControlTask> TaskList { get; set; } = new List<InstrumentControlTask>();
-
-        public InstrumentControlTask AveragingTask { get; set; }
 
         public WholeChargeEnvelopeFragmentationApplication() : base(MyApplication.WholeChargeStateEnvelopeFragmentation)
         {
             // set spectra preprocessing tasks
             TaskList.Add(new NormalizationTask(TaskType.Normalization));
             TaskList.Add(new StandardizationTask(TaskType.Standardization));
-
-            // set spectra averaging tasks
-            AveragingTask = new SpectrumAveragingTask(TaskType.SpectrumAveraging);
-            TaskList.Add(AveragingTask);
+            TaskList.Add(new SpectrumAveragingTask(TaskType.SpectrumAveraging));
 
             // set scan returning tasks
 
-            EnqueueSelectTasks();
         }
 
         /// <summary>
@@ -43,10 +35,12 @@ namespace InstrumentControl
             ISpectraProcesor.ProccessDataQueue(e.Data);
 
             // perform data handling tasks
-            while (TaskQueue.Count > 0)
+
+            foreach (var task in TaskList)
             {
-                TaskQueue.Dequeue().Run();
+                task.Run();
             }
+
 
             MzSpectrum compositeSpectra = ISpectraAverager.CompositeSpectrum;
 
@@ -56,8 +50,7 @@ namespace InstrumentControl
 
             // fragment envelopes
 
-            // reset scans for next run
-            EnqueueSelectTasks();
+
         }
 
 
@@ -77,9 +70,9 @@ namespace InstrumentControl
 
             // perform data handling tasks
             ISpectraProcesor.SetData(xArrays, yArrays, totalIonCurrents);
-            while (TaskQueue.Count > 0)
+            foreach (var task in TaskList)
             {
-                TaskQueue.Dequeue().Run();
+                task.Run();
             }
 
 

@@ -14,21 +14,47 @@ namespace InstrumentControl
     /// </summary>
     public interface ISpectraProcesor
     {
-        protected static int ScansToProcess { get; set; }
         protected static double MinX { get; set; }
         protected static double MaxX { get; set; }
+        protected static int ScansToProcess { get; set; }
         protected static double[][] XArrays { get; set; }
         protected static double[][] YArrays { get; set; }
         protected static double[] TotalIonCurrent { get; set; }
 
         public static void ProccessDataQueue(List<SingleScanDataObject> scanDataObjects)
         {
-            ScansToProcess = scanDataObjects.Count;
+            // If not initialized or scans sent differ in their count
+            if (ScansToProcess != scanDataObjects.Count)
+            {
+                ScansToProcess = scanDataObjects.Count;
+                XArrays = new double[ScansToProcess][];
+                YArrays = new double[ScansToProcess][];
+                TotalIonCurrent = new double[ScansToProcess];
+            }
+
             for (int i = 0; i < ScansToProcess; i++)
             {
                 XArrays[i] = scanDataObjects[i].XArray;
                 YArrays[i] = scanDataObjects[i].YArray;
                 TotalIonCurrent[i] = scanDataObjects[i].TotalIonCurrent;
+            }
+        }
+
+        /// <summary>
+        /// Sets the MinX and MaxX data fields from IMsScan header strings
+        /// </summary>
+        /// <param name="min">string representing the minimum mz value</param>
+        /// <param name="max">string representing the maximum mz value</param>
+        public static void SetStandardizationRange(string min, string max)
+        {
+            if(double.TryParse(min, out double minResult) && MinX != minResult)
+            {
+                MinX = minResult;
+            }
+
+            if (double.TryParse(max, out double maxResult) && MaxX != maxResult)
+            {
+                MaxX = maxResult;
             }
         }
 

@@ -10,7 +10,7 @@ using InstrumentControl.Tasks;
 
 namespace Tests
 {
-    public class TestSpectraStandardization 
+    public class SpectraStandardizationTest 
     {
         public StandardizationTask StandardizationTask { get; set; }
 

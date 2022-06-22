@@ -26,6 +26,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="API-2.0">
+      <HintPath>..\InstrumentControl\ThermoIAPIDependencies\lib\API-2.0.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="DataFiles\TDYeastFractionMMResult.psmtsv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

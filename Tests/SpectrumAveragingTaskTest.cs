@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace Tests
 {
-    public static class TestSpectrumAveragingTask
+    public static class SpectrumAveragingTaskTest
     {
 
 		// TESTING IDEA: take scans, group them into five, send them through with different parametes

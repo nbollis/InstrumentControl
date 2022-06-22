@@ -20,6 +20,11 @@ namespace InstrumentControl
                     application = new WholeChargeEnvelopeFragmentationApplication();
                     break;
 
+                case "TestApplicationToSaveAndAverageData":
+                    application = new TestApplicationToSaveAndAverageData();
+                    scanQueue.ExportToJson = false; 
+                    break;
+
                 default:
                     Debugger.Break();
                     return;

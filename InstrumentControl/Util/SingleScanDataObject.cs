@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MassSpectrometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,13 @@ namespace InstrumentControl
             XArray = scan.Centroids.Select(c => c.Mz).ToArray();
             YArray = scan.Centroids.Select(c => c.Intensity).ToArray();
             TotalIonCurrent = double.Parse(scan.Header["Total Ion Current"]);
+        }
+
+        public SingleScanDataObject(MsDataScan scan, int tempToAllowCompiling)
+        {
+            XArray = scan.MassSpectrum.XArray;
+            YArray = scan.MassSpectrum.YArray;
+            TotalIonCurrent = scan.TotalIonCurrent;
         }
     }
 }

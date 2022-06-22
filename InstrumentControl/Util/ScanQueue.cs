@@ -12,7 +12,7 @@ namespace InstrumentControl
     {
         Queue<SingleScanDataObject> DataToProcess { get; set; }
         int Threshold { get; set; }
-        bool ExportToJson { get; set; } = false;
+        public bool ExportToJson { get; set; } = false;
         public event EventHandler<ThresholdReachedEventArgs>? ThresholdReached;
 
         public ScanQueue(int processingThreshold)
@@ -31,11 +31,13 @@ namespace InstrumentControl
             using (IMsScan scan = e.GetScan())
             {
                 DataToProcess.Enqueue(new SingleScanDataObject(scan));
+                ISpectraProcesor.SetStandardizationRange(scan.Header["Scan Low Mass"], scan.Header["Scan High Mass"]);
 
                 // saves scans in json string format
                 if (ExportToJson)
                 {
-                    IMsScanExtensions.JsonSerializeScan(scan);
+                    string scanFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"IMsScanStrings.txt");
+                    InstrumentControlIO.SerilaizeAndAppend(scan, scanFilePath);
                 }
 
                 // if queue has reached capacity to begin processing
