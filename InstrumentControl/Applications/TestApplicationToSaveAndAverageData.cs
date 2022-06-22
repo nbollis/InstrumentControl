@@ -30,7 +30,7 @@ namespace InstrumentControl
             }
             string MzSpectrumFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"AveragedMzSpectrumStrings.txt");
             MzSpectrum compositeSpectra = ISpectraAverager.CompositeSpectrum;
-            InstrumentControlIO.SerilaizeAndAppend<MzSpectrum>(compositeSpectra, MzSpectrumFilePath);
+            InstrumentControlIO.SerializeAndAppend<MzSpectrum>(compositeSpectra, MzSpectrumFilePath);
         }
 
     }

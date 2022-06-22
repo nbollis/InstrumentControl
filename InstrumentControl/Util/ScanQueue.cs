@@ -31,18 +31,18 @@ namespace InstrumentControl
             using (IMsScan scan = e.GetScan())
             {
                 DataToProcess.Enqueue(new SingleScanDataObject(scan));
-                ISpectraProcesor.SetStandardizationRange(scan.Header["Scan Low Mass"], scan.Header["Scan High Mass"]);
 
                 // saves scans in json string format
                 if (ExportToJson)
                 {
                     string scanFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"IMsScanStrings.txt");
-                    InstrumentControlIO.SerilaizeAndAppend(scan, scanFilePath);
+                    InstrumentControlIO.SerializeAndAppend(scan, scanFilePath);
                 }
 
                 // if queue has reached capacity to begin processing
                 if (DataToProcess.Count > Threshold)
                 {
+                    ISpectraProcesor.SetStandardizationRange(scan.Header["Scan Low Mass"], scan.Header["Scan High Mass"]);
                     ThresholdReachedEventArgs args = new ThresholdReachedEventArgs(DataToProcess, Threshold);
                     OnThresholdReached(args);
                 }
