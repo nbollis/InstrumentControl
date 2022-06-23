@@ -8,21 +8,21 @@ using TaskInterfaces;
 
 namespace SpectrumAveraging
 {
-    public class SpectrumAveragingOptions : ITaskOptions<SpectrumAveragingOptions>
+    public interface ISpectrumAveragingOptions : ITaskOptions<SpectrumAveragingOptions>
     {
         [Option('r', "rejection")]
-        public RejectionType RejectionType { get; set; } = RejectionType.NoRejection;
+        public RejectionType RejectionType { get; set; }
         [Option('w', "weighting")]
-        public WeightingType WeightingType { get; set; } = WeightingType.NoWeight;
+        public WeightingType WeightingType { get; set; }
         [Option('m', "merging")]
-        public SpectrumMergingType SpectrumMergingType { get; set; } = SpectrumMergingType.SpectrumBinning;
+        public SpectrumMergingType SpectrumMergingType { get; set; } 
         [Option('p', "percentile")]
-        public double Percentile { get; set; } = 0.9;
+        public double Percentile { get; set; } 
         [Option("minsigma")]
-        public double MinSigmaValue { get; set; } = 1.3;
+        public double MinSigmaValue { get; set; } 
         [Option("maxsigma")]
-        public double MaxSigmaValue { get; set; } = 1.3;
+        public double MaxSigmaValue { get; set; } 
         [Option('b', "binsize")]
-        public double BinSize { get; set; } = 0.02;
+        public double BinSize { get; set; } 
     }
 }

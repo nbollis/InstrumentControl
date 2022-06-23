@@ -8,7 +8,7 @@ using CommandLine;
 
 namespace Standardization
 {
-    public class StandardizationOptions : ITaskOptions<StandardizationOptions>
+    public interface IStandardizationOptions : ITaskOptions<IStandardizationOptions>
     {
         [Option]
         public double MinMass { get; set; }

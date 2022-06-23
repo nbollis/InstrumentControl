@@ -54,9 +54,10 @@ namespace InstrumentControl
             SpectrumAveragingOptions opt = options as SpectrumAveragingOptions; 
             MultiScanDataObject scans = data as MultiScanDataObject;
 
-
+            
 
         }
+        // No return type yet. 
         private void Main(MultiScanDataObject scans, SpectrumAveragingOptions options)
         {
 
