@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using TaskInterfaces;
+using Normalization;
+using Standardization;
+using SpectrumAveraging; 
 
 namespace InstrumentControl
 {
@@ -27,9 +30,33 @@ namespace InstrumentControl
         }
 
     }
-    public class ScanAveragingAppOptions : IApplicationOptions, 
+    public class ScanAveragingAppOptions : IApplicationOptions, IStandardizationOptions, 
+        INormalizationOptions, ISpectrumAveragingOptions
     {
+        #region IApplicationOptions members
         public bool Live { get; set; }
+        #endregion
+        
+        #region IStandardizationOptions members
+        public double MinMass { get; set; }
+        public double MaxMass { get; set; }
+        public double Delta { get; set; }
+        #endregion
+
+        #region INormalizationOptions members
+        public bool PerformNormalization { get; set; }
+        #endregion
+
+        #region ISpectrumAveragingOptions members
+        public RejectionType RejectionType { get; set; }
+        public WeightingType WeightingType { get; set; }
+        public SpectrumMergingType SpectrumMergingType { get; set; }
+        public double Percentile { get; set; }
+        public double MinSigmaValue { get; set; }
+        public double MaxSigmaValue { get; set; }
+        public double BinSize { get; set; }
+        #endregion
+
 
     }
 }
