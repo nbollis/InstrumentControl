@@ -114,6 +114,7 @@
 	  <ProjectReference Include="..\SpectrumAveraging\SpectrumAveraging.csproj" />
 	  <ProjectReference Include="..\Standardization\Standardization.csproj" />
 	  <ProjectReference Include="..\TaskInterfaces\TaskInterfaces.csproj" />
+	  <ProjectReference Include="..\InstrumentControlIO\InstrumentControlIO.csproj" />
 	</ItemGroup>
 
 </Project>
