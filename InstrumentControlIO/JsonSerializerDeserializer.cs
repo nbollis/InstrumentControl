@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InstrumentControl
+namespace InstrumentControlIO
 {
-    public static class InstrumentControlIO
+    public static class JsonSerializerDeserializer
     {
 
         /// <summary>

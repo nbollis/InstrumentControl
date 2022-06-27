@@ -1,4 +1,5 @@
 ﻿using IMSScanClassExtensions;
+using InstrumentControlIO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +37,7 @@ namespace InstrumentControl
                 if (ExportToJson)
                 {
                     string scanFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"IMsScanStrings.txt");
-                    InstrumentControlIO.SerializeAndAppend(scan, scanFilePath);
+                    JsonSerializerDeserializer.SerializeAndAppend(scan, scanFilePath);
                 }
 
                 // if queue has reached capacity to begin processing

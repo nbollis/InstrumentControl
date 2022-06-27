@@ -1,4 +1,5 @@
-﻿using MassSpectrometry;
+﻿using InstrumentControlIO;
+using MassSpectrometry;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -30,7 +31,7 @@ namespace InstrumentControl
             }
             string MzSpectrumFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"AveragedMzSpectrumStrings.txt");
             MzSpectrum compositeSpectra = ISpectraAverager.CompositeSpectrum;
-            InstrumentControlIO.SerializeAndAppend<MzSpectrum>(compositeSpectra, MzSpectrumFilePath);
+            JsonSerializerDeserializer.SerializeAndAppend<MzSpectrum>(compositeSpectra, MzSpectrumFilePath);
         }
 
     }

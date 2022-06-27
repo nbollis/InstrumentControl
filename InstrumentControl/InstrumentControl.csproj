@@ -108,6 +108,7 @@
 	
 	<ItemGroup>
 	  <ProjectReference Include="..\IMSScanClassExtensions\IMSScanClassExtensions.csproj" />
+	  <ProjectReference Include="..\InstrumentControlIO\InstrumentControlIO.csproj" />
 	</ItemGroup>
 
 </Project>
