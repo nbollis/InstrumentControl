@@ -17,6 +17,7 @@
 	</ItemGroup>
 	
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Json.Net" Version="1.0.33" />
     <PackageReference Include="mzLib" Version="1.0.529" />
     <PackageReference Include="OxyPlot.Core" Version="2.1.0" />
@@ -107,7 +108,12 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	  <ProjectReference Include="..\Data\Data.csproj" />
 	  <ProjectReference Include="..\IMSScanClassExtensions\IMSScanClassExtensions.csproj" />
+	  <ProjectReference Include="..\Normalization\Normalization.csproj" />
+	  <ProjectReference Include="..\SpectrumAveraging\SpectrumAveraging.csproj" />
+	  <ProjectReference Include="..\Standardization\Standardization.csproj" />
+	  <ProjectReference Include="..\TaskInterfaces\TaskInterfaces.csproj" />
 	</ItemGroup>
 
 </Project>

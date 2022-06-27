@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Data; 
 
 namespace Tests
 {
@@ -18,7 +19,7 @@ namespace Tests
             List<SingleScanDataObject> data = new();
             foreach (MsDataScan scan in scans)
             {
-                data.Add(new SingleScanDataObject(scan, 1));
+                data.Add(new SingleScanDataObject(scan));
             }
 
             ISpectraProcesor.ProccessDataQueue(data.GetRange(0, 5));

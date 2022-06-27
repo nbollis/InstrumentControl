@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InstrumentControl.Tasks
+namespace TaskInterfaces
 {
-    public class BoxcarFraggerTask : InstrumentControlTask
+    public interface IData<T>
     {
 
     }

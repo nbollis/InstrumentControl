@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Normalization;
+using Data; 
+
 
 namespace InstrumentControl
 {
@@ -10,21 +13,25 @@ namespace InstrumentControl
     /// Normalizes the intensities of each peak to the total ion current of the scan
     /// All peak intensities should sum to one
     /// </summary>
-    public class NormalizationTask : InstrumentControlTask, ISpectraProcesor
+    public class NormalizationTask : InstrumentControlTask
     {
-        public NormalizationTask(TaskType taskType) : base(taskType)
+        public NormalizationTask()
         {
 
         }
 
-        public override void RunSpecific()
+        public override void RunSpecific<T, U>(T options, U data)
         {
-            for (int i = 0; i < ISpectraProcesor.ScansToProcess; i++)
+            if(typeof(U) == typeof(MultiScanDataObject))
             {
-                for (int j = 0; j < ISpectraProcesor.YArrays[i].Length; j++)
-                {
-                    ISpectraProcesor.YArrays[i][j] = ISpectraProcesor.YArrays[i][j] / ISpectraProcesor.TotalIonCurrent[i];
-                }
+                MultiScanDataObjectExtensions.NormalizeSpectraToTic(data as MultiScanDataObject, options as NormalizationOptions); 
+            }else if(typeof(U) == typeof(SingleScanDataObject))
+            {
+                SingleScanDataObject scan = data as SingleScanDataObject;
+                var yarray = scan.YArray; 
+                SpectrumNormalization.NormalizeSpectrumToTic(ref yarray, 
+                    (data as SingleScanDataObject).TotalIonCurrent);
+                scan.UpdateYarray(yarray); 
             }
         }
     }

@@ -17,7 +17,7 @@ namespace Tests
 {
     public static class SpectrumAveragingTaskTest
     {
-
+		/*
 		// TESTING IDEA: take scans, group them into five, send them through with different parametes
 		// and run a classic search on teh resulting composit scans. Print a txt file that has the 
 		// RejectionType, WeightingType, (paramertes of weighting if applicable), PSMs, peptides, proteins
@@ -257,6 +257,7 @@ namespace Tests
 			Assert.That(SpectrumAveragingTask.RejectionType == RejectionType.AveragedSigmaClipping);
 			SpectrumAveragingTask.ResetValues();
 		}
-
+				*/
 	}
+
 }

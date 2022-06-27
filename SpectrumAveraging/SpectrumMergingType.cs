@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InstrumentControl.Tasks
+namespace SpectrumAveraging
 {
-    public class BoxcarFraggerTask : InstrumentControlTask
+    public enum SpectrumMergingType
     {
-
+        SpectrumBinning,
+        MostSimilarSpectrum
     }
 }

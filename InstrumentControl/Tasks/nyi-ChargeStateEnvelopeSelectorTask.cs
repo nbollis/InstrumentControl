@@ -8,11 +8,11 @@ namespace InstrumentControl
 {
     public class ChargeStateEnvelopeSelectorTask : InstrumentControlTask
     {
-        public ChargeStateEnvelopeSelectorTask() : base(TaskType.ChargeStateEnvelope)
+        public ChargeStateEnvelopeSelectorTask() 
         {
         }
 
-        public override void RunSpecific()
+        public override void RunSpecific<T,U>(T options, U data)
         {
             throw new NotImplementedException();
         }

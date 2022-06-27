@@ -1,25 +1,73 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
+using TaskInterfaces;
+using Normalization;
+using Standardization;
+using SpectrumAveraging;
+using Data; 
 
 namespace InstrumentControl
 {
-    public abstract class Application
-    {
-        protected MyApplication ApplicationType { get; set; }
-        
-        public Application(MyApplication applicationType)
+    public abstract class Application : IApplication
+    {   
+        public Application()
         {
-            ApplicationType = applicationType;
+            
+        }
+        public abstract void ProcessScans(object sender, ThresholdReachedEventArgs e); 
+
+    }
+    public class ScanAveragingApp : Application
+    {
+        private SpectrumAveragingOptions AveragingOptions { get; set; }
+        private StandardizationOptions StandardizationOptions { get; set; }
+        private NormalizationOptions NormalizationOptions { get; set; }
+   
+        public void GetOptions<T>(T options)
+        {
+            AveragingOptions = options as SpectrumAveragingOptions;
+            StandardizationOptions = options as StandardizationOptions;
+            NormalizationOptions = options as NormalizationOptions; 
+        }
+        public override void ProcessScans(object sender, ThresholdReachedEventArgs e)
+        {
+            Main(e.Data); 
+        }
+        private void Main(List<SingleScanDataObject> data)
+        {
+            // perform scan standardization
+            // perform scan normalization
+            // perform specrum averaging 
         }
 
+    }
+    public class ScanAveragingAppOptions : IApplicationOptions,
+        IStandardizationOptions, INormalizationOptions, ISpectrumAveragingOptions
+    {
+        #region IApplicationOptions members
+        public bool Live { get; set; }
+        #endregion
+        
+        #region IStandardizationOptions members
+        public double MinMass { get; set; }
+        public double MaxMass { get; set; }
+        public double Delta { get; set; }
+        #endregion
 
+        #region INormalizationOptions members
+        public bool PerformNormalization { get; set; }
 
-        public abstract List<InstrumentControlTask> TaskList { get; set; }
-        public abstract void ProcessScans(object? sender, ThresholdReachedEventArgs e);
+        #endregion
 
+        #region ISpectrumAveragingOptions members
+        public RejectionType RejectionType { get; set; }
+        public WeightingType WeightingType { get; set; }
+        public SpectrumMergingType SpectrumMergingType { get; set; }
+        public double Percentile { get; set; }
+        public double MinSigmaValue { get; set; }
+        public double MaxSigmaValue { get; set; }
+        public double BinSize { get; set; }
+        #endregion
+         
     }
 }
