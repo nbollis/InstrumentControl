@@ -8,6 +8,9 @@ namespace TaskInterfaces
 {
     public interface IApplication
     {
+        virtual void GetOptions<T>(T options)
+        {
 
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace Tests
             for (int i = 0; i < scans.Count; i += spectraToSend)
             {
                 var spectraForApp = spectra.GetRange(i, spectraToSend);
-                app.TestItOut(spectra.GetRange(i, spectraToSend), totalIonCurrent[i..(i + spectraToSend)]);
+                //app.TestItOut(spectra.GetRange(i, spectraToSend), totalIonCurrent[i..(i + spectraToSend)]);
             }
 
         }

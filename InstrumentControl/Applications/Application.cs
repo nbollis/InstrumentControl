@@ -13,25 +13,28 @@ namespace InstrumentControl
         {
             
         }
-        public abstract List<InstrumentControlTask> TaskList { get; set; }
-        public abstract void ProcessScans();
 
     }
     public class ScanAveragingApp : Application
     {
-        public override List<InstrumentControlTask> TaskList { get; set; }
-        public override void ProcessScans()
+        public SpectrumAveragingOptions AveragingOptions { get; set; }
+        public StandardizationOptions StandardizationOptions { get; set; }
+        public NormalizationOptions NormalizationOptions { get; set; }
+   
+        public void GetOptions<T>(T options)
         {
-            // needs: 
-            // normalization
-            // standardization
-            // averaging 
-            throw new NotImplementedException();
+            AveragingOptions = options as SpectrumAveragingOptions;
+            StandardizationOptions = options as StandardizationOptions;
+            NormalizationOptions = options as NormalizationOptions; 
+        }
+        public void ProcessScans(object sender, ThresholdReachedEventArgs e)
+        {
+
         }
 
     }
-    public class ScanAveragingAppOptions : IApplicationOptions, IStandardizationOptions, 
-        INormalizationOptions, ISpectrumAveragingOptions
+    public class ScanAveragingAppOptions : IApplicationOptions,
+        IStandardizationOptions, INormalizationOptions, ISpectrumAveragingOptions
     {
         #region IApplicationOptions members
         public bool Live { get; set; }
@@ -45,6 +48,7 @@ namespace InstrumentControl
 
         #region INormalizationOptions members
         public bool PerformNormalization { get; set; }
+
         #endregion
 
         #region ISpectrumAveragingOptions members
@@ -56,7 +60,6 @@ namespace InstrumentControl
         public double MaxSigmaValue { get; set; }
         public double BinSize { get; set; }
         #endregion
-
-
+         
     }
 }
