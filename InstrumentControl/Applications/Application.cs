@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using TaskInterfaces;
 using Normalization;
 using Standardization;
-using SpectrumAveraging; 
+using SpectrumAveraging;
+using Data; 
 
 namespace InstrumentControl
 {
@@ -13,13 +14,14 @@ namespace InstrumentControl
         {
             
         }
+        public abstract void ProcessScans(object sender, ThresholdReachedEventArgs e); 
 
     }
     public class ScanAveragingApp : Application
     {
-        public SpectrumAveragingOptions AveragingOptions { get; set; }
-        public StandardizationOptions StandardizationOptions { get; set; }
-        public NormalizationOptions NormalizationOptions { get; set; }
+        private SpectrumAveragingOptions AveragingOptions { get; set; }
+        private StandardizationOptions StandardizationOptions { get; set; }
+        private NormalizationOptions NormalizationOptions { get; set; }
    
         public void GetOptions<T>(T options)
         {
@@ -27,9 +29,15 @@ namespace InstrumentControl
             StandardizationOptions = options as StandardizationOptions;
             NormalizationOptions = options as NormalizationOptions; 
         }
-        public void ProcessScans(object sender, ThresholdReachedEventArgs e)
+        public override void ProcessScans(object sender, ThresholdReachedEventArgs e)
         {
-
+            Main(e.Data); 
+        }
+        private void Main(List<SingleScanDataObject> data)
+        {
+            // perform scan standardization
+            // perform scan normalization
+            // perform specrum averaging 
         }
 
     }
