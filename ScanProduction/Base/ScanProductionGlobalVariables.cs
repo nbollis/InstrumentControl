@@ -12,7 +12,6 @@ namespace ScanProduction
     /// </summary>
     public static class ScanProductionGlobalVariables
     {
-
         public static int TopN = 5;
         
 
