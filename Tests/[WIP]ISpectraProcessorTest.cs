@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Data; 
+using Data;
+using ScanProduction;
+using TaskInterfaces;
 
 namespace Tests
 {
@@ -14,15 +16,38 @@ namespace Tests
         [Test]
         public static void TempTest()
         {
+            BoxCarScanBuilder builder = new();
+            var builderProp = builder.GetType().GetProperties();
+            var bulderDict = builder.BuildDictionary();
+            
+        }
+
+        [Test]
+        public static void TestDDATemp()
+        {
             string filepath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");
-            List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath).Where(p => p.MsnOrder == 1).ToList();
+            List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(filepath);
             List<SingleScanDataObject> data = new();
-            foreach (MsDataScan scan in scans)
+            foreach (var scan in scans)
             {
                 data.Add(new SingleScanDataObject(scan));
             }
 
-            ISpectraProcesor.ProccessDataQueue(data.GetRange(0, 5));
+            DataDependentScanOptions options = new()
+            {
+                IsolationWidth = 0.7,
+                Resolution = 15000,
+                MaxIT = 25,
+                NCE = 27,
+                NCE_NormCharge = 2,
+                AGC_Target = 100000
+            };
+
+            DataDependentScanTask ddaTask = new();
+            foreach (var dataItem in data)
+            {
+                ddaTask.RunSpecific(options, dataItem);
+            }
 
         }
 

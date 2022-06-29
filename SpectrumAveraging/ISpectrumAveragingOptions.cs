@@ -8,7 +8,7 @@ using TaskInterfaces;
 
 namespace SpectrumAveraging
 {
-    public interface ISpectrumAveragingOptions : ITaskOptions<ISpectrumAveragingOptions>
+    public interface ISpectrumAveragingOptions : ITaskOptions
     {
         [Option('r', "rejection")]
         public RejectionType RejectionType { get; set; }

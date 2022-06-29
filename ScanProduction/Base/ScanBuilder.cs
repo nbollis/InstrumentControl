@@ -3,37 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Thermo.Interfaces.FusionAccess_V1;
-using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer; 
-namespace InstrumentControl.Interfaces
+
+namespace ScanProduction
 {
-    public interface IBaseScan
+    /// <summary>
+    /// Parent class for all scan builders. Defines methods with the same implementation
+    /// </summary>
+    public class ScanBuilder
     {
-        // Common Settings
-        public double FirstMass { get; set;  }
-        public double LastMass { get; set;  }
-        public Analyzer Analyzer { get; set; }
-        public ScanType ScanType { get; set; }
-        public double SourceCIDEnergy { get; set; }
-        public double SrcRFLens { get; set; }
-        public Polarity Polarity { get; set; }  
-        public DataType DataType { get; set; }
-        public IsolationMode IsolationMode { get; set; }    
-        public double AGCTarget { get; set; }
-        public double MaxIT { get; set; }
-        public int MicroScans { get; set; }
-        public OrbitrapResolution OrbitrapResolution { get; set; }
-        
-        // MS2 Only
-        public ActivationType ActivationType { get; set; }
-        public double CollisionEnergy { get; set; }
-        public double IsolationWidth { get; set; }
-        public int[] ChargeStates { get; set; }
-        public double ActivationQ { get; set; }
-        public double PrecursorMass { get; set; }
-        public double ReactionTime { get; set; }
-        public double ReagentMaxIT { get; set; }
-        public double ReagentAGCTarget { get; set; }
+
         /// <summary>
         /// Allows user to set value of the properties dynamically. 
         /// </summary>
@@ -64,17 +42,18 @@ namespace InstrumentControl.Interfaces
                 throw new ArgumentException("Invalid property name");
             }
         }
+
         public Dictionary<string, string> BuildDictionary()
         {
-            Dictionary<string, string> scanDict = new(); 
+            Dictionary<string, string> scanDict = new();
 
-            foreach(var property in this.GetType().GetProperties())
+            foreach (var property in GetType().GetProperties())
             {
                 // property name = string to set to key in dictionary
                 // value = orbitrap resolution value
                 // name = all other enum values. 
 
-                var objectType = property.PropertyType; 
+                var objectType = property.PropertyType;
                 string propertyName = property.Name;
 
                 if (objectType.IsEnum)
@@ -93,26 +72,24 @@ namespace InstrumentControl.Interfaces
                     string val = property.GetValue(this).ToString();
                     scanDict.Add(propertyName, val);
                 }
+                else if (objectType == typeof(string))
+                {
+                    scanDict.Add(propertyName, property.GetValue(this).ToString());
+                }
                 else
                 {
                     throw new ArgumentException("Error in object conversion to dictionary. " +
-                        "Unable to return correctly formatted object."); 
+                        "Unable to return correctly formatted object.");
                 }
             }
-            return scanDict; 
+            return scanDict;
         }
-        public void SetDefaults()
-        {
-            // TODO: Implement a method that takes an IScans and sets the properties of this
-            // to the original scan.  
-            throw new NotImplementedException();
-        }
+
         public void CheckDefaults<T>(InstrumentSettings setting, T value)
         {
             // TODO: Implement generic validity testing for all values. 
             // Probably use a switch and the InstrumentSettings enum. 
-            throw new NotImplementedException(); 
+            throw new NotImplementedException();
         }
     }
-    
 }

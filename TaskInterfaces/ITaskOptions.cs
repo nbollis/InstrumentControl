@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TaskInterfaces
 {
-    public interface ITaskOptions<T>
+    public interface ITaskOptions
     {
 
     }

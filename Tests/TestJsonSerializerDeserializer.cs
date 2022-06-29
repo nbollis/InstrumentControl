@@ -3,6 +3,7 @@ using InstrumentControlIO;
 using MassSpectrometry;
 using Newtonsoft.Json;
 using System.Linq;
+using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 
 namespace Tests
@@ -29,6 +30,7 @@ namespace Tests
         [Test]
         public static void SerializationOfSimpleObjects()
         {
+            
             double testDub = 14;
             string filepath = Path.Combine(OutputDirectory, @"test1.txt");
             JsonSerializerDeserializer.SerializeToNewFile(testDub, filepath);

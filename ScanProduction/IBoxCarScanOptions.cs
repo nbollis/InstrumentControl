@@ -6,18 +6,33 @@ using System.Text;
 using System.Threading.Tasks;
 using TaskInterfaces;
 
-namespace ScanProdution
+namespace ScanProduction
 {
-    public interface IBoxCarScanOptions : ITaskOptions<IBoxCarScanOptions>
+    public interface IBoxCarScanOptions : ITaskOptions
     {
         [Option]
-        // with on either side of the selected mass to grab
-        public double DaTolerance { get; set; }
+        public int AGCTarget { get; set; }
+        [Option]
+        public int MaxIT { get; set; }
+        [Option]
+        public double IsolationWidth { get; set; }
+        [Option]
+        public int Resolution { get; set; }
+        public string MsxInjectRanges { get; set; }
+        public string MsxInjectTargets { get; set; }
+        public string MsxInjectMaxITs { get; set; }
     }
 
     public class BoxCarScanOptions : IBoxCarScanOptions
     {
-        public double DaTolerance { get; set; }
+        public int AGCTarget { get; set; }
+        public int MaxIT { get; set; }
+        public double IsolationWidth { get; set; }
+        public int Resolution { get; set; }
+        public string MsxInjectRanges { get; set; }
+        public string MsxInjectTargets { get; set; }
+        public string MsxInjectMaxITs { get; set; }
+
         public BoxCarScanOptions()
         {
 

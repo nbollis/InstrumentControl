@@ -1,40 +1,51 @@
 ﻿using Data;
-using ScanProdution;
+using ScanProduction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
 
 namespace InstrumentControl
 {
-    internal class BoxCarScanTask : InstrumentControlTask
+    public class BoxCarScanTask : InstrumentControlTask
     {
         public BoxCarScanTask()
         {
 
         }
 
-        public override void RunSpecific<T, U>(T otpions, U? data) where U : default
+        public override void RunSpecific<T, U>(T options, U data) 
         {
-            // not sure how to handle this, this is temparary
-            // checks to make sure the correct types were passed in
+            if (options == null || data == null)
+            {
+                throw new ArgumentException("Data or options passed to method is null.");
+            }
             if (typeof(T) != typeof(BoxCarScanOptions))
             {
-                throw new Exception("Wrong options for BoxCarScanTask you fool");
+                throw new ArgumentException("Invalid options class for BoxCarScanTask");
             }
-
             if (typeof(U) != typeof(SingleScanDataObject))
             {
-                throw new Exception("Wrong data type for BoxCarScanTask you fool");
+                throw new ArgumentException("Invalid DataObject for BoxCarScanTask");
             }
 
-            // TODO: pull whole charge state data from single scan data object as List<double>
+            
+            // get mzValues to isolate
+            List<double>[] mzValues = (data as SingleScanDataObject).GetChargeStateEnvelopeMz(); // NOT A REAL METHOD YET
 
-            // TODO: get boxcars (NB working on it)
-
-            // TODO: add boxcars to scan and send it off
-
+            // send back custom scan
+            ICustomScan scan = Program.MScan.CreateCustomScan();
+            BoxCarScanBuilder boxBuilder = new();
+            ScanProducer producer = new(boxBuilder);
+            // for each set of charge states desired to be isolated
+            foreach (var mz in mzValues)
+            {
+                producer.BuildScan(options, data);
+                producer.SetValuesToScan(scan);
+                Program.MScan.SetCustomScan(scan);
+            }
         }
     }
 }
