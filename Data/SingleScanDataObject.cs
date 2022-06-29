@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using MassSpectrometry;
-using IMSScanClassExtensions; 
+using IMSScanClassExtensions;
+using TaskInterfaces;
 
 namespace Data
 {
-    public class SingleScanDataObject
+    public class SingleScanDataObject : IData
     {
         public double[] XArray { get; private set; }
         public double[] YArray { get; private set; }
@@ -31,10 +32,19 @@ namespace Data
             XArray = scan.MassSpectrum.XArray;
             YArray = scan.MassSpectrum.YArray;
             TotalIonCurrent = scan.TotalIonCurrent;
+            MinX = scan.MassSpectrum.XArray.Min();
+            MaxX = scan.MassSpectrum.XArray.Max();
         }
         public void UpdateYarray(double[] newYarray)
         {
             YArray = newYarray; 
+        }
+
+        // temp
+        public List<double>[] GetChargeStateEnvelopeMz()
+        {
+            List<double>[] result = new List<double>[1] { new List<double>()};
+            return result;
         }
     }
 }

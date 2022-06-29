@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TaskInterfaces;
 
 namespace Data
 {
-    public class MultiScanDataObject
+    public class MultiScanDataObject : IData
     {
         public double MinX { get; set; }
         public double MaxX { get; set; }

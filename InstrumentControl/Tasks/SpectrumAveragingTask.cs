@@ -1,6 +1,5 @@
 ﻿using MassSpectrometry;
 using MzLibUtil;
-using InstrumentControl.Interfaces; 
 using SpectrumAveraging;
 using TaskInterfaces;
 using Data; 

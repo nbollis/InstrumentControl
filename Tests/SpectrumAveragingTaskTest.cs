@@ -1,5 +1,4 @@
 ﻿using InstrumentControl;
-using InstrumentControl.Tasks;
 using MassSpectrometry;
 using MathNet.Numerics.Distributions;
 using NUnit.Framework;

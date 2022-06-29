@@ -4,7 +4,7 @@ using TaskInterfaces;
 
 namespace Normalization
 {
-    public interface INormalizationOptions : ITaskOptions<INormalizationOptions>
+    public interface INormalizationOptions : ITaskOptions
     {
         [Option]
         public bool PerformNormalization { get; set; }

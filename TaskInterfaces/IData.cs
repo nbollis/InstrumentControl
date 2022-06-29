@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TaskInterfaces
 {
-    public interface IData<T>
+    public interface IData
     {
 
     }

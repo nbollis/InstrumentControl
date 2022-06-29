@@ -6,7 +6,6 @@ using MassSpectrometry;
 using InstrumentControl;
 using UsefulProteomicsDatabases;
 using MzLibUtil;
-using InstrumentControl.Tasks;
 
 namespace Tests
 {

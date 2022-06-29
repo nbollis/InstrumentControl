@@ -10,6 +10,9 @@ namespace InstrumentControl
 {
     public class WholeChargeEnvelopeFragmentationApplication : Application
     {
-
+        public override void ProcessScans(object sender, ThresholdReachedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

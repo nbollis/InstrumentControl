@@ -22,17 +22,26 @@ namespace InstrumentControl
 
         public override void RunSpecific<T, U>(T options, U data)
         {
-            if(typeof(U) == typeof(MultiScanDataObject))
+            if(typeof(T) != typeof(NormalizationOptions))
             {
-                MultiScanDataObjectExtensions.NormalizeSpectraToTic(data as MultiScanDataObject, options as NormalizationOptions); 
-            }else if(typeof(U) == typeof(SingleScanDataObject))
-            {
-                SingleScanDataObject scan = data as SingleScanDataObject;
-                var yarray = scan.YArray; 
-                SpectrumNormalization.NormalizeSpectrumToTic(ref yarray, 
-                    (data as SingleScanDataObject).TotalIonCurrent);
-                scan.UpdateYarray(yarray); 
+                throw new ArgumentException("Invalid options class for NormalizationTask");
             }
+            if((options as NormalizationOptions).PerformNormalization == true)
+            {
+                if (typeof(U) == typeof(MultiScanDataObject))
+                {
+                    MultiScanDataObjectExtensions.NormalizeSpectraToTic(data as MultiScanDataObject, options as NormalizationOptions);
+                }
+                else if (typeof(U) == typeof(SingleScanDataObject))
+                {
+                    SingleScanDataObject scan = data as SingleScanDataObject;
+                    var yarray = scan.YArray;
+                    SpectrumNormalization.NormalizeSpectrumToTic(ref yarray,
+                        (data as SingleScanDataObject).TotalIonCurrent);
+                    scan.UpdateYarray(yarray);
+                }
+            }
+            
         }
     }
 }

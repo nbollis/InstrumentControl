@@ -5,13 +5,15 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using InstrumentControl.Util;
 using CommandLine;
-using TaskInterfaces; 
+using TaskInterfaces;
+using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
+using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
 
 namespace InstrumentControl
 {
-    class Program
+    public class Program
     { 
-
+        public static IScans MScan { get; set; }
         /*
         Main structure: 
         0. Initialize FusionLumosAPI; create Application class; 

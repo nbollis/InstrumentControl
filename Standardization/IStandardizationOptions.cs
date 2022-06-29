@@ -3,7 +3,7 @@ using CommandLine;
 
 namespace TaskInterfaces
 {
-    public interface IStandardizationOptions : ITaskOptions<IStandardizationOptions>
+    public interface IStandardizationOptions : ITaskOptions
     {
         [Option]
         public double MinMass { get; set; }
