@@ -39,5 +39,14 @@
 			<HintPath>..\InstrumentControl\ThermoIAPIDependencies\lib\VI-1.0.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="DataFiles\TDYeastFractionMMResult.psmtsv">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	  <None Update="DataFiles\TDYeastFractionMS1.mzML">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 	
 </Project>
