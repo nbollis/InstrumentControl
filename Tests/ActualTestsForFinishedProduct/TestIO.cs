@@ -1,14 +1,13 @@
-﻿using InstrumentControl;
+﻿using IMSScanClassExtensions;
+using InstrumentControl;
 using InstrumentControlIO;
 using MassSpectrometry;
 using Newtonsoft.Json;
-using System.Linq;
-using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 
 namespace Tests
 {
-    public class TestJsonSerializerDeserializer
+    public class TestIO
     {
         public static string OutputDirectory;
 
@@ -30,7 +29,6 @@ namespace Tests
         [Test]
         public static void SerializationOfSimpleObjects()
         {
-            
             double testDub = 14;
             string filepath = Path.Combine(OutputDirectory, @"test1.txt");
             JsonSerializerDeserializer.SerializeToNewFile(testDub, filepath);
@@ -60,10 +58,6 @@ namespace Tests
             JsonSerializerDeserializer.SerializeAndAppend(testDub5, filepath);
             var returnedArray = JsonSerializerDeserializer.DeserializeCollection<double>(filepath).ToArray();
             Assert.That(testArray.SequenceEqual(returnedArray));
-
-
-
-
         }
 
         [Test]
@@ -84,7 +78,7 @@ namespace Tests
             // serialize and deserialize a collection  of MzSpectra
             filepath = Path.Combine(OutputDirectory, @"scan2.txt");
             List<MzSpectrum> twentySpectra = scans.GetRange(20, 20).Select(p => p.MassSpectrum).ToList();
-            JsonSerializerDeserializer.SerializeCollection<MzSpectrum>(twentySpectra, filepath);
+            JsonSerializerDeserializer.SerializeCollection(twentySpectra, filepath);
             var deserialized = JsonSerializerDeserializer.DeserializeCollection<MzSpectrum>(filepath).ToList();
 
             for (int i = 0; i < twentySpectra.Count; i++)
@@ -96,12 +90,69 @@ namespace Tests
         }
 
         [Test]
-        public static void SerializeIMsScan()
+        public static void DeserializeIMsScan()
         {
-           
+
+            string folderpath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\IMsScansSerialized");
+            string[] scanFolders = Directory.GetDirectories(folderpath);
+            List<IMsScan> scans = new();
+            foreach (var folder in scanFolders)
+            {
+                IMsScan scan = ScanSerialization.ImportIMsScan(folder);
+                scans.Add(scan);
+            }
+            Assert.That(scans.Count() == scanFolders.Length);
+
+
+            string outputPath = Path.Combine(OutputDirectory, @"IMsScans");
+            foreach (var scan in scans)
+            {
+                Assert.That(scan.Header != null);
+                Assert.That(scan.TuneData != null);
+                Assert.That(scan.ChargeEnvelopes == null);
+                Assert.That(scan.NoiseBand.Count() == 0);
+                Assert.That(scan.NoiseCount == 0);
+                Assert.That(scan.Centroids != null);
+                Assert.That(scan.CentroidCount != null);
+                Assert.That(scan.Centroids.Count() == scan.CentroidCount);
+                Assert.That(scan.DetectorName != null);
+            }
         }
 
+        [Test]
+        public static void TestLoadingMsDataScanAsIMsScan()
+        {
+            string scanspath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"DataFiles\TDYeastFractionMS1.mzML");
+            List<MsDataScan> scans = MS1DatabaseParser.LoadAllScansFromFile(scanspath);
+            List<IMsScan> imsScans = new List<IMsScan>();
 
+            foreach (var scan in scans)
+            {
+                IMsScan imsScan = new IMsScanInstance(scan);
 
+                Assert.That(imsScan.TuneData == null);
+                Assert.That(imsScan.ChargeEnvelopes == null);
+                Assert.That(imsScan.NoiseBand == null);
+                Assert.That(imsScan.NoiseCount == null);
+                Assert.That(imsScan.Centroids != null);
+                Assert.That(imsScan.CentroidCount != null);
+                Assert.That(imsScan.CentroidCount == scan.MassSpectrum.XArray.Length);
+                Assert.That(imsScan.Centroids.Count() == imsScan.CentroidCount);
+                Assert.That(imsScan.DetectorName != null);
+                Assert.That(imsScan.Header != null);
+                Assert.That(imsScan.Header["MassAnalyzer"] == scan.MzAnalyzer.ToString());
+                Assert.That(imsScan.Header["StartTime"] == scan.RetentionTime.ToString());
+                Assert.That(imsScan.Header["Scan"] == scan.OneBasedScanNumber.ToString());
+                Assert.That(imsScan.Header["TIC"] == scan.TotalIonCurrent.ToString());
+                Assert.That(imsScan.Header["BasePeakIntensity"] == scan.MassSpectrum.YArray.First().ToString("0.0"));
+                Assert.That(imsScan.Header["BasePeakMass"] == scan.MassSpectrum.XArray.First().ToString("0.00"));
+                Assert.That(imsScan.Header["Polarity"] == scan.Polarity.ToString());
+                Assert.That(imsScan.Header["InjectTime"] == scan.InjectionTime.ToString());
+                Assert.That(imsScan.Header["MSOrder"] == scan.MsnOrder.ToString());
+
+                imsScans.Add(imsScan);
+            }
+            Assert.That(scans.Count == imsScans.Count);
+        }
     }
 }

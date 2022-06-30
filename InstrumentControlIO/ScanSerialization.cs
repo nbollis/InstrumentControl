@@ -43,6 +43,9 @@ namespace InstrumentControlIO
 			filepath = Path.Combine(folderpath, @"NoiseBand.txt");
 			JsonSerializerDeserializer.SerializeAndAppend<IEnumerable<INoiseNode>>(scan.NoiseBand, filepath);
 
+			filepath = Path.Combine(folderpath, @"DetectorName.txt");
+			JsonSerializerDeserializer.SerializeAndAppend<string>(scan.DetectorName, filepath);
+
 			string centroidFolderpath = Path.Combine(folderpath, @"centroids");
 			Directory.CreateDirectory(centroidFolderpath);
 			foreach (var centroid in scan.Centroids)
@@ -99,18 +102,18 @@ namespace InstrumentControlIO
 				};
 				centroids.Add(centroid);
             }
-
 			
             var scan = new IMsScanInstance() 
 			{
 				CentroidCount = JsonSerializerDeserializer.Deserialize<int?>(Path.Combine(folderpath, @"CentroidCount.txt"), true),
 				Header = JsonSerializerDeserializer.Deserialize<IDictionary<string, string>>(Path.Combine(folderpath, @"Header.txt"), true),
-				StatusLog = JsonSerializerDeserializer.Deserialize<IInformationSourceAccess>(Path.Combine(folderpath, @"StatusLog.txt"), true),
-				Trailer = JsonSerializerDeserializer.Deserialize<IInformationSourceAccess>(Path.Combine(folderpath, @"Trailer.txt"), true),
-				TuneData = JsonSerializerDeserializer.Deserialize<IInformationSourceAccess> (Path.Combine(folderpath, @"TuneData.txt"), true),
+				StatusLog = JsonSerializerDeserializer.Deserialize<IInformationSourceAccessInstance>(Path.Combine(folderpath, @"StatusLog.txt"), true),
+				Trailer = JsonSerializerDeserializer.Deserialize<IInformationSourceAccessInstance>(Path.Combine(folderpath, @"Trailer.txt"), true),
+				TuneData = JsonSerializerDeserializer.Deserialize<IInformationSourceAccessInstance> (Path.Combine(folderpath, @"TuneData.txt"), true),
 				ChargeEnvelopes = JsonSerializerDeserializer.Deserialize<IChargeEnvelope[]>(Path.Combine(folderpath, @"ChargeEnvelopes.txt"), true),
 				NoiseCount = JsonSerializerDeserializer.Deserialize<int?>(Path.Combine(folderpath, @"NoiseCount.txt"), true),
 				NoiseBand = JsonSerializerDeserializer.Deserialize<IEnumerable<INoiseNode>>(Path.Combine(folderpath, @"NoiseBand.txt"), true),
+				DetectorName = JsonSerializerDeserializer.Deserialize<string>(Path.Combine(folderpath, @"DetectorName.txt"), true),
 				Centroids = centroids,
 			};
 

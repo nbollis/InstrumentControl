@@ -12,7 +12,7 @@ namespace InstrumentControlIO
     public static class MzmlBuilder
     {
         public static List<MsDataScan> ScanList { get; set; }
-        
+
 
 
         public static void CreateAveragedMsDataScan()

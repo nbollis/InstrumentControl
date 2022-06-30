@@ -79,7 +79,6 @@ namespace IMSScanClassExtensions
 
         #endregion
 
-
         /// <summary>
         /// Returns a IMsScanInstance from the data randomly selecting a scan
         /// </summary>

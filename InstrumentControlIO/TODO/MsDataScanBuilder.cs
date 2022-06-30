@@ -16,7 +16,7 @@ namespace InstrumentControlIO
         public static int oneBasedScanNumber;
         public static int msnOrder;
         public static bool isCentroid;
-        public static MassSpectrometry.Polarity polarity;
+        public static Polarity polarity;
         public static double retentionTime;
         public static MzRange scanWindowRange;
         public static string scanFilter;
