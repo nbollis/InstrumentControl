@@ -10,36 +10,43 @@ namespace IMSScanClassExtensions
 {
     public class ICentroidInstance : ICentroid
     {
-        #region Not Yet Implemented
-        public bool? IsExceptional => throw new NotImplementedException();
+        public bool? IsExceptional { get; set; }
 
-        public bool? IsReferenced => throw new NotImplementedException();
+        public bool? IsReferenced { get; set; }
 
-        public bool? IsMerged => throw new NotImplementedException();
+        public bool? IsMerged { get; set; }
 
-        public bool? IsFragmented => throw new NotImplementedException();
+        public bool? IsFragmented { get; set; }
 
-        public int? Charge => throw new NotImplementedException();
+        public int? Charge { get; set; }
 
         public IMassIntensity[] Profile => throw new NotImplementedException();
 
-        public double? Resolution => throw new NotImplementedException();
+        public double? Resolution { get; set; }
 
-        public int? ChargeEnvelopeIndex => throw new NotImplementedException();
+        public int? ChargeEnvelopeIndex { get; set; }
 
-        public bool? IsMonoisotopic => throw new NotImplementedException();
+        public bool? IsMonoisotopic { get; set; }
 
-        public bool? IsClusterTop => throw new NotImplementedException();
-
-        #endregion
+        public bool? IsClusterTop { get; set; }
 
         public double Mz { get; set; }
         public double Intensity { get; set; }
 
+        #region Constructors
+
+        public ICentroidInstance()
+        {
+
+        }
         public ICentroidInstance(double mz, double intensity)
         {
             Mz = mz;
             Intensity = intensity;
         }
+
+        #endregion
+
+
     }
 }

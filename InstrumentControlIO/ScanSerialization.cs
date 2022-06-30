@@ -34,15 +34,8 @@ namespace InstrumentControlIO
 			filepath = Path.Combine(folderpath, @"TuneData.txt");
 			JsonSerializerDeserializer.SerializeAndAppend<IInformationSourceAccess>(scan.TuneData, filepath);
 
-			filepath = Path.Combine(folderpath, @"CentroidMzInt.txt");
-			foreach (var centroid in scan.Centroids)
-			{
-				Tuple<double, double> mzInt = new(centroid.Mz, centroid.Intensity);
-				JsonSerializerDeserializer.SerializeAndAppend<Tuple<double,double>>(mzInt, filepath);
-			}
-
 			filepath = Path.Combine(folderpath, @"ChargeEnvelopes.txt");
-            JsonSerializerDeserializer.SerializeAndAppend<IChargeEnvelope[]>(scan.ChargeEnvelopes, filepath);
+			JsonSerializerDeserializer.SerializeAndAppend<IChargeEnvelope[]>(scan.ChargeEnvelopes, filepath);
 
 			filepath = Path.Combine(folderpath, @"NoiseCount.txt");
 			JsonSerializerDeserializer.SerializeAndAppend<int?>(scan.NoiseCount, filepath);
@@ -50,6 +43,30 @@ namespace InstrumentControlIO
 			filepath = Path.Combine(folderpath, @"NoiseBand.txt");
 			JsonSerializerDeserializer.SerializeAndAppend<IEnumerable<INoiseNode>>(scan.NoiseBand, filepath);
 
+			string centroidFolderpath = Path.Combine(folderpath, @"centroids");
+			Directory.CreateDirectory(centroidFolderpath);
+			foreach (var centroid in scan.Centroids)
+			{
+				Tuple<double, double> mzInt = new(centroid.Mz, centroid.Intensity);
+				filepath = Path.Combine(centroidFolderpath, @"CentroidMzInt.txt");
+				JsonSerializerDeserializer.SerializeAndAppend<Tuple<double,double>>(mzInt, filepath);
+
+				bool?[] bools = new bool?[6];
+				bools[0] = centroid.IsExceptional;
+				bools[1] = centroid.IsReferenced;
+				bools[2] = centroid.IsMerged;
+				bools[3] = centroid.IsFragmented;
+				bools[4] = centroid.IsMonoisotopic;
+				bools[5] = centroid.IsClusterTop;
+				filepath = Path.Combine(centroidFolderpath, @"Bools.txt");
+                JsonSerializerDeserializer.SerializeAndAppend<bool?[]>(bools, filepath);
+
+				int?[] ints = new int?[2];
+				ints[0] = centroid.Charge;
+				ints[1] = centroid.ChargeEnvelopeIndex;
+				filepath = Path.Combine(centroidFolderpath, @"Ints.txt");
+				JsonSerializerDeserializer.SerializeAndAppend<int?[]>(ints, filepath);
+			}
 		}
 
         public static IMsScan ImportIMsScan(string folderpath)
@@ -59,11 +76,28 @@ namespace InstrumentControlIO
 				throw new ArgumentException("Folder does not exist");
             }
 
-			var centroidValues = JsonSerializerDeserializer.DeserializeCollection<Tuple<double, double>>(Path.Combine(folderpath, @"CentroidMzInt.txt"));
+			string centroidFolderpath = Path.Combine(folderpath, @"centroids");
+			Tuple<double, double>[] centroidValues = JsonSerializerDeserializer.DeserializeCollection<Tuple<double, double>>(Path.Combine(centroidFolderpath, @"CentroidMzInt.txt")).ToArray();
+			bool?[][] bools = JsonSerializerDeserializer.DeserializeCollection<bool?[]>(Path.Combine(centroidFolderpath, @"Bools.txt")).ToArray();
+			int?[][] ints = JsonSerializerDeserializer.DeserializeCollection<int?[]>(Path.Combine(centroidFolderpath, @"Ints.txt")).ToArray();
+
 			List<ICentroid> centroids = new();           
-			foreach (var value in centroidValues)
+			for (int i = 0; i < centroidValues.Count(); i++)
             {
-				centroids.Add(new ICentroidInstance(value.Item1, value.Item2));
+				ICentroidInstance centroid = new()
+				{
+                    Mz = centroidValues[i].Item1,
+					Intensity = centroidValues[i].Item2,
+					IsExceptional = bools[i][0],
+					IsReferenced = bools[i][1],
+					IsMerged = bools[i][2],
+					IsFragmented = bools[i][3],
+					IsMonoisotopic = bools[i][4],
+					IsClusterTop = bools[i][5],
+					Charge = ints[i][0],
+					ChargeEnvelopeIndex = ints[1][1]
+				};
+				centroids.Add(centroid);
             }
 
 			
@@ -74,10 +108,10 @@ namespace InstrumentControlIO
 				StatusLog = JsonSerializerDeserializer.Deserialize<IInformationSourceAccess>(Path.Combine(folderpath, @"StatusLog.txt"), true),
 				Trailer = JsonSerializerDeserializer.Deserialize<IInformationSourceAccess>(Path.Combine(folderpath, @"Trailer.txt"), true),
 				TuneData = JsonSerializerDeserializer.Deserialize<IInformationSourceAccess> (Path.Combine(folderpath, @"TuneData.txt"), true),
-				Centroids = centroids,
 				ChargeEnvelopes = JsonSerializerDeserializer.Deserialize<IChargeEnvelope[]>(Path.Combine(folderpath, @"ChargeEnvelopes.txt"), true),
 				NoiseCount = JsonSerializerDeserializer.Deserialize<int?>(Path.Combine(folderpath, @"NoiseCount.txt"), true),
 				NoiseBand = JsonSerializerDeserializer.Deserialize<IEnumerable<INoiseNode>>(Path.Combine(folderpath, @"NoiseBand.txt"), true),
+				Centroids = centroids,
 			};
 
 			return (IMsScan)scan;
