@@ -19,6 +19,9 @@
     <Reference Include="API-2.0">
       <HintPath>..\InstrumentControl\ThermoIAPIDependencies\lib\API-2.0.dll</HintPath>
     </Reference>
+    <Reference Include="Spectrum-1.0">
+      <HintPath>..\InstrumentControl\ThermoIAPIDependencies\lib\Spectrum-1.0.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

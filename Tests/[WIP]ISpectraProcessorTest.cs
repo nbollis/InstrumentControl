@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Data;
 using ScanProduction;
 using TaskInterfaces;
+using Moq;
+using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 
 namespace Tests
 {
@@ -49,6 +51,13 @@ namespace Tests
                 ddaTask.RunSpecific(options, dataItem);
             }
 
+        }
+
+        [Test]
+        public static void IDKMan()
+        {
+            var mock = new Mock<IMsScan>();
+            var obj = mock.Object;
         }
 
 
