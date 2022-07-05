@@ -23,6 +23,8 @@ namespace ScanProduction
         #region To Calculate
         public double IsolationRangeLow { get; set; }
         public double IsolationRangeHight { get; set; }
+        public double PrecursorMass { get; set; }
+        public string ScanType { get; set; }
 
         #endregion
 
@@ -30,7 +32,7 @@ namespace ScanProduction
         public void BuildScan<T, U>(T options, U data) where T : ITaskOptions
         {
             DataDependentScanOptions scanOptions = options as DataDependentScanOptions;
-            double mzToIsolate = Math.Round(double.Parse(data.ToString()), 3);
+            PrecursorMass = Math.Round(double.Parse(data.ToString()), 3);
             
             // set properties that were passed as options
             IsolationWidth = scanOptions.IsolationWidth;
@@ -40,8 +42,8 @@ namespace ScanProduction
             AGC_Target = scanOptions.AGC_Target;
 
             // calculate other necessary properties
-            IsolationRangeLow = mzToIsolate - IsolationWidth;
-            IsolationRangeHight = mzToIsolate + IsolationWidth;
+            IsolationRangeLow = PrecursorMass - IsolationWidth;
+            IsolationRangeHight = PrecursorMass + IsolationWidth;
         }
 
         #endregion

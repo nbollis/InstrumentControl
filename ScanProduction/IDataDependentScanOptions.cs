@@ -25,6 +25,8 @@ namespace ScanProduction
 
         public double IsolationRangeLow { get; set; }
         public double IsolationRangeHight { get; set; }
+        public double PrecursorMass { get; set; }
+        public string ScanType { get; set; }
     }
 
     public class DataDependentScanOptions : IDataDependentScanOptions
@@ -38,6 +40,8 @@ namespace ScanProduction
 
         public double IsolationRangeLow { get; set; }
         public double IsolationRangeHight { get; set; }
+        public double PrecursorMass { get; set; }
+        public string ScanType { get; set; } = "MSn";
     }
 
 }
