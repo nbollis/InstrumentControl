@@ -14,15 +14,14 @@ namespace ScanProduction
         public double IsolationWidth { get; set; }
         public double Resolution { get; set; }
         public double MaxIT { get; set; }
-        public double NCE { get; set; }
-        public int NCE_NormCharge { get; set; }
+        public double CollisionEnergy { get; set; }
         public double AGC_Target { get; set; }
 
         #endregion
 
         #region To Calculate
-        public double IsolationRangeLow { get; set; }
-        public double IsolationRangeHight { get; set; }
+        public double PrecursorMass { get; set; }
+        public string ScanType { get; set; }
 
         #endregion
 
@@ -30,18 +29,15 @@ namespace ScanProduction
         public void BuildScan<T, U>(T options, U data) where T : ITaskOptions
         {
             DataDependentScanOptions scanOptions = options as DataDependentScanOptions;
-            double mzToIsolate = Math.Round(double.Parse(data.ToString()), 3);
+            PrecursorMass = Math.Round(double.Parse(data.ToString()), 3);
             
             // set properties that were passed as options
             IsolationWidth = scanOptions.IsolationWidth;
             Resolution = scanOptions.Resolution;
             MaxIT = scanOptions.MaxIT;
-            NCE = scanOptions.NCE;
+            CollisionEnergy = scanOptions.CollisionEnergy;
             AGC_Target = scanOptions.AGC_Target;
 
-            // calculate other necessary properties
-            IsolationRangeLow = mzToIsolate - IsolationWidth;
-            IsolationRangeHight = mzToIsolate + IsolationWidth;
         }
 
         #endregion
