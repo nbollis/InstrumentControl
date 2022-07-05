@@ -14,15 +14,12 @@ namespace ScanProduction
         public double IsolationWidth { get; set; }
         public double Resolution { get; set; }
         public double MaxIT { get; set; }
-        public double NCE { get; set; }
-        public int NCE_NormCharge { get; set; }
+        public double CollisionEnergy { get; set; }
         public double AGC_Target { get; set; }
 
         #endregion
 
         #region To Calculate
-        public double IsolationRangeLow { get; set; }
-        public double IsolationRangeHight { get; set; }
         public double PrecursorMass { get; set; }
         public string ScanType { get; set; }
 
@@ -38,12 +35,9 @@ namespace ScanProduction
             IsolationWidth = scanOptions.IsolationWidth;
             Resolution = scanOptions.Resolution;
             MaxIT = scanOptions.MaxIT;
-            NCE = scanOptions.NCE;
+            CollisionEnergy = scanOptions.CollisionEnergy;
             AGC_Target = scanOptions.AGC_Target;
 
-            // calculate other necessary properties
-            IsolationRangeLow = PrecursorMass - IsolationWidth;
-            IsolationRangeHight = PrecursorMass + IsolationWidth;
         }
 
         #endregion

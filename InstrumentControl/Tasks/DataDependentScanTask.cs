@@ -35,16 +35,20 @@ namespace InstrumentControl
             int scansSent = 0;
             double mzToIsolate;
             double[] topNintValues = (data as SingleScanDataObject).YArray.OrderByDescending(p => p).Take(ScanProductionGlobalVariables.TopN).ToArray();
+            double[] mzsToIsolate = new double[topNintValues.Length];
+            for (int i = 0; i < mzsToIsolate.Length; i++)
+            {
+                mzsToIsolate[i] = (data as SingleScanDataObject).XArray[Array.IndexOf((data as SingleScanDataObject).YArray, topNintValues[i])];
+            }
 
             // send back custom scan
             ICustomScan scan = Program.MScan.CreateCustomScan();
             DataDependentScanBuilder dataBuilder = new DataDependentScanBuilder();
             ScanProducer producer = new(dataBuilder);
             // for each value to isolate and fragment
-            foreach (var intensity in topNintValues)
+            foreach (var mz in mzsToIsolate)
             {
-                mzToIsolate = (data as SingleScanDataObject).XArray[Array.IndexOf((data as SingleScanDataObject).YArray, intensity)];
-                producer.BuildScan(options, mzToIsolate);
+                producer.BuildScan(options, mz);
                 producer.SetValuesToScan(scan);
                 Program.MScan.SetCustomScan(scan);
             }
