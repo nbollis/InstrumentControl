@@ -69,6 +69,11 @@ namespace ScanProduction
         SIM,
         MSn
     }
+    public enum Polarity
+    {
+        Postive,
+        Negative
+    }
     public enum DataType
     {
         Centroid,
@@ -87,10 +92,5 @@ namespace ScanProduction
         ETD,
         EThcD,
         ETciD
-    }
-    public enum Polarity
-    {
-        Postive,
-        Negative
     }
 }

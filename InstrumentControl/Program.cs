@@ -8,12 +8,14 @@ using CommandLine;
 using TaskInterfaces;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
+using Thermo.Interfaces.InstrumentAccess_V1.Control;
 
 namespace InstrumentControl
 {
     public class Program
     { 
         public static IScans MScan { get; set; }
+
         /*
         Main structure: 
         0. Initialize FusionLumosAPI; create Application class; 
