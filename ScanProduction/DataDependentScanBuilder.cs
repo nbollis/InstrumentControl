@@ -15,7 +15,7 @@ namespace ScanProduction
         public double Resolution { get; set; }
         public double MaxIT { get; set; }
         public double CollisionEnergy { get; set; }
-        public double AGC_Target { get; set; }
+        public double AGCTarget { get; set; }
 
         #endregion
 
@@ -36,7 +36,7 @@ namespace ScanProduction
             Resolution = scanOptions.Resolution;
             MaxIT = scanOptions.MaxIT;
             CollisionEnergy = scanOptions.CollisionEnergy;
-            AGC_Target = scanOptions.AGC_Target;
+            AGCTarget = scanOptions.AGCTarget;
 
         }
 

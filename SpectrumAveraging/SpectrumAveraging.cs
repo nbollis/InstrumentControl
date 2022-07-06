@@ -1,7 +1,9 @@
 ﻿using MathNet.Numerics.Distributions;
 using MathNet.Numerics.Statistics;
 using MassSpectrometry;
-using MzLibUtil; 
+using MzLibUtil;
+using Data;
+
 namespace SpectrumAveraging
 {
     public static class SpectrumAveraging
@@ -408,6 +410,17 @@ namespace SpectrumAveraging
                     break;
             }
             return compositeSpectrum;
+        }
+
+        /// <summary>
+        /// Override to use MultiScanDataObjects in SpectrumAverager
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static MzSpectrum CombineSpectra(MultiScanDataObject data, SpectrumAveragingOptions options)
+        {
+            return CombineSpectra(data.XArrays, data.YArrays, data.ScansToProcess, options);
         }
 
         /// <summary>
