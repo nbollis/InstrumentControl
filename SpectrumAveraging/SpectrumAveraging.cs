@@ -8,7 +8,54 @@ namespace SpectrumAveraging
 {
     public static class SpectrumAveraging
     {
-        #region Public Methods
+        #region Public Entry Point Methods
+
+        /// <summary>
+        /// Calls the specific merging function based upon the current static field SpecrimMergingType
+        /// </summary>
+        /// <param name="scans"></param>
+        public static MzSpectrum CombineSpectra(double[][] xArrays, double[][] yArrays, int numSpectra, SpectrumAveragingOptions options)
+        {
+            MzSpectrum compositeSpectrum = null;
+            switch (options.SpectrumMergingType)
+            {
+                case SpectrumMergingType.SpectrumBinning:
+                    compositeSpectrum = SpectrumBinning(xArrays, yArrays, options.BinSize, numSpectra, options);
+                    break;
+
+
+                case SpectrumMergingType.MostSimilarSpectrum:
+                    MostSimilarSpectrum();
+                    break;
+            }
+            return compositeSpectrum;
+        }
+
+        /// <summary>
+        /// Override to use MultiScanDataObjects in SpectrumAverager
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static MzSpectrum CombineSpectra(MultiScanDataObject data, SpectrumAveragingOptions options)
+        {
+            return CombineSpectra(data.XArrays, data.YArrays, data.ScansToProcess, options);
+        }
+
+        /// <summary>
+        /// Override to use MultiScanDataObjecs with default averaging settings
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static MzSpectrum CombineSpectra(MultiScanDataObject data)
+        {
+            SpectrumAveragingOptions options = new();
+            options.SetDefaultValues();
+            return CombineSpectra(data, options);
+        }
+        #endregion
+
+        #region Misc Processing Methods
 
         /// <summary>
         /// Main Engine of this class, processes a single array of intesnity values for a single mz and returns their average
@@ -41,36 +88,7 @@ namespace SpectrumAveraging
             return average;
         }
 
-        /// <summary>
-        /// Can be used to set the values of the static class in one method call
-        /// </summary>
-        /// <param name="rejectionType">rejection type to be used</param>
-        /// <param name="percentile">percentile for percentile clipping rejection type</param>
-        /// <param name="sigma">sigma value for sigma clipping rejection types</param>
-        public static SpectrumAveragingOptions SetValues(RejectionType rejectionType = RejectionType.NoRejection, WeightingType intensityWeighingType = WeightingType.NoWeight, double percentile = 0.9, double minSigma = 1.3, double maxSigma = 1.3, double binSize = 0.02)
-        {
-            SpectrumAveragingOptions options = new SpectrumAveragingOptions();
-            options.RejectionType = rejectionType;
-            options.WeightingType = intensityWeighingType;
-            options.Percentile = percentile;
-            options.MinSigmaValue = minSigma;
-            options.MaxSigmaValue = maxSigma;
-            options.BinSize = binSize;
-            return options; 
-        }
-
-        /// <summary>
-        /// Method used to reset all static values to their default
-        /// </summary>
-        public static void ResetValues(SpectrumAveragingOptions options)
-        {
-            options.RejectionType = RejectionType.NoRejection;
-            options.WeightingType = WeightingType.NoWeight;
-            options.Percentile = 0.9;
-            options.MinSigmaValue = 1.3;
-            options.MaxSigmaValue = 1.3;
-            options.BinSize = 0.02;
-        }
+        
 
         #endregion
 
@@ -391,37 +409,6 @@ namespace SpectrumAveraging
 
         #region Merging Functions
 
-        /// <summary>
-        /// Calls the specific merging function based upon the current static field SpecrimMergingType
-        /// </summary>
-        /// <param name="scans"></param>
-        public static MzSpectrum CombineSpectra(double[][] xArrays, double[][] yArrays, int numSpectra, SpectrumAveragingOptions options)
-        {
-            MzSpectrum compositeSpectrum = null;
-            switch (options.SpectrumMergingType)
-            {
-                case SpectrumMergingType.SpectrumBinning:
-                    compositeSpectrum = SpectrumBinning(xArrays, yArrays, options.BinSize, numSpectra, options);
-                    break;
-
-
-                case SpectrumMergingType.MostSimilarSpectrum:
-                    MostSimilarSpectrum();
-                    break;
-            }
-            return compositeSpectrum;
-        }
-
-        /// <summary>
-        /// Override to use MultiScanDataObjects in SpectrumAverager
-        /// </summary>
-        /// <param name="data"></param>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        public static MzSpectrum CombineSpectra(MultiScanDataObject data, SpectrumAveragingOptions options)
-        {
-            return CombineSpectra(data.XArrays, data.YArrays, data.ScansToProcess, options);
-        }
 
         /// <summary>
         /// Merges spectra into a two dimensional array of (m/z, int) values based upon their bin 

@@ -38,5 +38,38 @@ namespace SpectrumAveraging
         {
 
         }
+
+        /// <summary>
+        /// Can be used to set the values of the options class in one method call
+        /// </summary>
+        /// <param name="rejectionType">rejection type to be used</param>
+        /// <param name="percentile">percentile for percentile clipping rejection type</param>
+        /// <param name="sigma">sigma value for sigma clipping rejection types</param>
+        public void SetDefaultValues(RejectionType rejectionType = RejectionType.NoRejection,
+            WeightingType intensityWeighingType = WeightingType.NoWeight, SpectrumMergingType spectrumMergingType = SpectrumMergingType.SpectrumBinning,
+            double percentile = 0.9, double minSigma = 1.3, double maxSigma = 1.3, double binSize = 0.02)
+        {
+            RejectionType = rejectionType;
+            WeightingType = intensityWeighingType;
+            SpectrumMergingType = spectrumMergingType;
+            Percentile = percentile;
+            MinSigmaValue = minSigma;
+            MaxSigmaValue = maxSigma;
+            BinSize = binSize;
+        }
+
+        /// <summary>
+        /// Method used to reset all values to their default
+        /// </summary>
+        public void ResetValuesToDefault()
+        {
+            RejectionType = RejectionType.NoRejection;
+            WeightingType = WeightingType.NoWeight;
+            SpectrumMergingType = SpectrumMergingType.SpectrumBinning;
+            Percentile = 0.9;
+            MinSigmaValue = 1.3;
+            MaxSigmaValue = 1.3;
+            BinSize = 0.02;
+        }
     }
 }
