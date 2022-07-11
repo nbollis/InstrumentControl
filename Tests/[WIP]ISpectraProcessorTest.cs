@@ -40,9 +40,6 @@ namespace Tests
                 IsolationWidth = 0.7,
                 Resolution = 15000,
                 MaxIT = 25,
-                NCE = 27,
-                NCE_NormCharge = 2,
-                AGC_Target = 100000
             };
 
             DataDependentScanTask ddaTask = new();

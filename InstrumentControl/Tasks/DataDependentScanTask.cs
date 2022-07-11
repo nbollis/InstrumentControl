@@ -11,9 +11,11 @@ namespace InstrumentControl
 {
     public class DataDependentScanTask : InstrumentControlTask
     {
+        public ExclusionList ExclusionList { get; set; }
+
         public DataDependentScanTask()
         {
-
+            ExclusionList = new ExclusionList();
         }
 
         public override void RunSpecific<T, U>(T options, U? data) where U : default
@@ -45,6 +47,7 @@ namespace InstrumentControl
             ICustomScan scan = Program.MScan.CreateCustomScan();
             DataDependentScanBuilder dataBuilder = new DataDependentScanBuilder();
             ScanProducer producer = new(dataBuilder);
+
             // for each value to isolate and fragment
             foreach (var mz in mzsToIsolate)
             {

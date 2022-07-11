@@ -15,6 +15,7 @@ namespace InstrumentControl
     /// </summary>
     public class NormalizationTask : InstrumentControlTask
     {
+
         public NormalizationTask()
         {
 
@@ -41,7 +42,6 @@ namespace InstrumentControl
                     scan.UpdateYarray(yarray);
                 }
             }
-            
         }
     }
 }

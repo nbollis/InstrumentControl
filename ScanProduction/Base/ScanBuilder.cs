@@ -1,4 +1,4 @@
-﻿using ScanProduction.Base;
+﻿using ScanProduction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,36 +13,36 @@ namespace ScanProduction
     public class ScanBuilder
     {
 
-        /// <summary>
-        /// Allows user to set value of the properties dynamically. 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="setting"></param><summary>Enum value used to specify setting of the value to be changed.</summary>
-        /// <param name="valueToSet"></param><summary>Value the scan setting should be changed to. </summary>
-        /// <exception cref="ArgumentException"></exception>
-        protected static void SetCustomValue<T>(IBaseScan scan, InstrumentSettings setting, T valueToSet)
-        {
-            // get string from the instrument setting enum 
-            string propertyName = Enum.GetName(setting);
-            // set the value of the property with the value passed. 
-            if (propertyName is not null)
-            {
-                // false positive warning. Checking for null reference, so this error will 
-                // not occur. 
-                // dynamically gets the type of the property. 
-                var propertyType = scan.GetType().GetProperty(propertyName).PropertyType;
-                if (propertyType.HasElementType)
-                {
-                    // Sets the property value using Convert.ChangeType to perform any required casting of input value to property value. 
-                    // Note: You should probably do your best to add the correct type. 
-                    scan.GetType().GetProperty(propertyName).SetValue(scan, Convert.ChangeType(valueToSet, propertyType.GetType()));
-                }
-            }
-            else
-            {
-                throw new ArgumentException("Invalid property name");
-            }
-        }
+        ///// <summary>
+        ///// Allows user to set value of the properties dynamically. 
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="setting"></param><summary>Enum value used to specify setting of the value to be changed.</summary>
+        ///// <param name="valueToSet"></param><summary>Value the scan setting should be changed to. </summary>
+        ///// <exception cref="ArgumentException"></exception>
+        //protected static void SetCustomValue<T>(IBaseScan scan, InstrumentSettings setting, T valueToSet)
+        //{
+        //    // get string from the instrument setting enum 
+        //    string propertyName = Enum.GetName(setting);
+        //    // set the value of the property with the value passed. 
+        //    if (propertyName is not null)
+        //    {
+        //        // false positive warning. Checking for null reference, so this error will 
+        //        // not occur. 
+        //        // dynamically gets the type of the property. 
+        //        var propertyType = scan.GetType().GetProperty(propertyName).PropertyType;
+        //        if (propertyType.HasElementType)
+        //        {
+        //            // Sets the property value using Convert.ChangeType to perform any required casting of input value to property value. 
+        //            // Note: You should probably do your best to add the correct type. 
+        //            scan.GetType().GetProperty(propertyName).SetValue(scan, Convert.ChangeType(valueToSet, propertyType.GetType()));
+        //        }
+        //    }
+        //    else
+        //    {
+        //        throw new ArgumentException("Invalid property name");
+        //    }
+        //}
 
         public Dictionary<string, string> BuildDictionary()
         {

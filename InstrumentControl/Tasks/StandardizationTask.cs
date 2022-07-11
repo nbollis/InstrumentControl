@@ -16,19 +16,17 @@ namespace InstrumentControl
 
         public override void RunSpecific<T, U>(T options, U data)
         {
-            /*
-            for (int i = 0; i < ISpectraProcesor.ScansToProcess; i++)
-            {
-                double[] yarrayNew = new double[ISpectraProcesor.YArrays[i].Length];
-                double[] xarrayNew = CreateStandardMZAxis((ISpectraProcesor.MinX, ISpectraProcesor.MaxX), 0.001);
-                ResampleDataAndInterpolate(ISpectraProcesor.YArrays[i], ref yarrayNew);
-                ISpectraProcesor.YArrays[i] = yarrayNew;
-            }
-            */
+
+            //for (int i = 0; i < ISpectraProcesor.ScansToProcess; i++)
+            //{
+            //    double[] yarrayNew = new double[ISpectraProcesor.YArrays[i].Length];
+            //    double[] xarrayNew = CreateStandardMZAxis((ISpectraProcesor.MinX, ISpectraProcesor.MaxX), 0.001);
+            //    ResampleDataAndInterpolate(ISpectraProcesor.YArrays[i], ref yarrayNew);
+            //    ISpectraProcesor.YArrays[i] = yarrayNew;
+            //}
+
         }
 
-        
 
-        
     }
 }
