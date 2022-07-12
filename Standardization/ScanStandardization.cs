@@ -8,10 +8,13 @@ namespace Standardization
 {
     public static class ScanStandardization
     {
-        public static double[] StandardizeScan(double[] originalXArray, double[] originalYArray, StandardizationOptions options)
+       // public static double[] GetStandardizedYArray(double )
+
+
+        public static double[] GetStandardizedYArray(double[] originalYArray, StandardizationOptions options)
         {
-            double[] newYArray = new double[originalXArray.Length];
             double[] newXArray = CreateStandardMZAxis((options.MinMass, options.MaxMass), options.Delta);
+            double[] newYArray = new double[originalYArray.Length];
             ResampleDataAndInterpolate(originalYArray, ref newYArray);
             return newYArray;
         }
@@ -50,17 +53,17 @@ namespace Standardization
 
                 previousJ = j;
             }
-            destination[destination.Length - 1] = source[i - 1];
+            destination[destination.Length - 1] = source[(int)i - 1];
         }
 
         public static void Interpolate(double[] dest, int destFrom, int destTo,
             double valueFrom, double valueTo)
         {
-            int destLength = destTo - destFrom;
+            double destLength = destTo - destFrom;
             double valueLength = valueTo - valueFrom;
             for (int i = 0; i < destLength; i++)
             {
-                dest[destFrom + i] = valueFrom + valueLength * i / destLength;
+                dest[(int)destFrom + i] = valueFrom + valueLength * i / destLength;
             }
         }
 

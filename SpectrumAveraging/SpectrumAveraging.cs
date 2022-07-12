@@ -4,7 +4,7 @@ using MassSpectrometry;
 using MzLibUtil;
 using Data;
 
-namespace SpectrumAveraging
+namespace Averaging
 {
     public static class SpectrumAveraging
     {
@@ -37,9 +37,10 @@ namespace SpectrumAveraging
         /// <param name="data"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static MzSpectrum CombineSpectra(MultiScanDataObject data, SpectrumAveragingOptions options)
+        public static void CombineSpectra(MultiScanDataObject data, SpectrumAveragingOptions options)
         {
-            return CombineSpectra(data.XArrays, data.YArrays, data.ScansToProcess, options);
+            MzSpectrum compositeSpectrum = CombineSpectra(data.XArrays, data.YArrays, data.ScansToProcess, options);
+            data.CompositeSpectrum = compositeSpectrum;
         }
 
         /// <summary>
@@ -47,12 +48,14 @@ namespace SpectrumAveraging
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public static MzSpectrum CombineSpectra(MultiScanDataObject data)
+        public static void CombineSpectra(MultiScanDataObject data)
         {
             SpectrumAveragingOptions options = new();
             options.SetDefaultValues();
-            return CombineSpectra(data, options);
+            MzSpectrum compositeSpectrum = CombineSpectra(data.XArrays, data.YArrays, data.ScansToProcess, options);
+            data.CompositeSpectrum = compositeSpectrum;
         }
+
         #endregion
 
         #region Misc Processing Methods

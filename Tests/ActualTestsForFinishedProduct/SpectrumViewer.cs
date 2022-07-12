@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using OxyPlot;
 using OxyPlot.Series;
 using OxyPlot.WindowsForms;
-using MassSpectrometry; 
+using MassSpectrometry;
 
 namespace Tests
 {
@@ -18,7 +18,7 @@ namespace Tests
             foreach (var scan in dataScans)
             {
                 result.Add(PlotMSDataScan(scan));
-            }       
+            }
             return result;
         }
         public static PlotModel PlotMSDataScan(MsDataScan dataScan)
@@ -33,16 +33,16 @@ namespace Tests
         }
         public static PlotModel CreatePlotModel(double[] xarray, double[] yarray)
         {
-            PlotModel model = new PlotModel(); 
+            PlotModel model = new PlotModel();
 
-            LineSeries ls = new LineSeries();   
+            LineSeries ls = new LineSeries();
 
-            for(int i = 0; i < xarray.Length; i++)
+            for (int i = 0; i < xarray.Length; i++)
             {
-                ls.Points.Add(new DataPoint(xarray[i], yarray[i]));  
+                ls.Points.Add(new DataPoint(xarray[i], yarray[i]));
             }
             model.Series.Add(ls);
-            return model; 
+            return model;
         }
         public static PlotModel CreatePlotModel(MzSpectrum spectrum)
         {

@@ -34,15 +34,11 @@ namespace InstrumentControl
             {
                 if (typeof(U) == typeof(MultiScanDataObject))
                 {
-                    MultiScanDataObjectExtensions.NormalizeSpectraToTic(data as MultiScanDataObject, options as NormalizationOptions);
+                    SpectrumNormalization.NormalizeSpectrumToTic(data as MultiScanDataObject);
                 }
                 else if (typeof(U) == typeof(SingleScanDataObject))
                 {
-                    SingleScanDataObject scan = data as SingleScanDataObject;
-                    var yarray = scan.YArray;
-                    SpectrumNormalization.NormalizeSpectrumToTic(ref yarray,
-                        (data as SingleScanDataObject).TotalIonCurrent);
-                    (data as SingleScanDataObject).UpdateYarray(yarray);
+                    SpectrumNormalization.NormalizeSpectrumToTic(data as SingleScanDataObject);
                 }
             }
         }

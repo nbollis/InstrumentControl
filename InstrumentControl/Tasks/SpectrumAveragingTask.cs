@@ -1,6 +1,6 @@
 ﻿using MassSpectrometry;
 using MzLibUtil;
-using SpectrumAveraging;
+using Averaging;
 using TaskInterfaces;
 using Data; 
 
@@ -35,12 +35,8 @@ namespace InstrumentControl
             {
                 throw new ArgumentException("Invalid data class for this class and method."); 
             }
-            // implement the specific running here
-            SpectrumAveragingOptions opt = options as SpectrumAveragingOptions; 
-            MultiScanDataObject scans = data as MultiScanDataObject;
 
-            
-
+            SpectrumAveraging.CombineSpectra(data as MultiScanDataObject, options as SpectrumAveragingOptions);
         }
         // No return type yet. 
         private void Main(MultiScanDataObject scans, SpectrumAveragingOptions options)

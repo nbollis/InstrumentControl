@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using TaskInterfaces;
 using Normalization;
 using Standardization;
-using SpectrumAveraging;
+using Averaging;
 using Data; 
 
 namespace InstrumentControl

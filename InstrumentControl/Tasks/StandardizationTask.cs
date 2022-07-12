@@ -32,14 +32,12 @@ namespace InstrumentControl
             {
                 for (int i = 0; i < (data as MultiScanDataObject).ScansToProcess; i++)
                 {
-                    (data as SingleScanDataObject).UpdateYarray(ScanStandardization.StandardizeScan(
-                        (data as SingleScanDataObject).XArray, (data as SingleScanDataObject).YArray, options as StandardizationOptions));
+                    (data as SingleScanDataObject).UpdateYarray(ScanStandardization.GetStandardizedYArray( (data as SingleScanDataObject).YArray, options as StandardizationOptions));
                 }
             }
             else if (typeof(U) == typeof(SingleScanDataObject))
             {
-                (data as SingleScanDataObject).UpdateYarray(ScanStandardization.StandardizeScan(
-                    (data as SingleScanDataObject).XArray, (data as SingleScanDataObject).YArray, options as StandardizationOptions));
+                (data as SingleScanDataObject).UpdateYarray(ScanStandardization.GetStandardizedYArray((data as SingleScanDataObject).YArray, options as StandardizationOptions));
             }
             //for (int i = 0; i < ISpectraProcesor.ScansToProcess; i++)
             //{

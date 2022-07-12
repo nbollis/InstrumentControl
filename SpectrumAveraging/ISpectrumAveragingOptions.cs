@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CommandLine;
 using TaskInterfaces; 
 
-namespace SpectrumAveraging
+namespace Averaging
 {
     public interface ISpectrumAveragingOptions : ITaskOptions
     {
@@ -45,7 +45,7 @@ namespace SpectrumAveraging
         /// <param name="rejectionType">rejection type to be used</param>
         /// <param name="percentile">percentile for percentile clipping rejection type</param>
         /// <param name="sigma">sigma value for sigma clipping rejection types</param>
-        public void SetDefaultValues(RejectionType rejectionType = RejectionType.NoRejection,
+        public void SetValues(RejectionType rejectionType = RejectionType.NoRejection,
             WeightingType intensityWeighingType = WeightingType.NoWeight, SpectrumMergingType spectrumMergingType = SpectrumMergingType.SpectrumBinning,
             double percentile = 0.9, double minSigma = 1.3, double maxSigma = 1.3, double binSize = 0.02)
         {
@@ -59,9 +59,9 @@ namespace SpectrumAveraging
         }
 
         /// <summary>
-        /// Method used to reset all values to their default
+        /// Sets the values of the options to their defaults
         /// </summary>
-        public void ResetValuesToDefault()
+        public void SetDefaultValues()
         {
             RejectionType = RejectionType.NoRejection;
             WeightingType = WeightingType.NoWeight;

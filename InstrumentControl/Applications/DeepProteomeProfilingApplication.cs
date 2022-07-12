@@ -1,7 +1,7 @@
 ﻿using Data;
 using Normalization;
 using ScanProduction;
-using SpectrumAveraging;
+using Averaging;
 using Standardization;
 using System;
 using System.Collections.Generic;
