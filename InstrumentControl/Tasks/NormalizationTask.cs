@@ -15,7 +15,6 @@ namespace InstrumentControl
     /// </summary>
     public class NormalizationTask : InstrumentControlTask
     {
-
         public NormalizationTask()
         {
 
@@ -23,6 +22,10 @@ namespace InstrumentControl
 
         public override void RunSpecific<T, U>(T options, U data)
         {
+            if (data == null || options == null)
+            {
+                throw new ArgumentException("Arguments cannot be null");
+            }
             if(typeof(T) != typeof(NormalizationOptions))
             {
                 throw new ArgumentException("Invalid options class for NormalizationTask");
@@ -39,7 +42,7 @@ namespace InstrumentControl
                     var yarray = scan.YArray;
                     SpectrumNormalization.NormalizeSpectrumToTic(ref yarray,
                         (data as SingleScanDataObject).TotalIonCurrent);
-                    scan.UpdateYarray(yarray);
+                    (data as SingleScanDataObject).UpdateYarray(yarray);
                 }
             }
         }

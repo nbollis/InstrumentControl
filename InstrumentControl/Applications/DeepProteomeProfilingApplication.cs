@@ -1,6 +1,8 @@
-﻿using Normalization;
+﻿using Data;
+using Normalization;
 using ScanProduction;
 using SpectrumAveraging;
+using Standardization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +38,7 @@ namespace InstrumentControl
 
         public override void ProcessScans(object sender, ThresholdReachedEventArgs e)
         {
-            throw new NotImplementedException();
+            MultiScanDataObject data = new MultiScanDataObject(e.Data);
         }
     }
 

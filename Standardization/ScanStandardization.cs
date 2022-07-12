@@ -8,6 +8,14 @@ namespace Standardization
 {
     public static class ScanStandardization
     {
+        public static double[] StandardizeScan(double[] originalXArray, double[] originalYArray, StandardizationOptions options)
+        {
+            double[] newYArray = new double[originalXArray.Length];
+            double[] newXArray = CreateStandardMZAxis((options.MinMass, options.MaxMass), options.Delta);
+            ResampleDataAndInterpolate(originalYArray, ref newYArray);
+            return newYArray;
+        }
+
         public static double[] CreateStandardMZAxis((double, double) range, double massAccuracy)
         {
             // mz space between the high and low values
