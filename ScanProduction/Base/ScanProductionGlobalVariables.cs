@@ -13,7 +13,9 @@ namespace ScanProduction
     public static class ScanProductionGlobalVariables
     {
         public static int TopN = 5;
-        
 
+        // dda exclusion stuff that may become its own options class
+        public static double TimeToExcludeInMilliseconds = 1000;
+        public static double ExclusionMatchingPpmTolerance = 10;
     }
 }

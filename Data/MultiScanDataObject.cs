@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MassSpectrometry;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +16,7 @@ namespace Data
         public double[][] XArrays { get; set; }
         public double[][] YArrays { get; set; }
         public double[] TotalIonCurrent { get; set; }
+        public MzSpectrum CompositeSpectrum { get; set; }
 
         public MultiScanDataObject(List<SingleScanDataObject> scanList)
         {

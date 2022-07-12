@@ -1,7 +1,7 @@
 ﻿using TaskInterfaces;
 using CommandLine; 
 
-namespace TaskInterfaces
+namespace Standardization
 {
     public interface IStandardizationOptions : ITaskOptions
     {

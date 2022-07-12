@@ -116,20 +116,22 @@ namespace InstrumentControl
 			return proteins;
 		}
 
+		#region Moved to InstrumentControlIO
+
 		/// <summary>
 		/// Creates a List of MsDataScans from a spectra file. Currently supports MzML and raw
 		/// </summary>
 		public static List<MsDataScan> LoadAllScansFromFile(string filepath)
-        {
+		{
 			List<MsDataScan> scans = new();
 			if (filepath.EndsWith(".mzML"))
 				scans = Mzml.LoadAllStaticData(filepath).GetAllScansList();
 			else if (filepath.EndsWith(".raw"))
 				scans = ThermoRawFileReader.LoadAllStaticData(filepath).GetAllScansList();
 			else
-            {
+			{
 				throw new MzLibException("Cannot load spectra");
-            }
+			}
 			return scans;
 		}
 
@@ -137,21 +139,18 @@ namespace InstrumentControl
 		/// Creates a List of MsDataScans from a spectra file. Takes the OneBasedScanNumbers as inputs. 
 		/// </summary>
 		public static List<MsDataScan> LoadSelectScansFromFile(string filepath, int start, int end = -1)
-        {
+		{
 			if (end == -1)
-            {
+			{
 				end = start + 1;
-            }
+			}
 			List<MsDataScan> scans = LoadAllScansFromFile(filepath);
-			List<MsDataScan> trimmedScans = new();
-			//        for (; start < end + 1; start++)
-			//        {
-			//trimmedScans.Add(scans[start - 1]);
-			//        }
-			trimmedScans = scans.GetRange(start - 1, (end - start));
+			List<MsDataScan> trimmedScans = scans.GetRange(start - 1, (end - start));
 			return trimmedScans;
-
 		}
+
+		#endregion
+
 
 	}
 }

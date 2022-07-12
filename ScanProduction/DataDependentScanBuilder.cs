@@ -41,9 +41,5 @@ namespace ScanProduction
         }
 
         #endregion
-
-        #region Specific Methods
-
-        #endregion
     }
 }

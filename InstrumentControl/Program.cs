@@ -8,13 +8,15 @@ using CommandLine;
 using TaskInterfaces;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
-using Thermo.Interfaces.InstrumentAccess_V1.Control;
+using Thermo.Interfaces.InstrumentAccess_V1.Control.Methods;
+using Thermo.TNG.Factory;
 
 namespace InstrumentControl
 {
     public class Program
     { 
         public static IScans MScan { get; set; }
+        
 
         /*
         Main structure: 

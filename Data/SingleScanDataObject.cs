@@ -40,6 +40,16 @@ namespace Data
             YArray = newYarray; 
         }
 
+        public static List<SingleScanDataObject> ConvertMSDataScansInBulk(List<MsDataScan> scans)
+        {
+            List<SingleScanDataObject> singleScanDataObjects = new List<SingleScanDataObject>();
+            foreach (var scan in scans)
+            {
+                singleScanDataObjects.Add(new SingleScanDataObject(scan));
+            }
+            return singleScanDataObjects;
+        }
+
         // temp
         public List<double>[] GetChargeStateEnvelopeMz()
         {

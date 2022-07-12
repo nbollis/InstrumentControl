@@ -22,6 +22,10 @@ namespace InstrumentControl
 
         public override void RunSpecific<T, U>(T options, U data)
         {
+            if (data == null || options == null)
+            {
+                throw new ArgumentException("Arguments cannot be null");
+            }
             if(typeof(T) != typeof(NormalizationOptions))
             {
                 throw new ArgumentException("Invalid options class for NormalizationTask");
@@ -30,18 +34,13 @@ namespace InstrumentControl
             {
                 if (typeof(U) == typeof(MultiScanDataObject))
                 {
-                    MultiScanDataObjectExtensions.NormalizeSpectraToTic(data as MultiScanDataObject, options as NormalizationOptions);
+                    SpectrumNormalization.NormalizeSpectrumToTic(data as MultiScanDataObject);
                 }
                 else if (typeof(U) == typeof(SingleScanDataObject))
                 {
-                    SingleScanDataObject scan = data as SingleScanDataObject;
-                    var yarray = scan.YArray;
-                    SpectrumNormalization.NormalizeSpectrumToTic(ref yarray,
-                        (data as SingleScanDataObject).TotalIonCurrent);
-                    scan.UpdateYarray(yarray);
+                    SpectrumNormalization.NormalizeSpectrumToTic(data as SingleScanDataObject);
                 }
             }
-            
         }
     }
 }
