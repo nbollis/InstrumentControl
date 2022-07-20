@@ -34,7 +34,7 @@ namespace InstrumentControl
             {
                 if (typeof(U) == typeof(MultiScanDataObject))
                 {
-                    SpectrumNormalization.NormalizeSpectrumToTic(data as MultiScanDataObject);
+                    SpectrumNormalization.NormalizeSpectrumToTic(data as MultiScanDataObject, true);
                 }
                 else if (typeof(U) == typeof(SingleScanDataObject))
                 {

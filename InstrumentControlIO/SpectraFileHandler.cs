@@ -60,7 +60,26 @@ namespace InstrumentControlIO
 			return LoadAllScansFromFile(filepath).Where(p => p.MsnOrder == 1).ToList();
         }
 
+		/// <summary>
+		/// returns MS1's only from a SID scan file
+		/// </summary>
+		/// <param name="filepath"></param>
+		/// <returns></returns>
+		public static List<MsDataScan> LoadMS1ScanFromFile(string filepath)
+        {
+			return LoadAllScansFromFile(filepath).Where(p => p.OneBasedScanNumber % 2 == 1).ToList();
+        }
 
+		public static List<(double, double)> GetMzandIntValuesFromSingleScan(MsDataScan scan)
+        {
+			List<(double, double)> result = new List<(double, double)> ();
+			MzSpectrum spectrum = scan.MassSpectrum;
+            for (int i = 0; i < spectrum.XArray.Length; i++)
+            {
+				result.Add((spectrum.XArray[i], spectrum.YArray[i]));
+            }
+			return result;
+        }
 
 
 
