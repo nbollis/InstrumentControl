@@ -47,7 +47,7 @@ namespace Averaging
         /// <param name="sigma">sigma value for sigma clipping rejection types</param>
         public void SetValues(RejectionType rejectionType = RejectionType.NoRejection,
             WeightingType intensityWeighingType = WeightingType.NoWeight, SpectrumMergingType spectrumMergingType = SpectrumMergingType.SpectrumBinning,
-            double percentile = 0.9, double minSigma = 1.3, double maxSigma = 1.3, double binSize = 0.02)
+            double percentile = 0.1, double minSigma = 1.3, double maxSigma = 1.3, double binSize = 0.02)
         {
             RejectionType = rejectionType;
             WeightingType = intensityWeighingType;
@@ -66,7 +66,7 @@ namespace Averaging
             RejectionType = RejectionType.NoRejection;
             WeightingType = WeightingType.NoWeight;
             SpectrumMergingType = SpectrumMergingType.SpectrumBinning;
-            Percentile = 0.9;
+            Percentile = 0.1;
             MinSigmaValue = 1.3;
             MaxSigmaValue = 1.3;
             BinSize = 0.02;
