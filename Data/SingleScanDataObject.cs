@@ -18,13 +18,16 @@ namespace Data
         public double MinX { get; private set; }
         public double MaxX { get; private set; }
 
+        public double Resolution { get; private set; }
+
         public SingleScanDataObject(IMsScan scan)
         {
             XArray = scan.Centroids.Select(c => c.Mz).ToArray();
             YArray = scan.Centroids.Select(c => c.Intensity).ToArray();
             TotalIonCurrent = double.Parse(scan.Header["Total Ion Current"]);
             MinX = scan.GetValueFromHeaderDict<double>("FirstMass");
-            MaxX = scan.GetValueFromHeaderDict<double>("LastMass"); 
+            MaxX = scan.GetValueFromHeaderDict<double>("LastMass");
+            Resolution = scan.GetValueFromHeaderDict<double>("Orbitrap Resolution");
         }
 
         public SingleScanDataObject(MsDataScan scan)

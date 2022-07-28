@@ -139,7 +139,7 @@ namespace Tests
 			double[] weights = new double[test.Length];
 			SpectrumAveraging.WeightByNormalDistribution(test, ref weights);
 			double weightedAverage = SpectrumAveraging.MergePeakValuesToAverage(test, weights);
-			Assert.That(Math.Round(weightedAverage,4), Is.EqualTo(4.5460));
+			Assert.That(Math.Round(weightedAverage,4), Is.EqualTo(5.0244));
 
 			weights = new double[test.Length];
 			SpectrumAveraging.WeightByCauchyDistribution(test, ref weights);

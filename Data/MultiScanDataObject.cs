@@ -17,6 +17,10 @@ namespace Data
         public double[][] YArrays { get; set; }
         public double[] TotalIonCurrent { get; set; }
         public MzSpectrum CompositeSpectrum { get; set; }
+        public double? AverageIonCurrent
+        {
+            get { return TotalIonCurrent.Average(); }
+        }
 
         public MultiScanDataObject(List<SingleScanDataObject> scanList)
         {

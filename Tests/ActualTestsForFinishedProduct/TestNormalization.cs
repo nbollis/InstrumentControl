@@ -51,7 +51,7 @@ namespace Tests
             {
                 yArrays[i] = multiScan.YArrays[i].Select(p => p / multiScan.TotalIonCurrent[i]).ToArray();
             }
-            SpectrumNormalization.NormalizeSpectrumToTic(multiScan);
+            SpectrumNormalization.NormalizeSpectrumToTic(multiScan, false);
             for (int i = 0; i < multiScan.ScansToProcess; i++)
             {
                 Assert.That(multiScan.YArrays[i].SequenceEqual(yArrays[i]));

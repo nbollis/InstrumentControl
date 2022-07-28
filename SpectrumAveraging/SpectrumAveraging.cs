@@ -63,29 +63,44 @@ namespace Averaging
         /// <summary>
         /// Main Engine of this class, processes a single array of intesnity values for a single mz and returns their average
         /// </summary>
-        /// <param name="mzInitialArray"></param>
+        /// <param name="intInitialArray"></param>
         /// <returns></returns>
-        public static double ProcessSingleMzArray(double[] mzInitialArray, SpectrumAveragingOptions options)
+        public static double ProcessSingleMzArray(double[] intInitialArray, SpectrumAveragingOptions options)
         {
-            double[] trimmedArray = RejectOutliers(mzInitialArray, options);
-            double[] weights = CalculateWeights(trimmedArray, options.WeightingType);
-            double average = MergePeakValuesToAverage(trimmedArray, weights);
+            double average;
+            double[] weights;
+            double[] trimmedArray;
 
+            if (intInitialArray.Where(p => p != 0).Count() <= 1)
+                return 0;
+            else
+            {
+                trimmedArray = RejectOutliers(intInitialArray, options);
+                if (trimmedArray.Where(p => p != 0).Count() <= 1)
+                    return 0;
+                //else if (trimmedArray.Where(p => p != 0).Count() == 1)
+                //    average = trimmedArray.First(p => p != 0) / intInitialArray.Length;
+                else
+                {
+                    weights = CalculateWeights(trimmedArray, options.WeightingType);
+                    average = MergePeakValuesToAverage(trimmedArray, weights);
+                }
+            }
             return average;
         }
 
         /// <summary>
         /// Calculates the weighted average value for each m/z point passed to it
         /// </summary>
-        /// <param name="mzValues">array of mz values to evaluate </param>
+        /// <param name="intValues">array of mz values to evaluate </param>
         /// <param name="weights">relative weight assigned to each of the mz values</param>
         /// <returns></returns>
-        public static double MergePeakValuesToAverage(double[] mzValues, double[] weights)
+        public static double MergePeakValuesToAverage(double[] intValues, double[] weights)
         {
             double numerator = 0;
-            for (int i = 0; i < mzValues.Count(); i++)
+            for (int i = 0; i < intValues.Count(); i++)
             {
-                numerator += mzValues[i] * weights[i];
+                numerator += intValues[i] * weights[i];
             }
             double average = numerator / weights.Sum();
             return average;
@@ -102,7 +117,7 @@ namespace Averaging
         /// </summary>
         /// <param name="mzValues">list of mz values to evaluate<</param>
         /// <returns></returns>
-        public static double[] RejectOutliers(double[] mzValues, SpectrumAveragingOptions options, int scanCount = 0)
+        public static double[] RejectOutliers(double[] mzValues, SpectrumAveragingOptions options)
         {
             double[] trimmedMzValues = mzValues;
             switch (options.RejectionType)
@@ -131,7 +146,7 @@ namespace Averaging
                     break;
 
                 case RejectionType.BelowThresholdRejection:
-                    trimmedMzValues = BelowThresholdRejection(mzValues, scanCount);
+                    trimmedMzValues = BelowThresholdRejection(mzValues);
                     break;
             }
             return trimmedMzValues;
@@ -148,7 +163,7 @@ namespace Averaging
             double min = initialValues.Min();
 
             double[] clippedValues = initialValues.Where(p => p < max && p > min).ToArray();
-            CheckValuePassed(clippedValues);
+            //CheckValuePassed(clippedValues);
             return clippedValues;
         }
 
@@ -160,9 +175,8 @@ namespace Averaging
         /// <returns>list of mz values with outliers rejected</returns>
         public static double[] PercentileClipping(double[] initialValues, double percentile)
         {
-            double median = CalculateMedian(initialValues);
+            double median = CalculateNonZeroMedian(initialValues);
             double[] clippedValues = initialValues.Where(p => (median - p) / median > -percentile && (median - p) / median < percentile).ToArray();
-            CheckValuePassed(clippedValues);
             return clippedValues;
         }
 
@@ -193,7 +207,6 @@ namespace Averaging
                 }
             } while (n > 0);
             double[] val = values.ToArray();
-            CheckValuePassed(val);
             return val;
         }
 
@@ -208,15 +221,17 @@ namespace Averaging
         {
             List<double> values = initialValues.ToList();
             int n = 0;
-            double iterationLimitforHuberLoop = 0.0005;
+            double iterationLimitforHuberLoop = 0.01;
             double averageAbsoluteDeviation = Math.Sqrt(2 / Math.PI) * (sValueMax + sValueMin) / 2;
             double medianLeftBound;
             double medianRightBound;
             double windsorizedStandardDeviation;
             do
             {
-                double median = CalculateMedian(values);
-                double standardDeviation = CalculateStandardDeviation(values);
+                if (!values.Any())
+                    break;
+                double median = CalculateNonZeroMedian(values);
+                double standardDeviation = CalculateNonZeroStandardDeviation(values);
                 double[] toProcess = values.ToArray();
                 do // calculates a new median and standard deviation based on the values to do sigma clipping with (Huber loop)
                 {
@@ -233,8 +248,10 @@ namespace Averaging
                 n = 0;
                 for (int i = 0; i < values.Count; i++)
                 {
+                    double temp = (values[i] - median) / standardDeviation;
                     if (SigmaClipping(values[i], median, standardDeviation, sValueMin, sValueMax))
                     {
+                        
                         values.RemoveAt(i);
                         n++;
                         i--;
@@ -242,7 +259,6 @@ namespace Averaging
                 }
             } while (n > 0);
             double[] val = values.ToArray();
-            CheckValuePassed(val);
             return val;
         }
 
@@ -256,20 +272,22 @@ namespace Averaging
         public static double[] AveragedSigmaClipping(double[] initialValues, double sValueMin, double sValueMax)
         {
             List<double> values = initialValues.ToList();
-            double median = CalculateMedian(initialValues);
-            double deviation = CalculateStandardDeviation(initialValues, median);
+            double median = CalculateNonZeroMedian(initialValues);
+            double deviation = CalculateNonZeroStandardDeviation(initialValues, median);
             int n = 0;
             double standardDeviation;
             do
             {
-                median = CalculateMedian(values);
+                median = CalculateNonZeroMedian(values);
                 standardDeviation = deviation * Math.Sqrt(median) / 10;
 
                 n = 0;
                 for (int i = 0; i < values.Count; i++)
                 {
+                    double temp = (values[i] - median) / standardDeviation;
                     if (SigmaClipping(values[i], median, standardDeviation, sValueMin, sValueMax))
                     {
+                        
                         values.RemoveAt(i);
                         n++;
                         i--;
@@ -277,26 +295,25 @@ namespace Averaging
                 }
             } while (n > 0);
             double[] val = values.ToArray();
-            CheckValuePassed(val);
             return val;
         }
 
         /// <summary>
-        /// Sets the array of mz values to null if they have 25% or fewer values than the number of scans
+        /// Sets the array of mz values to null if they have 20% or fewer values than the number of scans
         /// </summary>
         /// <param name="initialValues">array of mz values to evaluate</param>
         /// <param name="scanCount">number of scans used to create initialValues</param>
         /// <returns></returns>
-        public static double[] BelowThresholdRejection(double[] initialValues, int scanCount)
+        public static double[] BelowThresholdRejection(double[] initialValues, double cutoffValue = 0.2)
         {
-            double cutoffValue = 0.20;
+            int scanCount = initialValues.Length;
             if (initialValues.Count() <= scanCount * cutoffValue)
             {
-                initialValues = null;
+                initialValues = new double[scanCount];
             }
             else if (initialValues.Where(p => p != 0).Count() <= scanCount * cutoffValue)
             {
-                initialValues = null;
+                initialValues = new double[scanCount];
             }
             return initialValues;
         }
@@ -335,7 +352,10 @@ namespace Averaging
                 case WeightingType.GammaDistribution:
                     WeightByGammaDistribution(mzValues, ref weights);
                     break;
+
             }
+
+
             return weights;
         }
 
@@ -348,7 +368,7 @@ namespace Averaging
         public static void WeightByNormalDistribution(double[] mzValues, ref double[] weights)
         {
             double standardDeviation = CalculateStandardDeviation(mzValues);
-            double mean = mzValues.Average();
+            double mean = mzValues/*.Where(p => p != 0)*/.Average();
 
             for (int i = 0; i < weights.Length; i++)
             {
@@ -386,7 +406,7 @@ namespace Averaging
 
             for (int i = 0; i < weights.Length; i++)
             {
-                weights[i] = Gamma.PDF(shape, rate, mzValues[i]);
+                weights[i] = double.IsInfinity(Gamma.PDF(shape, rate, mzValues[i])) ? 0 : Gamma.PDF(shape, rate, mzValues[i]);
             }
         }
 
@@ -401,9 +421,9 @@ namespace Averaging
 
             for (int i = 0; i < weights.Length; i++)
             {
-                if (mzValues[i] > mean)
+                if (mzValues[i] < mean)
                     weights[i] = 1 - Poisson.CDF(mean, mzValues[i]);
-                else if (mzValues[i] < mean)
+                else if (mzValues[i] > mean)
                     weights[i] = Poisson.CDF(mean, mzValues[i]);
             }
         }
@@ -431,58 +451,40 @@ namespace Averaging
             }
             int numberOfBins = (int)Math.Ceiling((max - min) * (1 / binSize));
 
-            double[][] xValuesArray = new double[numberOfBins][];
-            double[][] yValuesArray = new double[numberOfBins][];
+            double[][] xValuesBin = new double[numberOfBins][];
+            double[][] yValuesBin = new double[numberOfBins][];
             // go through each scan and place each (m/z, int) from the spectra into a jagged array
             for (int i = 0; i < numSpectra; i++)
             {
                 for (int j = 0; j < xArrays[i].Length; j++)
                 {
                     int binIndex = (int)Math.Floor((xArrays[i][j] - min) / binSize);
-                    if (xValuesArray[binIndex] == null)
+                    if (xValuesBin[binIndex] == null)
                     {
-                        xValuesArray[binIndex] = new double[numSpectra];
-                        yValuesArray[binIndex] = new double[numSpectra];
+                        xValuesBin[binIndex] = new double[numSpectra];
+                        yValuesBin[binIndex] = new double[numSpectra];
                     }
-                    xValuesArray[binIndex][i] = xArrays[i][j];
-                    yValuesArray[binIndex][i] = yArrays[i][j];
+                    xValuesBin[binIndex][i] = xArrays[i][j];
+                    yValuesBin[binIndex][i] = yArrays[i][j];
                 }
             }
 
-            // remove null and any bins below the threshold (currently 20%) i.e. only one scan had a peak in that bin
-            xValuesArray = xValuesArray.Where(p => p != null).ToArray();
-            yValuesArray = yValuesArray.Where(p => p != null).ToArray();
-            RejectionType temp = options.RejectionType;
-            options.RejectionType = RejectionType.BelowThresholdRejection;
-            for (int i = 0; i < yValuesArray.Length; i++)
-            {
-                yValuesArray[i] = RejectOutliers(yValuesArray[i], options, numSpectra);
-                if (yValuesArray[i] == null)
-                {
-                    xValuesArray[i] = null;
-                }
-                else
-                {
-                    yValuesArray[i] = yValuesArray[i].Where(p => p != 0).ToArray();
-                }
-            }
-            temp = options.RejectionType;
-            xValuesArray = xValuesArray.Where(p => p != null).ToArray();
-            yValuesArray = yValuesArray.Where(p => p != null).ToArray();
+            xValuesBin = xValuesBin.Where(p => p != null).ToArray();
+            yValuesBin = yValuesBin.Where(p => p != null).ToArray();
 
             // average the remaining arrays to create the composite spectrum
             // this will clipping and avereraging for y values as indicated in the settings
-            double[] xArray = new double[xValuesArray.Length];
-            double[] yArray = new double[yValuesArray.Length];
-            for (int i = 0; i < yValuesArray.Length; i++)
+            double[] xArray = new double[xValuesBin.Length];
+            double[] yArray = new double[yValuesBin.Length];
+            for (int i = 0; i < yValuesBin.Length; i++)
             {
-                xArray[i] = xValuesArray[i].Where(p => p != 0).Average();
-                yArray[i] = ProcessSingleMzArray(yValuesArray[i], options);
+                xArray[i] = xValuesBin[i].Where(p => p != 0).Average();
+                yArray[i] = ProcessSingleMzArray(yValuesBin[i], options);
             }
 
             // Create new MsDataScan to return
             MzRange range = new(min, max);
-            MzSpectrum mergedSpectra = new(xArray, yArray, false);
+            MzSpectrum mergedSpectra = new(xArray, yArray, true);
 
             return mergedSpectra;
         }
@@ -494,25 +496,6 @@ namespace Averaging
         #endregion
 
         #region Private Helpers
-
-        /// <summary>
-        /// Ensures that there are values within the output of a clipping function
-        /// </summary>
-        private static void CheckValuePassed(double[] toCheck)
-        {
-            if (toCheck == null)
-                throw new ArgumentNullException("All values were removed by clipping");
-
-            bool valueFound = false;
-            foreach (double value in toCheck)
-            {
-                if (value > 0)
-                    valueFound = true;
-            }
-
-            if (!valueFound)
-                throw new Exception("All values were removed by clipping");
-        }
 
         /// <summary>
         /// Helper delegate method for sigma clipping
@@ -546,7 +529,7 @@ namespace Averaging
         /// <param name="medianLeftBound">minimum the element in the dataset is allowed to be</param>
         /// <param name="medianRightBound">maxamum the element in the dataset is allowed to be</param>
         /// <returns></returns>
-        private static double[] Winsorize(double[] initialValues, double medianLeftBound, double medianRightBound)
+        private static void Winsorize(this double[] initialValues, double medianLeftBound, double medianRightBound)
         {
             for (int i = 0; i < initialValues.Length; i++)
             {
@@ -559,29 +542,6 @@ namespace Averaging
                     initialValues[i] = medianRightBound;
                 }
             }
-            return initialValues;
-        }
-
-        /// <summary>
-        /// Calculates the median of an array of doubles
-        /// </summary>
-        /// <param name="toCalc">initial array to calculate from</param>
-        /// <returns>double representation of the median</returns>
-        private static double CalculateMedian(double[] toCalc)
-        {
-            double median = 0;
-            if (toCalc.Any())
-            {
-                if (toCalc.Length % 2 == 0)
-                {
-                    median = (toCalc[toCalc.Length / 2] + toCalc[toCalc.Length / 2 - 1]) / 2;
-                }
-                else
-                {
-                    median = toCalc[(toCalc.Length - 1) / 2];
-                }
-            }
-            return median;
         }
 
         /// <summary>
@@ -589,42 +549,31 @@ namespace Averaging
         /// </summary>
         /// <param name="toCalc">initial list to calculate from</param>
         /// <returns>double representation of the median</returns>
-        private static double CalculateMedian(List<double> toCalc)
+        private static double CalculateMedian(IEnumerable<double> toCalc)
         {
-            double median = 0;
-            if (toCalc.Any())
-            {
-                if (toCalc.Count % 2 == 0)
-                {
-                    median = (toCalc[toCalc.Count / 2] + toCalc[toCalc.Count / 2 - 1]) / 2;
-                }
-                else
-                {
-                    median = toCalc[(toCalc.Count - 1) / 2];
-                }
-            }
+            IEnumerable<double> sortedValues = toCalc.OrderByDescending(p => p);
+            double median;
+            int count = sortedValues.Count();
+            if (count % 2 == 0)
+                median = sortedValues.Skip(count / 2 - 1).Take(2).Average();
+            else
+                median = sortedValues.ElementAt(count / 2);
             return median;
         }
 
-        /// <summary>
-        /// Calculates the standard deviation of an array of doubles
-        /// </summary>
-        /// <param name="toCalc">initial array to calculate from</param>
-        /// <param name="average">passable value for the average</param>
-        /// <returns>double representation of the standard deviation</returns>
-        private static double CalculateStandardDeviation(double[] toCalc, double average = 0)
+        private static double CalculateNonZeroMedian(IEnumerable<double> toCalc)
         {
-            double deviation = 0;
-
-            if (toCalc.Any())
+            toCalc = toCalc.Where(p => p != 0);
+            if (toCalc.Count() == 0)
+                return 0;
+            else
             {
-                average = average == 0 ? toCalc.Average() : average;
-                double sum = toCalc.Sum(p => Math.Pow(p - average, 2));
-                deviation = Math.Sqrt(sum / toCalc.Count() - 1);
-                double test = toCalc.Average();
+                return CalculateMedian(toCalc.ToList());
             }
-            return deviation;
         }
+
+        
+        
 
         /// <summary>
         /// Calculates the standard deviation of a list of doubles
@@ -632,7 +581,7 @@ namespace Averaging
         /// <param name="toCalc">initial list to calculate from</param>
         /// <param name="average">passable value for the average</param>
         /// <returns>double representation of the standard deviation</returns>
-        private static double CalculateStandardDeviation(List<double> toCalc, double average = 0)
+        public static double CalculateStandardDeviation(IEnumerable<double> toCalc, double average = 0)
         {
             double deviation = 0;
 
@@ -643,6 +592,20 @@ namespace Averaging
                 deviation = Math.Sqrt(sum / toCalc.Count() - 1);
             }
             return deviation;
+        }
+
+        private static double CalculateStandardDeviation(double[] toCalc, double average = 0)
+        {
+            return CalculateStandardDeviation((IEnumerable<double>)toCalc, average);
+        }
+
+        private static double CalculateNonZeroStandardDeviation(IEnumerable<double> toCalc, double average = 0)
+        {
+            toCalc = toCalc.Where(p => p != 0);
+            if (toCalc.Count() == 0)
+                return 0;
+            else
+                return CalculateStandardDeviation(toCalc, average);
         }
 
         #endregion
