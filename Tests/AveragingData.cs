@@ -276,13 +276,13 @@ namespace Tests
         public static void DoManyMethodsAndOutputSystematically()
         {
             // initialize things
-            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinStandardDifferentResolutions\220722IterationAndScoring\OneIsRejected";
-            string[] resolutions = new string[] { "15k", "30k", "45k", "60k" };
-            int[] scansToAverage = new int[] { 5, 20 };
+            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\MiscTestProcessing";
+            string[] resolutions = new string[] { /*"15k", "30k", */"45k"/*, "60k"*/ };
+            int[] scansToAverage = new int[] { 5};
             List<string> mzMLpaths = new List<string>();
             foreach (var resolution in resolutions)
             {
-                mzMLpaths.Add(@$"D:\Projects\InstrumentControl\Output Folder\6ProteinStandardDifferentResolutions\222007 Systematic Approach\RawData\220718_6ProteinStandard_{resolution}.mzML");
+                mzMLpaths.Add(@$"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\Data\220725_6ProteinStandard_{resolution}_1.mzML");
             }
             List<AveragedScanAnalyzer> analysis = new List<AveragedScanAnalyzer>();
             NormalizationTask normalizationTask = new NormalizationTask();
@@ -293,7 +293,7 @@ namespace Tests
             List<SpectrumAveragingOptions> averagingOptions = new();
             var rejectionTypes = Enum.GetValues(typeof(RejectionType));
             var weightingTypes = Enum.GetValues(typeof(WeightingType));
-            double[] binSizes = new double[] { 0.5, 0.1, 0.05, 0.01, 0.005, 0.001, 0.0005, 0.0001 };
+            double[] binSizes = new double[] { /*0.5, 0.1, 0.05,*/ 0.01/*, 0.005, 0.001, 0.0005, 0.0001 */};
             foreach (var rejection in rejectionTypes)
             {
                 foreach (var weight in weightingTypes)
@@ -332,10 +332,14 @@ namespace Tests
             foreach (var item in analysis)
             {
                 string outpath = Path.Combine(directoryPath, item.Header + ".txt");
-                item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, false);
+                //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, false);
 
                 outpath = Path.Combine(directoryPath, "RelativeAbundance", item.Header + ".txt");
-                item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
+                //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
+
+                outpath = Path.Combine(directoryPath, "Figures", item.Header + $".svg");
+                item.PlotModel = SpectrumViewer.CreatePlotModel(item.CompositeSpectrum);
+                SpectrumViewer.WritePlotToSvg(item.PlotModel, outpath);
             }
         }
 
@@ -457,11 +461,11 @@ namespace Tests
                 //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, false);
 
                 outpath = Path.Combine(directoryPath, "RelativeAbundance", item.Header + $"{type}.txt");
-                item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
+                //tem.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
 
-                //outpath = Path.Combine(directoryPath, "Figures", item.Header + $"{type}.svg");
-                //item.PlotModel = SpectrumViewer.CreatePlotModel(item.CompositeSpectrum);
-                //SpectrumViewer.WritePlotToSvg(item.PlotModel, outpath);
+                outpath = Path.Combine(directoryPath, "Figures", item.Header + $"{type}.svg");
+                item.PlotModel = SpectrumViewer.CreatePlotModel(item.CompositeSpectrum);
+                SpectrumViewer.WritePlotToSvg(item.PlotModel, outpath);
             }
         }
     }
