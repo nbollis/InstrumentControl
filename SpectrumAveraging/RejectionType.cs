@@ -14,7 +14,8 @@ namespace Averaging
         SigmaClipping,
         WinsorizedSigmaClipping,
         AveragedSigmaClipping,
-        BelowThresholdRejection
+        BelowThresholdRejection,
+        Thermo
     }
 
 

@@ -19,6 +19,23 @@ namespace Tests
 {
     public class AveragingData
     {
+        #region  Data Injectors
+
+        public static double[] GetCarbonicAnhydraseTargets()
+        {
+            string targetTxtPath = @"D:\Projects\InstrumentControl\Output Folder\AveragingCarbonicAnhydrase\carbonicAnhydrase.txt";
+            MzSpectrum carbonicAnhydraseTheoretical = new AveragedScanAnalyzer(targetTxtPath, true).CompositeSpectrum;
+
+            List<double> targets = new();
+            for (int i = 0; i < carbonicAnhydraseTheoretical.YArray.Length; i++)
+            {
+                if (carbonicAnhydraseTheoretical.YArray[i] == 1)
+                    targets.Add(carbonicAnhydraseTheoretical.XArray[i]);
+            }
+            return targets.ToArray();
+        }
+
+        #endregion
 
         [SetUp]
         public static void Setup()
@@ -124,88 +141,6 @@ namespace Tests
             }
         }
 
-        [Test] // outdated, use DOManyMethodsANdOutputSystematically
-        public static void AverageAustinSIDDataWithDifferentAveragingOptions()
-        {
-            double startRT = 56.72;
-            double endRT = 62.99;
-            string filepath = @"D:\DataFiles\AustinSIDData\MS1-sidMS2_6ProtMix_R120_SID60_AGC400_20220123082940.raw";
-            string thermopath = @"D:\DataFiles\AustinSIDData\MS1-sidMS2_6ProtMix_R120_SID60_AGC400_20220123082940RT56.72-62.99MS1Only.raw";
-
-            MsDataScan thermoAveragedRaw = SpectraFileHandler.LoadAllScansFromFile(thermopath).First();
-            List<MsDataScan> ms1Scans = SpectraFileHandler.LoadMS1ScanFromFile(filepath);
-            List<MsDataScan> singleChromPeak = ms1Scans.Where(p => p.RetentionTime >= startRT && p.RetentionTime <= endRT).ToList();
-            List<SingleScanDataObject> singleScanObjects = SingleScanDataObject.ConvertMSDataScansInBulk(singleChromPeak);
-            MultiScanDataObject multiScan = new(singleScanObjects);
-
-            NormalizationTask normalizationTask = new NormalizationTask();
-            NormalizationOptions normalizationOptions = new NormalizationOptions() { PerformNormalization = true };
-            normalizationTask.RunSpecific(normalizationOptions, multiScan);
-            SpectrumAveragingTask averagingTask = new SpectrumAveragingTask();
-            SpectrumAveragingOptions averagingOptions = new SpectrumAveragingOptions();
-            averagingOptions.SetDefaultValues();
-
-            var rejectionTypes = Enum.GetValues(typeof(RejectionType));
-            var weightingTypes = Enum.GetValues(typeof(WeightingType));
-
-            // runs through each of the types of weighting and rejection
-            List<AveragedScanAnalyzer> averaged = new();
-            foreach (var weight in weightingTypes)
-            {
-                averagingOptions.WeightingType = (WeightingType)Enum.Parse(typeof(WeightingType), weight.ToString());
-                foreach (var reject in rejectionTypes)
-                {
-                    averagingOptions.RejectionType = (RejectionType)Enum.Parse(typeof(RejectionType), reject.ToString());
-                    string paramName = $"{weight}{reject}";
-
-                    if (averagingOptions.RejectionType == RejectionType.PercentileClipping)
-                    {
-                        //double[] percents = new double[] { 0.7, 0.8, 0.9, 0.95 };
-                        //foreach (var percent in percents)
-                        //{
-                        //    paramName += $"Percentile: {percent}";
-                        //    averagingOptions.Percentile = percent;
-
-                        //    averagingTask.RunSpecific(averagingOptions, multiScan);
-                        //    averaged.Add(new AveragedScanAnalyzer(paramName, multiScan.CompositeSpectrum));
-                        //}
-                    }
-
-                    else if (averagingOptions.RejectionType == RejectionType.SigmaClipping ||
-                        averagingOptions.RejectionType == RejectionType.WinsorizedSigmaClipping ||
-                        averagingOptions.RejectionType == RejectionType.AveragedSigmaClipping)
-                    {
-                        //double[] sigmas = new double[] { 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 2 };
-                        //foreach (var minSigma in sigmas)
-                        //{
-                        //    foreach (var maxSigma in sigmas)
-                        //    {
-                        //        paramName += $"MinSigma: {minSigma} - MaxSigma: {maxSigma}";
-                        //        averagingOptions.MaxSigmaValue = maxSigma;
-                        //        averagingOptions.MinSigmaValue = minSigma;
-
-                        //        averagingTask.RunSpecific(averagingOptions, multiScan);
-                        //        averaged.Add(new AveragedScanAnalyzer(paramName, multiScan.CompositeSpectrum));
-                        //    }
-                        //}
-                    }
-                    //else
-                    //{
-                    Console.WriteLine($"Starting {paramName}");
-                    averagingTask.RunSpecific(averagingOptions, multiScan);
-                    averaged.Add(new AveragedScanAnalyzer(paramName, multiScan.CompositeSpectrum));
-                    //}
-                }
-            }
-
-            string outDirectory = @"D:\Projects\InstrumentControl\Output Folder\FirstPassSpectrumAveragingMethods";
-            string filename = @$"{startRT}to{endRT}";
-            foreach (var spectrum in averaged)
-            {
-                string outpath = Path.Combine(outDirectory, spectrum.Header + ".svg");
-                SpectrumViewer.WritePlotToSvg(spectrum.PlotModel, outpath);
-            }
-        }
 
         [Test]
         public static void GetIsotopicDistributionOfProteinFromFasta()
@@ -267,121 +202,11 @@ namespace Tests
                 double yMax = data.Select(p => p.Item2).Max();
                 foreach (var item in data)
                 {
-                    writer.WriteLine(item.Item1 + "\t" + (item.Item2 / yMax));
+                    writer.WriteLine(item.Item1 + "\t" + (item.Item2 ));
                 }
             }
         }
 
-        [Test]
-        public static void DoManyMethodsAndOutputSystematically()
-        {
-            // initialize things
-            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\MiscTestProcessing";
-            string[] resolutions = new string[] { /*"15k", "30k", */"45k"/*, "60k"*/ };
-            int[] scansToAverage = new int[] { 5};
-            List<string> mzMLpaths = new List<string>();
-            foreach (var resolution in resolutions)
-            {
-                mzMLpaths.Add(@$"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\Data\220725_6ProteinStandard_{resolution}_1.mzML");
-            }
-            List<AveragedScanAnalyzer> analysis = new List<AveragedScanAnalyzer>();
-            NormalizationTask normalizationTask = new NormalizationTask();
-            NormalizationOptions normalizationOptions = new NormalizationOptions() { PerformNormalization = true };
-            SpectrumAveragingTask averagingTask = new SpectrumAveragingTask();
-
-            // generate a list of options
-            List<SpectrumAveragingOptions> averagingOptions = new();
-            var rejectionTypes = Enum.GetValues(typeof(RejectionType));
-            var weightingTypes = Enum.GetValues(typeof(WeightingType));
-            double[] binSizes = new double[] { /*0.5, 0.1, 0.05,*/ 0.01/*, 0.005, 0.001, 0.0005, 0.0001 */};
-            foreach (var rejection in rejectionTypes)
-            {
-                foreach (var weight in weightingTypes)
-                {
-                    foreach (var bin in binSizes)
-                    {
-                        SpectrumAveragingOptions averagingOption = new();
-                        averagingOption.SetDefaultValues();
-                        averagingOption.RejectionType = (RejectionType)Enum.Parse(typeof(RejectionType), rejection.ToString());
-                        averagingOption.WeightingType = (WeightingType)Enum.Parse(typeof(WeightingType), weight.ToString());
-                        averagingOption.BinSize = bin;
-                        averagingOptions.Add(averagingOption);
-                    }
-                }
-            }
-
-            // iterate through options, averaging as you go
-            foreach (var filepath in mzMLpaths)
-            {
-                foreach (var scansToTake in scansToAverage)
-                {
-                    List<MsDataScan> ms1Scans = SpectraFileHandler.LoadMS1ScansFromFile(filepath);
-                    List<MsDataScan> trimmedScans = ms1Scans.Take(scansToTake).ToList();
-                    List<SingleScanDataObject> singleScanObjects = SingleScanDataObject.ConvertMSDataScansInBulk(trimmedScans);
-
-                    foreach (var option in averagingOptions)
-                    {
-                        MultiScanDataObject multiScan = new(singleScanObjects);
-                        normalizationTask.RunSpecific(normalizationOptions, multiScan);
-                        analysis.AddRange(AveragedScanAnalyzer.AverageMultiScanWithManyOptions(averagingOptions, multiScan, filepath.Split('.')[0].Substring(filepath.Split('.')[0].Length - 3)));
-                    }
-                }
-            }
-
-            // output the results
-            foreach (var item in analysis)
-            {
-                string outpath = Path.Combine(directoryPath, item.Header + ".txt");
-                //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, false);
-
-                outpath = Path.Combine(directoryPath, "RelativeAbundance", item.Header + ".txt");
-                //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
-
-                outpath = Path.Combine(directoryPath, "Figures", item.Header + $".svg");
-                item.PlotModel = SpectrumViewer.CreatePlotModel(item.CompositeSpectrum);
-                SpectrumViewer.WritePlotToSvg(item.PlotModel, outpath);
-            }
-        }
-
-        [Test]
-        public static void LoadInAndScoreSpectra()
-        {
-            // load them in
-            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinStandardDifferentResolutions\220722IterationAndScoring\OneIsRejected";
-            string[] files = Directory.GetFiles(directoryPath);
-            List<AveragedScanAnalyzer> averagedScanAnalyzers = AveragedScanAnalyzer.LoadMany(files);
-            double ppm = 10;
-            double targetAbundance = 0.2;
-
-            // get targets
-            string targetTxtPath = @"D:\Projects\InstrumentControl\Output Folder\AveragingCarbonicAnhydrase\carbonicAnhydrase.txt";
-            MzSpectrum carbonicAnhydraseTheoretical = new AveragedScanAnalyzer(targetTxtPath, true).CompositeSpectrum;
-
-            List<double> targets = new();
-            for (int i = 0; i < carbonicAnhydraseTheoretical.YArray.Length; i++)
-            {
-                if (carbonicAnhydraseTheoretical.YArray[i] == 1)
-                    targets.Add(carbonicAnhydraseTheoretical.XArray[i]);
-            }
-
-            foreach (var scan in averagedScanAnalyzers)
-            {
-                scan.ScoreBasedOnRelativeAbundanceOfPeaksWithinTolerance(targets.ToArray(), ppm, targetAbundance);
-            }
-
-
-            // output results
-            string outpath = Path.Combine(directoryPath, @$"ScoredResults\AveragedAndScoredResults-{ppm}Ppm-{targetAbundance}RelativeAbundanceRejectOne.txt");
-            using (StreamWriter writer = new StreamWriter(File.Create(outpath)))
-            {
-                string delimiter = "\t";
-                foreach (var scan in averagedScanAnalyzers)
-                {
-                    writer.WriteLine(scan.Resolution + delimiter + scan.NumberOfScans + delimiter + scan.RejectionType + delimiter +
-                        scan.WeightingType + delimiter + scan.BinSize + delimiter + scan.Score);
-                }
-            }
-        }
 
         [Test]
         public static void DoManyMethodsAndOutputSystematicallySmallerScale()
@@ -389,8 +214,8 @@ namespace Tests
             #region Value Initialization
 
             //string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinStandardDifferentResolutions\220722IterationAndScoring\TestingBigAlgorithmicChanges";
-            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\MiscTestProcessing";
-            string[] resolutions = new string[] { /*"15k", "30k",*/ "45k"/*, "60k" */};
+            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\FirstPassAtScoring";
+            string[] resolutions = new string[] { "15k", "30k", "45k", "60k" };
             int[] scansToAverage = new int[] { 5 };
             List<string> mzMLpaths = new List<string>();
             foreach (var resolution in resolutions)
@@ -404,36 +229,72 @@ namespace Tests
 
             #endregion
 
-            // generate a list of options
-            List<SpectrumAveragingOptions> averagingOptions = new();
+            #region Generating Options
 
+            List<SpectrumAveragingOptions> averagingOptions = new();
             List<RejectionType> rejectionTypes = new();
-            rejectionTypes.Add(RejectionType.WinsorizedSigmaClipping);
+            rejectionTypes.AddRange(Enum.GetValues<RejectionType>().Where(p => p != RejectionType.Thermo));
 
             List<WeightingType> weightingTypes = new();
-            weightingTypes.Add(WeightingType.NormalDistribution);
+            weightingTypes.AddRange(Enum.GetValues<WeightingType>());
 
-            double[] binSizes = new double[] { 0.01 };
-            double sigma = 1.6;
+            double[] binSizes = new double[] { 0.5, 0.1, 0.05, 0.01, 0.005, 0.001 };
+            double[] sigmas = new double[] { 1.1, 1.2, 1.3, 1.4, 1.5, 2, 3, 4, 5, 6 };
+            double[] percentiles = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 };
             foreach (var rejection in rejectionTypes)
             {
                 foreach (var weight in weightingTypes)
                 {
                     foreach (var bin in binSizes)
                     {
-                        SpectrumAveragingOptions averagingOption = new();
-                        averagingOption.SetDefaultValues();
-                        averagingOption.RejectionType = (RejectionType)Enum.Parse(typeof(RejectionType), rejection.ToString());
-                        averagingOption.WeightingType = (WeightingType)Enum.Parse(typeof(WeightingType), weight.ToString());
-                        averagingOption.BinSize = bin;
 
-                        averagingOption.MinSigmaValue = sigma;
-                        averagingOption.MaxSigmaValue = sigma;
+                        if (rejection == RejectionType.SigmaClipping || rejection == RejectionType.WinsorizedSigmaClipping || rejection == RejectionType.AveragedSigmaClipping)
+                        {
+                            foreach (var sigma in sigmas)
+                            {
+                                foreach (var innerSigma in sigmas)
+                                {
+                                    SpectrumAveragingOptions innerOption = new();
+                                    innerOption.SetDefaultValues();
+                                    innerOption.RejectionType = rejection;
+                                    innerOption.WeightingType = weight;
+                                    innerOption.BinSize = bin;
 
-                        averagingOptions.Add(averagingOption);
+                                    innerOption.MinSigmaValue = sigma;
+                                    innerOption.MaxSigmaValue = innerSigma;
+                                    averagingOptions.Add(innerOption);
+                                }
+                            }
+                        }
+                        else if (rejection == RejectionType.PercentileClipping)
+                        {
+                            foreach (var percentile in percentiles)
+                            {
+                                SpectrumAveragingOptions innerOption = new();
+                                innerOption.SetDefaultValues();
+                                innerOption.RejectionType = rejection;
+                                innerOption.WeightingType = weight;
+                                innerOption.BinSize = bin;
+
+                                innerOption.Percentile = percentile;
+                                averagingOptions.Add(innerOption);
+                            }
+                        }
+                        else
+                        {
+                            SpectrumAveragingOptions averagingOption = new();
+                            averagingOption.SetDefaultValues();
+                            averagingOption.RejectionType = rejection;
+                            averagingOption.WeightingType = weight;
+                            averagingOption.BinSize = bin;
+
+                            averagingOptions.Add(averagingOption);
+                        }
                     }
                 }
             }
+
+            #endregion
 
             // iterate through options, averaging as you go
             foreach (var filepath in mzMLpaths)
@@ -444,29 +305,96 @@ namespace Tests
                     List<MsDataScan> trimmedScans = ms1Scans.Take(scansToTake).ToList();
                     List<SingleScanDataObject> singleScanObjects = SingleScanDataObject.ConvertMSDataScansInBulk(trimmedScans);
 
-                    foreach (var option in averagingOptions)
-                    {
-                        MultiScanDataObject multiScan = new(singleScanObjects);
-                        normalizationTask.RunSpecific(normalizationOptions, multiScan);
-                        analysis.AddRange(AveragedScanAnalyzer.AverageMultiScanWithManyOptions(averagingOptions, multiScan, filepath.Split('.')[0].Substring(filepath.Split('.')[0].Length - 5, 3)));
-                    }
+                    MultiScanDataObject multiScan = new(singleScanObjects);
+                    normalizationTask.RunSpecific(normalizationOptions, multiScan);
+                    analysis.AddRange(AveragedScanAnalyzer.AverageMultiScanWithManyOptions(averagingOptions, multiScan, filepath.Split('.')[0].Substring(filepath.Split('.')[0].Length - 5, 3)));
                 }
             }
 
-            // output the results
-            string type = $"{sigma}";
+            // add the thermo scans to it
+            string dataDirectory = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\Data";
+            foreach (var file in Directory.GetFiles(dataDirectory).Where(p => p.Contains(".txt")))
+            {
+                AveragedScanAnalyzer thermo = new(file);
+                thermo.Options.RejectionType = RejectionType.Thermo;
+                analysis.Add(thermo);
+            }
+
+            // output basic txt of results
+            string type = $"ZerosInDistribution";
+            string outpath = "";
             foreach (var item in analysis)
             {
-                string outpath = Path.Combine(directoryPath, "AbsoluteAbundance", item.Header + $"{type}.txt");
+                //outpath = Path.Combine(directoryPath, "AbsoluteAbundance", item.Header + $"{type}.txt");
                 //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, false);
 
-                outpath = Path.Combine(directoryPath, "RelativeAbundance", item.Header + $"{type}.txt");
-                //tem.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
+                //outpath = Path.Combine(directoryPath, "RelativeAbundance", item.Header + $"{type}.txt");
+                //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
 
                 outpath = Path.Combine(directoryPath, "Figures", item.Header + $"{type}.svg");
                 item.PlotModel = SpectrumViewer.CreatePlotModel(item.CompositeSpectrum);
                 SpectrumViewer.WritePlotToSvg(item.PlotModel, outpath);
             }
+
+            // Score the results with numerous methods
+            double[] ppms = new double[] { 100, 75, 50, 25, 10 };
+            double[] sigmasDecreaseFromMean = new double[] { 1.1, 1, 0.9, 0.75, 0.5 };
+            foreach (var ppm in ppms)
+            {
+                foreach (var sigma in sigmasDecreaseFromMean)
+                {
+                    foreach (var item in analysis)
+                    {
+                        outpath = Path.Combine(directoryPath, "AbsoluteAbundance", item.Header + $"{type}.txt");
+                        item.ScoreBasedOnRelavantPeaksAboveDeviation(GetCarbonicAnhydraseTargets(), ppm, sigma);
+                        item.PrintAveragedScanAsTxtWithScore(outpath, false);
+                    }
+                    outpath = Path.Combine(directoryPath, "Scores", $"CompiledScoredResults_{ppm}_{sigma}_{type}.csv");
+                    AveragedScanAnalyzer.IterateThroughScoredAveragedScanAnalyzers(analysis, outpath);
+                }
+            }
+        }
+
+        [Test]
+        public static void ReorderByScore()
+        {
+            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\FirstPassAtScoring\Scores";
+            foreach (var file in Directory.GetFiles(directoryPath))
+            {
+                string[] lines = File.ReadAllLines(file);
+                var data = lines.Skip(1);
+                var sorted = data.Select(line => new
+                {
+                    SortKey = Double.Parse(line.Split("\t")[8]),
+                    SecondSort = double.Parse(line.Split("\t")[9]),
+                    Line = line
+                }).OrderByDescending(p => p.SortKey).ThenByDescending(p => p.SecondSort).Select(p => p.Line);
+                File.WriteAllLines(Path.Combine(directoryPath, "Sorted", Path.GetFileNameWithoutExtension(file) + ".csv") , lines.Take(1).Concat(sorted));
+            }
+        }
+
+        [Test]
+        public static void TakeTop3FromEachScoredResult()
+        {
+            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\FirstPassAtScoring\Scores\Sorted";
+            List<string> top3 = new();
+            string[] header = new string[Directory.GetFiles(directoryPath).Count() + 1];
+            foreach (var file in Directory.GetFiles(directoryPath))
+            {
+                string[] lines = File.ReadAllLines(file);
+                header[0] = lines[0];
+                
+                top3.AddRange(lines.Take(new Range(1,3)));
+            }
+
+            var sorted = top3.Select(line => new
+            {
+                SortKey = Double.Parse(line.Split("\t")[8]),
+                Line = line
+            }).OrderByDescending(p => p.SortKey).Select(p => p.Line);
+
+
+            File.WriteAllLines(Path.Combine(directoryPath, "Top3FromEach.csv"), header.Concat(top3));
         }
     }
 }

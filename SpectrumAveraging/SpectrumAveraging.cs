@@ -406,7 +406,11 @@ namespace Averaging
 
             for (int i = 0; i < weights.Length; i++)
             {
-                weights[i] = double.IsInfinity(Gamma.PDF(shape, rate, mzValues[i])) ? 0 : Gamma.PDF(shape, rate, mzValues[i]);
+                if (mzValues[i] < mean)
+                    weights[i] = Gamma.CDF(shape, rate, mzValues[i]);
+                else
+                    weights[i] = 1- Gamma.CDF(shape, rate, mzValues[i]);
+                //weights[i] = double.IsInfinity(Gamma.PDF(shape, rate, mzValues[i])) ? 0 : Gamma.PDF(shape, rate, mzValues[i]);
             }
         }
 
