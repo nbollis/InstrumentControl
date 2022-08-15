@@ -1,5 +1,4 @@
-﻿using MassSpectrometry;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -84,18 +83,9 @@ namespace InstrumentControlIO
             {
                 jsonString = File.ReadAllText(jsonString);
             }
-
-            if (typeof(T) == typeof(MzSpectrum))
-            {
-                var obj = (Newtonsoft.Json.Linq.JObject)JsonConvert.DeserializeObject(jsonString);
-                object mzSpectrum = new MzSpectrum(obj.GetValue("XArray").ToObject<double[]>(), obj.GetValue("YArray").ToObject<double[]>(), true);
-                return (T)mzSpectrum;
-            }
-            else
-            {
+            
                 object obj = JsonConvert.DeserializeObject(jsonString, typeof(T));
                 return (T)obj;
-            }
         }
 
 
