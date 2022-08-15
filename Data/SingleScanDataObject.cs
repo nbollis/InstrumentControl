@@ -10,6 +10,7 @@ using TaskInterfaces;
 
 namespace Data
 {
+    [Serializable]
     public class SingleScanDataObject : IData
     {
         public double[] XArray { get; private set; }
