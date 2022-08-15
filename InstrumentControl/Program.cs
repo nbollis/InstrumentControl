@@ -42,14 +42,11 @@ namespace InstrumentControl
             var app = ((IApplicationOptions)parserResult)
                 .InstantiateTask<ScanAveragingApp>();
             app.GetOptions(parserResult);
-
             scanQueue.ThresholdReached += app.ProcessScans; 
 
             // main loop 
             while (api.InstAccessContainer.ServiceConnected)
             {
-
-
                 api.MSScanContainer.MsScanArrived += scanQueue.AddValueToQueue;
             }            
         }
