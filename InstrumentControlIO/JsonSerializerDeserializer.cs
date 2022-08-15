@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO; 
 
 namespace InstrumentControlIO
 {
@@ -87,8 +88,5 @@ namespace InstrumentControlIO
                 object obj = JsonConvert.DeserializeObject(jsonString, typeof(T));
                 return (T)obj;
         }
-
-
-
     }
 }

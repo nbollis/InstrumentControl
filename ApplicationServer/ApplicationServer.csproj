@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ClientServerCommunication\ClientServerCommunication.csproj" />
     <ProjectReference Include="..\InstrumentControlIO\InstrumentControlIO.csproj" />
   </ItemGroup>
 

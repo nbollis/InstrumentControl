@@ -1,14 +1,13 @@
-﻿using MassSpectrometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskInterfaces;
+
 
 namespace Data
 {
-    public class MultiScanDataObject : IData
+    public class MultiScanDataObject
     {
         public double MinX { get; set; }
         public double MaxX { get; set; }
@@ -16,11 +15,7 @@ namespace Data
         public double[][] XArrays { get; set; }
         public double[][] YArrays { get; set; }
         public double[] TotalIonCurrent { get; set; }
-        public MzSpectrum CompositeSpectrum { get; set; }
-        public double? AverageIonCurrent
-        {
-            get { return TotalIonCurrent.Average(); }
-        }
+        public double? AverageIonCurrent => TotalIonCurrent.Average();
 
         public MultiScanDataObject(List<SingleScanDataObject> scanList)
         {

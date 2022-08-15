@@ -4,14 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
-using MassSpectrometry;
-using IMSScanClassExtensions;
-using TaskInterfaces;
 
 namespace Data
 {
     [Serializable]
-    public class SingleScanDataObject : IData
+    public class SingleScanDataObject
     {
         public double[] XArray { get; private set; }
         public double[] YArray { get; private set; }
@@ -30,28 +27,9 @@ namespace Data
             MaxX = scan.GetValueFromHeaderDict<double>("LastMass");
             Resolution = scan.GetValueFromHeaderDict<double>("Orbitrap Resolution");
         }
-
-        public SingleScanDataObject(MsDataScan scan)
-        {
-            XArray = scan.MassSpectrum.XArray;
-            YArray = scan.MassSpectrum.YArray;
-            TotalIonCurrent = scan.TotalIonCurrent;
-            MinX = scan.MassSpectrum.XArray.Min();
-            MaxX = scan.MassSpectrum.XArray.Max();
-        }
         public void UpdateYarray(double[] newYarray)
         {
             YArray = newYarray; 
-        }
-
-        public static List<SingleScanDataObject> ConvertMSDataScansInBulk(List<MsDataScan> scans)
-        {
-            List<SingleScanDataObject> singleScanDataObjects = new List<SingleScanDataObject>();
-            foreach (var scan in scans)
-            {
-                singleScanDataObjects.Add(new SingleScanDataObject(scan));
-            }
-            return singleScanDataObjects;
         }
 
         // temp
@@ -59,6 +37,19 @@ namespace Data
         {
             List<double>[] result = new List<double>[1] { new List<double>()};
             return result;
+        }
+        public SingleScanDataObject(double[] xArray, double[] yArray, double totalIonCurrent, double minX, double maxX, double resolution)
+        {
+            XArray = xArray;
+            YArray = yArray;
+            TotalIonCurrent = totalIonCurrent;
+            MinX = minX;
+            MaxX = maxX;
+            Resolution = resolution;
+        }
+        public SingleScanDataObject()
+        {
+
         }
     }
 }

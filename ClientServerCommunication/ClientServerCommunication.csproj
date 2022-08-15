@@ -2,11 +2,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>net6.0;net48</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Data\Data.csproj" />
     <ProjectReference Include="..\InstrumentControlIO\InstrumentControlIO.csproj" />
   </ItemGroup>
 

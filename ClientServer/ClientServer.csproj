@@ -33,6 +33,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="API-1.1">
+      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\API-1.1.dll</HintPath>
+    </Reference>
+    <Reference Include="API-2.0">
+      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\API-2.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Fusion.API-1.0">
+      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\Fusion.API-1.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Spectrum-1.0">
+      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\Spectrum-1.0.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -41,13 +53,33 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="Thermo.TNG.Factory">
+      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\Thermo.TNG.Factory.dll</HintPath>
+    </Reference>
+    <Reference Include="VI-1.0">
+      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\VI-1.0.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Factories\IInstrumentFactory.cs" />
+    <Compile Include="Factories\ThermoQEFactory.cs" />
+    <Compile Include="Factories\ThermoTribridFactory.cs" />
+    <Compile Include="FusionLumosAPI.cs" />
+    <Compile Include="InstrumentInterfaces\IInstrument.cs" />
+    <Compile Include="InstrumentInterfaces\ThermoQE.cs" />
+    <Compile Include="InstrumentInterfaces\ThermoTribrid.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ClientServerCommunication\ClientServerCommunication.csproj">
+      <Project>{0e9b5801-5167-44cc-90d3-c8caf1df8f6a}</Project>
+      <Name>ClientServerCommunication</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

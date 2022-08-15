@@ -8,7 +8,5 @@
             // initialize client async
             // connect client async
         }
-
-
     }
 }
