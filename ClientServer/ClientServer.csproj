@@ -34,16 +34,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="API-1.1">
-      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\API-1.1.dll</HintPath>
+      <HintPath>..\..\iapi\lib\API-1.1.dll</HintPath>
     </Reference>
     <Reference Include="API-2.0">
-      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\API-2.0.dll</HintPath>
+      <HintPath>..\..\iapi\lib\API-2.0.dll</HintPath>
     </Reference>
     <Reference Include="Fusion.API-1.0">
-      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\Fusion.API-1.0.dll</HintPath>
+      <HintPath>..\..\iapi\lib\tribrid\Fusion.API-1.0.dll</HintPath>
     </Reference>
     <Reference Include="Spectrum-1.0">
-      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\Spectrum-1.0.dll</HintPath>
+      <HintPath>..\..\iapi\lib\Spectrum-1.0.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,10 +54,10 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
     <Reference Include="Thermo.TNG.Factory">
-      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\Thermo.TNG.Factory.dll</HintPath>
+      <HintPath>..\..\iapi\lib\tribrid\Thermo.TNG.Factory.dll</HintPath>
     </Reference>
     <Reference Include="VI-1.0">
-      <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\VI-1.0.dll</HintPath>
+      <HintPath>..\..\iapi\lib\VI-1.0.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +78,14 @@
     <ProjectReference Include="..\ClientServerCommunication\ClientServerCommunication.csproj">
       <Project>{0e9b5801-5167-44cc-90d3-c8caf1df8f6a}</Project>
       <Name>ClientServerCommunication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Data\Data.csproj">
+      <Project>{6b34249b-a513-4a4a-9ed5-cb633bcab646}</Project>
+      <Name>Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InstrumentControlIO\InstrumentControlIO.csproj">
+      <Project>{12c31f26-14e9-495a-8d0e-17454517e945}</Project>
+      <Name>InstrumentControlIO</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

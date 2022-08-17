@@ -1,11 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO; 
+using System.IO;
 
 namespace InstrumentControlIO
 {
@@ -85,8 +82,15 @@ namespace InstrumentControlIO
                 jsonString = File.ReadAllText(jsonString);
             }
             
-                object obj = JsonConvert.DeserializeObject(jsonString, typeof(T));
-                return (T)obj;
+            object obj = JsonConvert.DeserializeObject(jsonString, typeof(T));
+            return (T)obj;
+        }
+
+        public static byte[] SerializeToBytes<T>(T obj)
+        {
+            var jsonSerializer = JsonSerializer.Create();
+            string jsonString = JsonConvert.SerializeObject(obj); 
+            return Encoding.UTF8.GetBytes(jsonString);
         }
     }
 }

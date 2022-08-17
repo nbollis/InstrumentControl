@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq; 
 namespace Data
 {
-    internal static class MsScanExtensions
+    public static class MsScanExtensions
     {
 			/* imsScan.Header is a <string, string> dictionary. However, some values are
 			 * convertible to numerics. Furthermore, there is no guarantee that the keys to the headers values 
@@ -69,5 +69,10 @@ namespace Data
 				}
 				return outputArray;
 			}
-		}
+
+            public static SingleScanDataObject ConvertToSingleScanDataObject(this IMsScan iScan)
+            {
+                return new SingleScanDataObject(iScan); 
+            }
+    }
 }

@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using ClientServerCommunication;
+using Data; 
 using Thermo.Interfaces.FusionAccess_V1;
 using Thermo.Interfaces.FusionAccess_V1.MsScanContainer;
 using Thermo.Interfaces.InstrumentAccess_V1.Control;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.TNG.Factory;
+using ScanInstructions = ClientServerCommunication.ScanInstructions;
 
 namespace ClientServer
 {
@@ -15,13 +19,12 @@ namespace ClientServer
         public string InstrumentName { get; private set; }
         public IFusionInstrumentAccessContainer InstAccessContainer { get; private set; }
         public IFusionInstrumentAccess InstAccess { get; private set; }
-        public IFusionMsScanContainer MSScanContainer { get; private set; }
+        public IFusionMsScanContainer MsScanContainer { get; private set; }
         public IAcquisition InstAcq { get; private set; }
         public IControl InstControl { get; private set; }
+        public ClientPipe ClientPipe { get; set; }
         // public event ServiceConnected 
         // public event InstrumentConnected
-        public event EventHandler<MsScanEventArgs> ScanArrived; 
-
         public ThermoTribrid()
         {
             InstAccessContainer = Factory<IFusionInstrumentAccessContainer>.Create(); 
@@ -45,7 +48,8 @@ namespace ClientServer
             int p = 1;
             GetInstAccess(p);
             // link delegates to events
-            MSScanContainer.MsScanArrived += MsScanArrived;
+            MsScanContainer.MsScanArrived += MsScanArrived;
+            
         }
 
         private void GetInstAccess(int p)
@@ -57,27 +61,30 @@ namespace ClientServer
             InstAcq = InstControl.Acquisition;
             InstrumentID = InstAccess.InstrumentId.ToString();
             InstrumentName = InstAccess.InstrumentName;
-            MSScanContainer = InstAccess.GetMsScanContainer(0); 
+            MsScanContainer = InstAccess.GetMsScanContainer(0); 
         }
 
-        private static void MsScanArrived(object sender, MsScanEventArgs e)
+        private void MsScanArrived(object sender, MsScanEventArgs e)
         {
             ProcessScan(e); 
         }
-
-        private static void ProcessScan(MsScanEventArgs e)
+        private void ProcessScan(MsScanEventArgs e)
         {
-            Console.WriteLine(e.GetScan().Header["Scan"]);
+            SingleScanDataObject scan = e.GetScan().ConvertToSingleScanDataObject(); 
+            
+            scan.WriteSingleScanToPipe(ClientPipe);
         }
-
-        public void SendScanToInstrument()
+        public void SendScanToInstrument(ScanInstructions scanInstructions)
+        {
+            throw new NotImplementedException(); 
+        }
+        public void MsScanArrived()
         {
 
         }
-
-        public void SendScanToServer()
+        public void AddClientPipe(ClientPipe clientPipe)
         {
-
+            ClientPipe = clientPipe; 
         }
     }
 }
