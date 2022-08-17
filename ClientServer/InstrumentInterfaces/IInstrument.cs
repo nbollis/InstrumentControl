@@ -1,5 +1,4 @@
 ﻿using ClientServerCommunication;
-
 namespace ClientServer
 {
     /// <summary>

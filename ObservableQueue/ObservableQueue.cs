@@ -1,23 +1,36 @@
-﻿namespace ObservableQueue
+﻿using System; 
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using Microsoft.VisualBasic;
+
+namespace ObservableQueue
 {
-    public class ObservableQueue<T> : Queue<T>, IObservable<T>
+    public class ObservableQueue<T> : Queue<T>, IObservable<T>, INotifyCollectionChanged
     {
-        private static readonly Queue<T> _queue = new Queue<T>();
         private List<IObserver<T>> _observers;
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
 
         public virtual void Enqueue(T item)
         {
-            _queue.Enqueue(item);
-            _observers = new List<IObserver<T>>(); 
+            base.Enqueue(item);
+            if (CollectionChanged != null)
+                CollectionChanged(this,
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add)); 
         }
 
         public int Count
         {
-            get { return _queue.Count; }
+            get { return base.Count; }
         }
         public virtual T Dequeue()
         {
-            T item = _queue.Dequeue();
+            T item = base.Dequeue();
+            if (CollectionChanged != null)
+            {
+                CollectionChanged(this, 
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove));
+            }
             return item; 
         }
         public IDisposable Subscribe(IObserver<T> observer)
@@ -25,6 +38,16 @@
             if(!_observers.Contains(observer))
                 _observers.Add(observer);
             return new Unsubscriber(_observers, observer); 
+        }
+
+        public new void Clear()
+        {
+            base.Clear();
+            if (CollectionChanged != null)
+            {
+                CollectionChanged(this,
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset)); 
+            }
         }
 
         private class Unsubscriber : IDisposable

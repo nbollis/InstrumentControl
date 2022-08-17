@@ -86,6 +86,12 @@ namespace InstrumentControlIO
             return (T)obj;
         }
 
+        public static T Deserialize<T>(byte[] jsonString, bool stringIsFilePath)
+        {
+            // convert byte[] to string 
+            return Deserialize<T>(Encoding.UTF8.GetString(jsonString), false); 
+        }
+
         public static byte[] SerializeToBytes<T>(T obj)
         {
             var jsonSerializer = JsonSerializer.Create();
