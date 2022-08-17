@@ -1,5 +1,5 @@
 ﻿using ClientServerCommunication;
-namespace ClientServer
+namespace ClientInstrument
 {
     /// <summary>
     /// Defines the common interface to all instrument types. 

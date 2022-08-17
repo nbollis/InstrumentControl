@@ -7,7 +7,7 @@ using ClientServerCommunication;
 using InstrumentControlIO;
 
 
-namespace ClientServer
+namespace ClientInstrument
 {
     internal class Program
     {
@@ -56,6 +56,7 @@ namespace ClientServer
             {
                 instrumentApi?.CloseInstrumentConnection();
             }
+
         }
         private void StartClientPipe(string pipeName)
         {

@@ -11,7 +11,7 @@ using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.TNG.Factory;
 using ScanInstructions = ClientServerCommunication.ScanInstructions;
 
-namespace ClientServer
+namespace ClientInstrument
 {
     public class ThermoTribrid : IInstrument
     {

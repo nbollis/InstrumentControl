@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApplicationServer", "Applic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientServerCommunication", "ClientServerCommunication\ClientServerCommunication.csproj", "{0E9B5801-5167-44CC-90D3-C8CAF1DF8F6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientServer", "ClientServer\ClientServer.csproj", "{2920D894-D01A-44AE-B2B7-EB7626782147}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientInstrument", "ClientServer\ClientInstrument.csproj", "{2920D894-D01A-44AE-B2B7-EB7626782147}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
