@@ -23,7 +23,7 @@ namespace ClientServerCommunication
                 PipeDirection.InOut,
                 maxNumberOfServerInstances: NamedPipeServerStream.MaxAllowedServerInstances,
                 transmissionMode: mode);
-            pipeStream = ServerPipeStream;
+            PipeStream = ServerPipeStream;
             ServerPipeStream.BeginWaitForConnection(new AsyncCallback(PipeConnected), null);
         }
 

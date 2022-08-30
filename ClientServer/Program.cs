@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommunication;
+using Data; 
 
-namespace ClientServer
+namespace Client
 {
     internal class Program
     {
-        private ClientPipe _clientPipe; 
         static void Main(string[] args)
         {
             // fire up the pipe client
@@ -30,23 +30,13 @@ namespace ClientServer
                     break; 
             }
 
-            IInstrument instrumentApi = factory?.CreateInstrumentApi(); 
+            IInstrument instrumentApi = factory?.CreateInstrumentApi();
+            instrumentApi.PipeClient = clientPipe; 
             instrumentApi?.OpenInstrumentConnection();
             instrumentApi?.EnterMainLoop();
 
         }
 
-        private void StartClientPipe(string pipeName)
-        {
-            _clientPipe = new ClientPipe(".", pipeName,
-                p => p.StartByteReaderAsync()); 
-            _clientPipe.DataReceived += (sender, args) =>
-            {
-                // deserialize to an instructions object
-                _clientPipe.AddScansToQueue(_clientPipe.DeserializeByteStream<ScanInstructions>(args.Data));
-                // if( scanInstructions != null ) clientPipe.CreateAndRunCustomScan(scanInstructions); 
-            }
-        }
         
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ClientServerCommunication
 {
-    public class PipeEventArgs
+    public class PipeEventArgs : EventArgs
     {
         public byte[] Data { get; set; }
         public int Length { get; set; }

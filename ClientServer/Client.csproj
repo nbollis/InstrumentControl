@@ -42,6 +42,9 @@
     <Reference Include="Fusion.API-1.0">
       <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\Fusion.API-1.0.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Spectrum-1.0">
       <HintPath>..\..\..\..\Documents\GitHub\InstrumentControl\InstrumentControl\ThermoIAPIDependencies\lib\Spectrum-1.0.dll</HintPath>
     </Reference>
@@ -73,11 +76,20 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ClientServerCommunication\ClientServerCommunication.csproj">
       <Project>{0e9b5801-5167-44cc-90d3-c8caf1df8f6a}</Project>
       <Name>ClientServerCommunication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Data\Data.csproj">
+      <Project>{6b34249b-a513-4a4a-9ed5-cb633bcab646}</Project>
+      <Name>Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\InstrumentControlIO\InstrumentControlIO.csproj">
+      <Project>{12c31f26-14e9-495a-8d0e-17454517e945}</Project>
+      <Name>InstrumentControlIO</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

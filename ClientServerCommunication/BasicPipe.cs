@@ -12,8 +12,7 @@ namespace ClientServerCommunication
         public event EventHandler<PipeEventArgs> DataReceived;
         public event EventHandler<EventArgs> PipeClosed;
         public event EventHandler<EventArgs> PipeConnected;
-        public event EventHandler<EventArgs> QueueThresholdReached;
-        protected PipeStream pipeStream;
+        protected PipeStream PipeStream { get; set; }
         protected Action<BasicPipe> asyncReaderStart;
         protected delegate T3 QueueProcessing<in T1, in T2, out T3>(T1 scansEnumerable, T2 workflowParams) where T3 : new();
 
@@ -23,14 +22,14 @@ namespace ClientServerCommunication
         }
         public void Close()
         {
-            pipeStream.WaitForPipeDrain();
-            pipeStream.Close();
-            pipeStream.Dispose();
-            pipeStream = null;
+            PipeStream.WaitForPipeDrain();
+            PipeStream.Close();
+            PipeStream.Dispose();
+            PipeStream = null;
         }
         public void Flush()
         {
-            pipeStream.Flush();
+            PipeStream.Flush();
         }
         protected void Connected()
         {
@@ -41,7 +40,7 @@ namespace ClientServerCommunication
             int intSize = sizeof(int);
             byte[] bDataLength = new byte[intSize];
 
-            pipeStream.ReadAsync(bDataLength, 0, intSize).ContinueWith(t =>
+            PipeStream.ReadAsync(bDataLength, 0, intSize).ContinueWith(t =>
             {
                 int len = t.Result;
 
@@ -54,7 +53,7 @@ namespace ClientServerCommunication
                     int dataLength = BitConverter.ToInt32(bDataLength, 0);
                     byte[] data = new byte[dataLength];
 
-                    pipeStream.ReadAsync(data, 0, dataLength).ContinueWith(t2 =>
+                    PipeStream.ReadAsync(data, 0, dataLength).ContinueWith(t2 =>
                     {
                         len = t2.Result;
 
@@ -81,7 +80,7 @@ namespace ClientServerCommunication
             var blength = BitConverter.GetBytes(bytes.Length);
             var bfull = blength.Concat(bytes).ToArray();
 
-            return pipeStream.WriteAsync(bfull, 0, bfull.Length);
+            return PipeStream.WriteAsync(bfull, 0, bfull.Length);
         }
         /// <summary>
         /// Reads an array of bytes, where the first [n] bytes (based on the server's intsize) indicates the number of bytes to read
