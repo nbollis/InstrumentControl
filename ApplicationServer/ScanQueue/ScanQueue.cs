@@ -1,18 +1,10 @@
-﻿using IMSScanClassExtensions;
-using InstrumentControlIO;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
-using Data; 
+﻿using Data; 
 
-namespace InstrumentControl
+namespace ApplicationServer
 {
-    internal class ScanQueue
+    public class ScanQueue
     {
-        Queue<SingleScanDataObject> DataToProcess { get; set; }
+        public Queue<SingleScanDataObject> DataToProcess { get; set; }
         int Threshold { get; set; }
         public bool ExportToJson { get; set; } = false;
         public event EventHandler<ThresholdReachedEventArgs>? ThresholdReached;

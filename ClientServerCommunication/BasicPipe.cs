@@ -3,7 +3,8 @@ using System.Text;
 using System.IO.Pipes;
 using System.Linq;
 using System.Threading.Tasks;
-using InstrumentControlIO;
+using Newtonsoft;
+using Newtonsoft.Json;
 
 namespace ClientServerCommunication
 {
@@ -122,7 +123,7 @@ namespace ClientServerCommunication
         public T DeserializeByteStream<T>(byte[] buffer)
         {
             string jsonStr = Encoding.UTF8.GetString(buffer);
-            return JsonSerializerDeserializer.Deserialize<T>(jsonStr, false);
+            return JsonConvert.DeserializeObject<T>(jsonStr);
         }
 
         protected virtual T3 RunQueueProcessing<T1, T2, T3>(T1 scans, T2 workflowParams,

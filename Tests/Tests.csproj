@@ -24,7 +24,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Data\Data.csproj" />
-    <ProjectReference Include="..\ScanProduction\ScanProduction.csproj" />
   </ItemGroup>
 
 	<ItemGroup>

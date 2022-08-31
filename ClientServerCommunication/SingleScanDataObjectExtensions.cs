@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using Data;
-using ClientServerCommunication;
-using InstrumentControlIO; 
+using Newtonsoft.Json; 
 
 
 namespace ClientServerCommunication
@@ -14,7 +9,7 @@ namespace ClientServerCommunication
     {
         public static void WriteSingleScanToPipe(this SingleScanDataObject singleScan, ClientPipe clientPipe)
         {
-            byte[] buffer = JsonSerializerDeserializer.SerializeToBytes(singleScan);
+            byte[] buffer = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(singleScan));
             clientPipe.WriteBytes(buffer); 
         }
         

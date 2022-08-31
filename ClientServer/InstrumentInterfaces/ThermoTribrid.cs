@@ -13,6 +13,7 @@ using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.TNG.Factory;
 using System.IO.Pipes;
 using System.Threading.Tasks;
+using ClientServer;
 using Newtonsoft.Json;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
 using ScanInstructions = ClientServerCommunication.ScanInstructions;
