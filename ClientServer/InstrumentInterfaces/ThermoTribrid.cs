@@ -26,7 +26,7 @@ namespace Client
         public string InstrumentName { get; private set; }
         public IFusionInstrumentAccessContainer InstAccessContainer { get; private set; }
         public IFusionInstrumentAccess InstAccess { get; private set; }
-        public IFusionMsScanContainer MSScanContainer { get; private set; }
+        public IFusionMsScanContainer MsScanContainer { get; private set; }
         public IAcquisition InstAcq { get; private set; }
         public IControl InstControl { get; private set; }
 
@@ -107,7 +107,7 @@ namespace Client
             InstAcq = InstControl.Acquisition;
             InstrumentID = InstAccess.InstrumentId.ToString();
             InstrumentName = InstAccess.InstrumentName;
-            MSScanContainer = InstAccess.GetMsScanContainer(0); 
+            MsScanContainer = InstAccess.GetMsScanContainer(0); 
         }
 
         private void MsScanArrived(object sender, MsScanEventArgs e)
