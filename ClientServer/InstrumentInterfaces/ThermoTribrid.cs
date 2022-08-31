@@ -15,6 +15,8 @@ using System.IO.Pipes;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
+using ScanInstructions = ClientServerCommunication.ScanInstructions;
+
 
 namespace Client
 {
@@ -59,7 +61,7 @@ namespace Client
             // creates a ScanInstructions object and adds it to _scanQueue. 
             PipeClient.DataReceived += OnDataReceived;
             // Converts scan to SingleScanData object and invoke ReadyToSendScan method
-            MSScanContainer.MsScanArrived += MsScanArrived;
+            MsScanContainer.MsScanArrived += MsScanArrived;
             // send the SingleScanData object to the server as a byte[]. 
             ReadyToSendScan += SendScanToServer;
             while (InstAccessContainer.ServiceConnected)

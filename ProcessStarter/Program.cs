@@ -26,7 +26,6 @@ namespace ProcessStarter
             Process.Start(serverProcessStartInfo);
             Process.Start(clientProcessStartInfo);
             Console.ReadLine();
-
         }
     }
 }

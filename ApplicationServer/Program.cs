@@ -24,7 +24,8 @@ namespace ApplicationServer
             };
             server.PipeClosed += (obj, sender) =>
             {
-                Console.Write("Client disconnected. Closing...");
+                Console.Write("Client disconnected. Closing after acknowledgment.");
+                Console.ReadLine(); 
                 server.Close();
             }; 
             

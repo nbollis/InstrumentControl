@@ -2,6 +2,7 @@
 using System; 
 using Data;
 using Thermo.Interfaces.InstrumentAccess_V2.MsScanContainer;
+using ScanInstructions = Data.ScanInstructions;
 
 namespace Client
 {
@@ -33,7 +34,7 @@ namespace Client
 
     public class ScanInstructionsEventArgs : EventArgs
     {
-        public ScanInstructions ScanInstructions { get; set; }
+        public Data.ScanInstructions ScanInstructions { get; set; }
         public ScanInstructionsEventArgs(ScanInstructions scanInstructions)
         {
             ScanInstructions = scanInstructions;
