@@ -87,10 +87,6 @@
       <Project>{6b34249b-a513-4a4a-9ed5-cb633bcab646}</Project>
       <Name>Data</Name>
     </ProjectReference>
-    <ProjectReference Include="..\InstrumentControlIO\InstrumentControlIO.csproj">
-      <Project>{12c31f26-14e9-495a-8d0e-17454517e945}</Project>
-      <Name>InstrumentControlIO</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

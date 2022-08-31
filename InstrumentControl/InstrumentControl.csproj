@@ -110,12 +110,9 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\Data\Data.csproj" />
 	  <ProjectReference Include="..\IMSScanClassExtensions\IMSScanClassExtensions.csproj" />
-	  <ProjectReference Include="..\Normalization\Normalization.csproj" />
 	  <ProjectReference Include="..\ScanProduction\ScanProduction.csproj" />
-	  <ProjectReference Include="..\SpectrumAveraging\Averaging.csproj" />
 	  <ProjectReference Include="..\Standardization\Standardization.csproj" />
 	  <ProjectReference Include="..\TaskInterfaces\TaskInterfaces.csproj" />
-	  <ProjectReference Include="..\InstrumentControlIO\InstrumentControlIO.csproj" />
 	</ItemGroup>
 
 </Project>
