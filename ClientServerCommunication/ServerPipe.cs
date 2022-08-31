@@ -2,13 +2,13 @@
 using System.IO.Pipes;
 using Data; 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 
 namespace ClientServerCommunication
 {
     public class ServerPipe : BasicPipe
     {
-        private Queue<SingleScanDataObject> _processingQueue = new Queue<SingleScanDataObject>();
         public event EventHandler<EventArgs> Connected;
         protected NamedPipeServerStream ServerPipeStream;
         protected string PipeName { get; set; }
@@ -24,7 +24,10 @@ namespace ClientServerCommunication
                 maxNumberOfServerInstances: NamedPipeServerStream.MaxAllowedServerInstances,
                 transmissionMode: mode);
             PipeStream = ServerPipeStream;
-            ServerPipeStream.BeginWaitForConnection(new AsyncCallback(PipeConnected), null);
+            IAsyncResult result = ServerPipeStream.BeginWaitForConnection(new AsyncCallback(PipeConnected), null);
+            result.AsyncWaitHandle.WaitOne();
+            result.AsyncWaitHandle.Close();
+            Console.WriteLine("Pipe connected"); 
         }
 
         public ServerPipe()
@@ -37,11 +40,6 @@ namespace ClientServerCommunication
             ServerPipeStream.EndWaitForConnection(ar);
             Connected?.Invoke(this, EventArgs.Empty);
             asyncReaderStart(this);
-        }
-
-        public void AddScanToProcessingQueue(SingleScanDataObject scan)
-        {
-            _processingQueue.Enqueue(scan);
         }
     }
 }

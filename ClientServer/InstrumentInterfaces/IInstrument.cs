@@ -18,6 +18,7 @@ namespace Client
         void SendScanInstructionsToInstrument(); 
         // scan is going to require yet another abstract factory
         void SendScanToServer(object sender, MsScanReadyToSendEventArgs eventArgs); 
+        // TODO: Write the LCMS loading methods. 
     }
 
     public class MsScanReadyToSendEventArgs : EventArgs
