@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using ClientServerCommunication;
-using Data;
 using Thermo.Interfaces.FusionAccess_V1;
 using Thermo.Interfaces.FusionAccess_V1.MsScanContainer;
 using Thermo.Interfaces.InstrumentAccess_V1.Control;
@@ -11,7 +10,6 @@ using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.TNG.Factory;
 using System.Linq;
 using System.Threading.Tasks;
-using ClientServer;
 using Newtonsoft.Json;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
 using ScanInstructions = ClientServerCommunication.ScanInstructions;

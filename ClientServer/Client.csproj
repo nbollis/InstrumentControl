@@ -67,7 +67,6 @@
     <Compile Include="Factories\IInstrumentFactory.cs" />
     <Compile Include="Factories\ThermoQEFactory.cs" />
     <Compile Include="Factories\ThermoTribridFactory.cs" />
-    <Compile Include="FusionLumosAPI.cs" />
     <Compile Include="InstrumentInterfaces\IInstrument.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\DataHandling\MsScanExtensions.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\InterfaceImplementations\ThermoQE.cs" />

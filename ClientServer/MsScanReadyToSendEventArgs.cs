@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Data;
 
-namespace ClientServer
+namespace Client
 {
     public class MsScanReadyToSendEventArgs : EventArgs
     {
