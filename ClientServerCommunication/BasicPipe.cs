@@ -32,7 +32,7 @@ namespace ClientServerCommunication
         {
             PipeStream.Flush();
         }
-        protected void Connected()
+        protected virtual void Connected()
         {
             PipeConnected?.Invoke(this, EventArgs.Empty);
         }

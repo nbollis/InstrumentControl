@@ -69,8 +69,9 @@
     <Compile Include="Factories\ThermoTribridFactory.cs" />
     <Compile Include="FusionLumosAPI.cs" />
     <Compile Include="InstrumentInterfaces\IInstrument.cs" />
-    <Compile Include="InstrumentInterfaces\ThermoQE.cs" />
-    <Compile Include="InstrumentInterfaces\ThermoTribrid.cs" />
+    <Compile Include="InstrumentInterfaces\Thermo\DataHandling\MsScanExtensions.cs" />
+    <Compile Include="InstrumentInterfaces\Thermo\InterfaceImplementations\ThermoQE.cs" />
+    <Compile Include="InstrumentInterfaces\Thermo\InterfaceImplementations\ThermoTribrid.cs" />
     <Compile Include="MsScanReadyToSendEventArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -111,5 +112,6 @@
     <Content Include="ThermoIAPIDependencies\lib\tribrid\Thermo.TNG.Factory.XML" />
     <Content Include="ThermoIAPIDependencies\lib\VI-1.0.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

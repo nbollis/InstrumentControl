@@ -9,7 +9,7 @@ namespace ClientServerCommunication
 {
     public class ServerPipe : BasicPipe
     {
-        public event EventHandler<EventArgs> Connected;
+        // public event EventHandler<EventArgs> Connected;
         protected NamedPipeServerStream ServerPipeStream;
         protected string PipeName { get; set; }
 
@@ -24,7 +24,7 @@ namespace ClientServerCommunication
                 maxNumberOfServerInstances: NamedPipeServerStream.MaxAllowedServerInstances,
                 transmissionMode: mode);
             PipeStream = ServerPipeStream;
-            IAsyncResult result = ServerPipeStream.BeginWaitForConnection(new AsyncCallback(PipeConnected), null);
+            IAsyncResult result = ServerPipeStream.BeginWaitForConnection(new AsyncCallback(PipeConnectedCallback), null);
             result.AsyncWaitHandle.WaitOne();
             result.AsyncWaitHandle.Close();
             Console.WriteLine("Pipe connected"); 
@@ -35,10 +35,10 @@ namespace ClientServerCommunication
 
         }
 
-        protected void PipeConnected(IAsyncResult ar)
+        protected void PipeConnectedCallback(IAsyncResult ar)
         {
             ServerPipeStream.EndWaitForConnection(ar);
-            Connected?.Invoke(this, EventArgs.Empty);
+            base.Connected(); 
             asyncReaderStart(this);
         }
     }
