@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime; 
 using System.Collections.Generic;
 using System.Threading;
 using ClientServerCommunication;
@@ -9,6 +10,7 @@ using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.TNG.Factory;
 using System.Linq;
+using Data; 
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
@@ -127,9 +129,15 @@ namespace Client
             string str = JsonConvert.SerializeObject(eventArgs.ScanData);
             PipeClient.WriteString(str); 
         }
+        // General note: in .NET Framework 4.8, event handling needs to be done like the below format, 
+        // not the handler?.Invoke(this, eventArgs) like in .NET 6.0 
         public void MsScanReadyToSend(MsScanReadyToSendEventArgs eventArgs)
-        { 
-            ReadyToSendScan?.Invoke(this, eventArgs);
+        {
+            EventHandler<MsScanReadyToSendEventArgs> handler = ReadyToSendScan;
+            if (handler != null)
+            {
+                handler(this, eventArgs); 
+            }
         }
 
 

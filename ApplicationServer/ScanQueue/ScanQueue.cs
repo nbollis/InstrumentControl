@@ -17,7 +17,13 @@ namespace ApplicationServer
 
         protected virtual void OnThresholdReached(ThresholdReachedEventArgs e)
         {
-            ThresholdReached?.Invoke(this, e);
+            // make .NET Framework 4.8 compatible just in case this ever gets ported to 
+            // client in any manner. 
+            EventHandler<ThresholdReachedEventArgs> handler = ThresholdReached;
+            if (handler != null)
+            {
+                handler(this, e); 
+            }
         }
     }
 }

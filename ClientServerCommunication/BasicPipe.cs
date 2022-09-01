@@ -34,7 +34,11 @@ namespace ClientServerCommunication
         }
         protected virtual void Connected()
         {
-            PipeConnected?.Invoke(this, EventArgs.Empty);
+            EventHandler<EventArgs> handler = PipeConnected;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
         }
         protected void StartByteReaderAsync(Action<byte[]> packetReceived)
         {
@@ -47,7 +51,11 @@ namespace ClientServerCommunication
 
                 if (len == 0)
                 {
-                    PipeClosed?.Invoke(this, EventArgs.Empty);
+                    EventHandler<EventArgs> handler = PipeClosed;
+                    if (handler != null)
+                    {
+                        handler(this, EventArgs.Empty);
+                    }
                 }
                 else
                 {
@@ -60,7 +68,11 @@ namespace ClientServerCommunication
 
                         if (len == 0)
                         {
-                            PipeClosed?.Invoke(this, EventArgs.Empty);
+                            EventHandler<EventArgs> handler = PipeClosed;
+                            if (handler != null)
+                            {
+                                handler(this, EventArgs.Empty);
+                            }
                         }
                         else
                         {
@@ -89,8 +101,14 @@ namespace ClientServerCommunication
         /// </summary>
         public void StartByteReaderAsync()
         {
+            EventHandler<PipeEventArgs> handler = DataReceived;
             StartByteReaderAsync((b) =>
-              DataReceived?.Invoke(this, new PipeEventArgs(b, b.Length)));
+            {
+                if (handler != null)
+                {
+                    handler(this, new PipeEventArgs(b, b.Length));
+                }
+            });
         }
 
         /// <summary>
@@ -102,14 +120,26 @@ namespace ClientServerCommunication
             StartByteReaderAsync((b) =>
             {
                 string str = Encoding.UTF8.GetString(b).TrimEnd('\0');
-                DataReceived?.Invoke(this, new PipeEventArgs(str));
+                EventHandler<PipeEventArgs> handler = DataReceived;
+                if (handler != null)
+                {
+                    handler(this, new PipeEventArgs(str));
+                }
             });
         }
+
+        // Two different types of handlers in this method: 
+        // 1) the Action handler delegate. 
+        // 2) the event handler delegate. 
         public void StartReaderAsync(Action<byte[]> handler = null)
         {
             StartByteReaderAsync((b) =>
             {
-                DataReceived?.Invoke(this, new PipeEventArgs(b, b.Length));
+                EventHandler<PipeEventArgs> eventHandler = DataReceived;
+                if (eventHandler != null)
+                {
+                    eventHandler(this, new PipeEventArgs(b, b.Length));
+                }
                 handler?.Invoke(b);
             });
         }

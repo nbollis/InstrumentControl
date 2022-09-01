@@ -18,7 +18,7 @@ namespace ProcessStarter
             };
 
             ProcessStartInfo clientProcessStartInfo = new(
-                @"C:\Users\Austin\source\repos\InstrumentControl\ClientServer\bin\Debug\ClientServer.exe")
+                @"C:\Users\Austin\source\repos\InstrumentControl\ClientServer\bin\Debug\Client.exe")
             {
                 Arguments = clientCommands, 
                 UseShellExecute = true
