@@ -82,8 +82,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="ThermoIAPIDependencies\.DS_Store" />
-    <None Include="ThermoIAPIDependencies\lib\.DS_Store" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ClientServerCommunication\ClientServerCommunication.csproj">
@@ -94,25 +92,6 @@
       <Project>{6b34249b-a513-4a4a-9ed5-cb633bcab646}</Project>
       <Name>Data</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="ThermoIAPIDependencies\lib\API-1.1.dll" />
-    <Content Include="ThermoIAPIDependencies\lib\API-1.1.xml" />
-    <Content Include="ThermoIAPIDependencies\lib\API-2.0.dll" />
-    <Content Include="ThermoIAPIDependencies\lib\API-2.0.xml" />
-    <Content Include="ThermoIAPIDependencies\lib\Fusion.API-1.0.dll" />
-    <Content Include="ThermoIAPIDependencies\lib\Fusion.API-1.0.XML" />
-    <Content Include="ThermoIAPIDependencies\lib\Spectrum-1.0.dll" />
-    <Content Include="ThermoIAPIDependencies\lib\Spectrum-1.0.xml" />
-    <Content Include="ThermoIAPIDependencies\lib\Thermo.TNG.Factory.dll" />
-    <Content Include="ThermoIAPIDependencies\lib\Thermo.TNG.Factory.XML" />
-    <Content Include="ThermoIAPIDependencies\lib\tribrid\Fusion.API-1.0.dll" />
-    <Content Include="ThermoIAPIDependencies\lib\tribrid\Fusion.API-1.0.XML" />
-    <Content Include="ThermoIAPIDependencies\lib\tribrid\previous-versions\Fusion.API-1.0.dll" />
-    <Content Include="ThermoIAPIDependencies\lib\tribrid\previous-versions\Fusion.API-1.0.XML" />
-    <Content Include="ThermoIAPIDependencies\lib\tribrid\Thermo.TNG.Factory.dll" />
-    <Content Include="ThermoIAPIDependencies\lib\tribrid\Thermo.TNG.Factory.XML" />
-    <Content Include="ThermoIAPIDependencies\lib\VI-1.0.dll" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

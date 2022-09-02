@@ -12,13 +12,13 @@ namespace ProcessStarter
             string serverCommands = "Server";
             string clientCommands = ". Server tribrid"; 
             ProcessStartInfo serverProcessStartInfo = new(
-                @"C:\Users\Austin\source\repos\InstrumentControl\ApplicationServer\bin\Debug\net6.0\ApplicationServer.exe")
+                @"C:\Users\Orbitrap Lumos\source\repos\InstrumentControl\ApplicationServer\bin\Debug\net6.0\ApplicationServer.exe")
             {
                 Arguments = serverCommands
             };
 
             ProcessStartInfo clientProcessStartInfo = new(
-                @"C:\Users\Austin\source\repos\InstrumentControl\ClientServer\bin\Debug\Client.exe")
+                @"C:\Users\Orbitrap Lumos\source\repos\InstrumentControl\Client\bin\Debug\Client.exe")
             {
                 Arguments = clientCommands, 
                 UseShellExecute = true

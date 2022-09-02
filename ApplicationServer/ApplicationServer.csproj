@@ -15,4 +15,22 @@
     <ProjectReference Include="..\ClientServerCommunication\ClientServerCommunication.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="API-2.0">
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\API-2.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Fusion.API-1.0">
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\Fusion.API-1.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Spectrum-1.0">
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\Spectrum-1.0.dll</HintPath>
+    </Reference>
+    <Reference Include="Thermo.TNG.Factory">
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\Thermo.TNG.Factory.dll</HintPath>
+    </Reference>
+    <Reference Include="ThermoFisher.Janus.VI">
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\ThermoFisher.Janus.VI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
