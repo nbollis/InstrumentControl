@@ -13,7 +13,7 @@ namespace ClientServerCommunication
         public event EventHandler<PipeEventArgs> DataReceived;
         public event EventHandler<EventArgs> PipeClosed;
         public event EventHandler<EventArgs> PipeConnected;
-        protected PipeStream PipeStream { get; set; }
+        public PipeStream PipeStream { get; set; }
         protected Action<BasicPipe> asyncReaderStart;
         protected delegate T3 QueueProcessing<in T1, in T2, out T3>(T1 scansEnumerable, T2 workflowParams) where T3 : new();
 

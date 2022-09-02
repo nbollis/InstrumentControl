@@ -20,8 +20,7 @@ namespace ProcessStarter
             ProcessStartInfo clientProcessStartInfo = new(
                 @"C:\Users\Orbitrap Lumos\source\repos\InstrumentControl\Client\bin\Debug\Client.exe")
             {
-                Arguments = clientCommands, 
-                UseShellExecute = true
+                Arguments = clientCommands
             }; 
             Process.Start(serverProcessStartInfo);
             Process.Start(clientProcessStartInfo);

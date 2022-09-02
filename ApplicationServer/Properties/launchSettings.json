@@ -2,7 +2,7 @@
   "profiles": {
     "ApplicationServer": {
       "commandName": "Project",
-      "commandLineArgs": "\"Server\""
+      "commandLineArgs": "simple Server"
     }
   }
 }

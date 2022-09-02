@@ -25,11 +25,11 @@ namespace Client
         public static IScans MScan { get; set; }
         public string InstrumentID { get; private set; }
         public string InstrumentName { get; private set; }
-        public IFusionInstrumentAccessContainer InstAccessContainer { get; private set; }
-        public IFusionInstrumentAccess InstAccess { get; private set; }
-        public IFusionMsScanContainer MsScanContainer { get; private set; }
-        public IAcquisition InstAcq { get; private set; }
-        public IControl InstControl { get; private set; }
+        public static IFusionInstrumentAccessContainer InstAccessContainer { get; private set; }
+        public static IFusionInstrumentAccess InstAccess { get; private set; }
+        public static IFusionMsScanContainer MsScanContainer { get; private set; }
+        public static IAcquisition InstAcq { get; private set; }
+        public static IControl InstControl { get; private set; }
 
         public event EventHandler<MsScanReadyToSendEventArgs> ReadyToSendScan;
         
@@ -43,7 +43,9 @@ namespace Client
         public void OpenInstrumentConnection()
         {
             InstAccessContainer.StartOnlineAccess();
-            // hold while instrument is connecting
+            while (!InstAccessContainer.ServiceConnected) ;
+            GetInstAccess();
+            Console.WriteLine("Instrument access started"); 
         }
 
         public void CloseInstrumentConnection()
@@ -56,15 +58,16 @@ namespace Client
             // connect to Server 
             PipeClient.Connect();
             // initializes instrument access. 
-            PipeClient.PipeConnected += GetInstAccess;
-            // creates a ScanInstructions object and adds it to _scanQueue. 
+            // PipeClient.PipeConnected += GetInstAccess;
             PipeClient.DataReceived += OnDataReceived;
             // Converts scan to SingleScanData object and invoke ReadyToSendScan method
-            MsScanContainer.MsScanArrived += MsScanArrived;
+            MsScanContainer.MsScanArrived += MsScanArrived; 
             // send the SingleScanData object to the server as a byte[]. 
             ReadyToSendScan += SendScanToServer;
+
             while (InstAccessContainer.ServiceConnected)
-            {
+            { 
+                // creates a ScanInstructions object and adds it to _scanQueue. 
 
             }
             PipeClient.Close();
@@ -110,12 +113,25 @@ namespace Client
             InstrumentName = InstAccess.InstrumentName;
             MsScanContainer = InstAccess.GetMsScanContainer(0); 
         }
+        private void GetInstAccess()
+        {
+            InstAccess = InstAccessContainer.Get(1);
+            // do not change order. InstAccess must be filled first as the other
+            // properties depend on it to be filled themselves.
+            InstControl = InstAccess.Control;
+            InstAcq = InstControl.Acquisition;
+            InstrumentID = InstAccess.InstrumentId.ToString();
+            InstrumentName = InstAccess.InstrumentName;
+            MsScanContainer = InstAccess.GetMsScanContainer(0);
+        }
 
         private void MsScanArrived(object sender, MsScanEventArgs e)
         {
+
             // convert to SingleScanDataObject
              MsScanReadyToSendEventArgs msEventArgs = 
                  new MsScanReadyToSendEventArgs(e.GetScan().ConvertToSingleScanDataObject());
+            Console.WriteLine("OnDataReceived MS Scan Number: {0}", msEventArgs.ScanData.MinX.ToString()); 
              // raise ready to send event
              MsScanReadyToSend(msEventArgs);
         }

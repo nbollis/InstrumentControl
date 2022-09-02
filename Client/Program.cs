@@ -34,14 +34,13 @@ namespace Client
             try
             {
                 IInstrument instrumentApi = factory?.CreateInstrumentApi();
+                instrumentApi.OpenInstrumentConnection(); 
                 instrumentApi.PipeClient = clientPipe;
-                instrumentApi?.OpenInstrumentConnection();
                 instrumentApi?.EnterMainLoop();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                throw;
             }
             Console.ReadLine(); 
         }

@@ -1,7 +1,7 @@
 ﻿using ClientServerCommunication;
 using System;
 using Data;
-using Thermo.Interfaces.InstrumentAccess_V2.MsScanContainer;
+using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using ScanInstructions = Data.ScanInstructions;
 
 namespace Client

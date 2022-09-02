@@ -77,10 +77,10 @@ namespace Client
                 {
                     XArray = scan.Centroids.Select(c => c.Mz).ToArray(),
                     YArray = scan.Centroids.Select(c => c.Intensity).ToArray(),
-                    TotalIonCurrent = double.Parse(scan.Header["Total Ion Current"]),
+                    TotalIonCurrent = 1E6,
                     MinX = scan.GetValueFromHeaderDict<double>("FirstMass"),
                     MaxX = scan.GetValueFromHeaderDict<double>("LastMass"),
-                    Resolution = scan.GetValueFromHeaderDict<double>("Orbitrap Resolution")
+                    Resolution = scan.GetValueFromHeaderDict<double>("")
                 };
                 return sso;
             }

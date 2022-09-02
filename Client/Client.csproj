@@ -36,20 +36,20 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="API-1.1">
-      <HintPath>..\..\iapi\lib\API-1.1.dll</HintPath>
+    <Reference Include="API-2.0, Version=1.1.0.1, Culture=neutral, PublicKeyToken=c03bf447005257eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\API-2.0.dll</HintPath>
     </Reference>
-    <Reference Include="API-2.0">
-      <HintPath>..\..\iapi\lib\API-2.0.dll</HintPath>
-    </Reference>
-    <Reference Include="Fusion.API-1.0">
-      <HintPath>..\..\iapi\lib\tribrid\Fusion.API-1.0.dll</HintPath>
+    <Reference Include="Fusion.API-1.0, Version=1.3.0.0, Culture=neutral, PublicKeyToken=35efc4498449bc4c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\Fusion.API-1.0.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Spectrum-1.0">
-      <HintPath>..\..\iapi\lib\Spectrum-1.0.dll</HintPath>
+    <Reference Include="Spectrum-1.0, Version=1.1.0.1, Culture=neutral, PublicKeyToken=c03bf447005257eb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\Spectrum-1.0.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -59,11 +59,12 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="Thermo.TNG.Factory">
-      <HintPath>..\..\iapi\lib\tribrid\Thermo.TNG.Factory.dll</HintPath>
+    <Reference Include="Thermo.TNG.Factory, Version=1.0.0.0, Culture=neutral, PublicKeyToken=35efc4498449bc4c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\Thermo.TNG.Factory.dll</HintPath>
     </Reference>
-    <Reference Include="VI-1.0">
-      <HintPath>..\..\iapi\lib\VI-1.0.dll</HintPath>
+    <Reference Include="ThermoFisher.Janus.VI">
+      <HintPath>..\..\..\..\..\..\Thermo\Instruments\TNG\OrbitrapFusionLumos\3.3\System\Programs\ThermoFisher.Janus.VI.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

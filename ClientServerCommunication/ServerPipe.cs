@@ -41,6 +41,10 @@ namespace ClientServerCommunication
             base.Connected(); 
             asyncReaderStart(this);
         }
+        public override T OnDataReceived<T>(object sender, PipeEventArgs e)
+        {
+            return base.OnDataReceived<T>(sender, e);
+        }
     }
 }
 
