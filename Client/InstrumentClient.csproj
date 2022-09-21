@@ -71,6 +71,7 @@
     <Compile Include="Factories\IInstrumentFactory.cs" />
     <Compile Include="Factories\ThermoQEFactory.cs" />
     <Compile Include="Factories\ThermoTribridFactory.cs" />
+    <Compile Include="InstrumentClientPipe.cs" />
     <Compile Include="InstrumentInterfaces\IInstrument.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\DataHandling\MsScanExtensions.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\InterfaceImplementations\ThermoQE.cs" />
@@ -85,9 +86,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ClientServerCommunication\ClientServerCommunication.csproj">
+    <ProjectReference Include="..\ClientServerCommunication\ClientServerCommLibrary.csproj">
       <Project>{0e9b5801-5167-44cc-90d3-c8caf1df8f6a}</Project>
-      <Name>ClientServerCommunication</Name>
+      <Name>ClientServerCommLibrary</Name>
     </ProjectReference>
     <ProjectReference Include="..\Data\Data.csproj">
       <Project>{6b34249b-a513-4a4a-9ed5-cb633bcab646}</Project>

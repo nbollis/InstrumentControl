@@ -3,7 +3,7 @@ using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using System.Collections.Generic;
 using System.Linq; 
 using Data; 
-namespace Client
+namespace InstrumentClient
 {
     public static class MsScanExtensions
     {

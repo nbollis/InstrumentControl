@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Data\Data.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WorkflowServer", "ApplicationServer\WorkflowServer.csproj", "{7989657B-6BE1-42AC-A77A-EBE537AAB710}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientServerCommunication", "ClientServerCommunication\ClientServerCommunication.csproj", "{0E9B5801-5167-44CC-90D3-C8CAF1DF8F6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientServerCommLibrary", "ClientServerCommunication\ClientServerCommLibrary.csproj", "{0E9B5801-5167-44CC-90D3-C8CAF1DF8F6A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProcessStarter", "ProcessStarter\ProcessStarter.csproj", "{1B8ADE4F-6900-448B-A08B-4C314FAB0A34}"
 EndProject

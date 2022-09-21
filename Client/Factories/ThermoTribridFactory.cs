@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client
+namespace InstrumentClient
 {
     public class ThermoTribridFactory : IInstrumentFactory
     {

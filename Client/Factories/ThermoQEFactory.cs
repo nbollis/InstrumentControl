@@ -6,7 +6,7 @@ using Thermo.Interfaces.InstrumentAccess_V1.Control;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition;
 
 
-namespace Client
+namespace InstrumentClient
 {
     public class ThermoQEFactory : IInstrumentFactory
     {

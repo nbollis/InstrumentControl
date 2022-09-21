@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommunication;
 
-namespace Client
+namespace InstrumentClient
 {
     internal class ThermoQE : IInstrument
     {

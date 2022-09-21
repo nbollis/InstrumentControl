@@ -2,7 +2,7 @@
 using System.Runtime; 
 using System.Collections.Generic;
 using System.Threading;
-using ClientServerCommunication;
+using ClientServerCommLibrary;
 using Thermo.Interfaces.FusionAccess_V1;
 using Thermo.Interfaces.FusionAccess_V1.MsScanContainer;
 using Thermo.Interfaces.InstrumentAccess_V1.Control;
@@ -13,105 +13,52 @@ using System.Linq;
 using Data; 
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Modes;
+using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Workflow;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
 using ScanInstructions = ClientServerCommunication.ScanInstructions;
+using SingleScanDataObject = Data.SingleScanDataObject;
 
 
-namespace Client
+namespace InstrumentClient
 {
     public class ThermoTribrid : IInstrument
     {
         public ClientPipe PipeClient { get; set; }
         public static IScans MScan { get; set; }
-        public string InstrumentID { get; private set; }
+        public string InstrumentId { get; private set; }
         public string InstrumentName { get; private set; }
         public static IFusionInstrumentAccessContainer InstAccessContainer { get; private set; }
         public static IFusionInstrumentAccess InstAccess { get; private set; }
         public static IFusionMsScanContainer MsScanContainer { get; private set; }
         public static IAcquisition InstAcq { get; private set; }
         public static IControl InstControl { get; private set; }
-
-        public event EventHandler<MsScanReadyToSendEventArgs> ReadyToSendScan;
-        
-        private Queue<ScanInstructions> _scanQueue = new Queue<ScanInstructions>();
-        public event EventHandler<ScanInstructionsEventArgs> ScanInstructionReceived; 
-
+        // Private Properties
+        private int SystemState { get; set; }
+        // Constructors
         public ThermoTribrid()
         {
             InstAccessContainer = Factory<IFusionInstrumentAccessContainer>.Create(); 
         }
+        #region OpenInstrumentConnection
+
+        public SingleScanDataObject GetLastScan()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendScanAction(SingleScanDataObject ssdo)
+        {
+            throw new NotImplementedException();
+        }
+
         public void OpenInstrumentConnection()
         {
             InstAccessContainer.StartOnlineAccess();
+            
             while (!InstAccessContainer.ServiceConnected) ;
             GetInstAccess();
             Console.WriteLine("Instrument access started"); 
-        }
-
-        public void CloseInstrumentConnection()
-        {
-            InstAccessContainer.Dispose();
-        }
-
-        public void EnterMainLoop()
-        {
-            // connect to Server 
-            PipeClient.Connect();
-            // initializes instrument access. 
-            // PipeClient.PipeConnected += GetInstAccess;
-            PipeClient.DataReceived += OnDataReceived;
-            // Converts scan to SingleScanData object and invoke ReadyToSendScan method
-            MsScanContainer.MsScanArrived += MsScanArrived; 
-            // send the SingleScanData object to the server as a byte[]. 
-            ReadyToSendScan += SendScanToServer;
-
-            while (InstAccessContainer.ServiceConnected)
-            { 
-                // creates a ScanInstructions object and adds it to _scanQueue. 
-
-            }
-            PipeClient.Close();
-        }
-        private void OnDataReceived(object sender, PipeEventArgs args)
-        {
-            // TODO: Convert to concurrent queue. 
-            // to prevent multiple writes to the queue in the event 
-            // of multiple ScanInstructionObjects getting sent in the buffer rapidly.
-            // enqueue ScanInstructionObject
-            _scanQueue.Enqueue(PipeClient
-                .DeserializeByteStream<ScanInstructions>(args.Data));
-            
-            // The listener for CanAcceptNextCustomScan 
-            // Creates a delegate to receive the EventArgs from the CanAcceptNextCustomScan event. 
-            
-            // TODO: Refactor to pull out the AutoResentEvent and EventHandler from this method. 
-            AutoResetEvent waitHandle = new AutoResetEvent(false);
-            EventHandler ev = delegate(object o, EventArgs e)
-            {
-                waitHandle.Set();
-            };
-            // Delegate listens for the CanAcceptNextCustomScan
-            MScan.CanAcceptNextCustomScan += ev;
-            Task.Run(() =>
-                {
-                    // TODO: add conversion from ScanInstructions to ICustomScan. 
-                    ICustomScan scan = MScan.CreateCustomScan();
-                    MScan.SetCustomScan(scan);
-                }
-            );
-            // Blocks thread from continuing until it receives the CanAcceptNextCustomScanEvent. 
-            waitHandle.WaitOne();
-        }
-        private void GetInstAccess(object sender, EventArgs args)
-        {
-            InstAccess = InstAccessContainer.Get(1);
-            // do not change order. InstAccess must be filled first as the other
-            // properties depend on it to be filled themselves.
-            InstControl = InstAccess.Control;
-            InstAcq = InstControl.Acquisition;
-            InstrumentID = InstAccess.InstrumentId.ToString();
-            InstrumentName = InstAccess.InstrumentName;
-            MsScanContainer = InstAccess.GetMsScanContainer(0); 
         }
         private void GetInstAccess()
         {
@@ -120,41 +67,124 @@ namespace Client
             // properties depend on it to be filled themselves.
             InstControl = InstAccess.Control;
             InstAcq = InstControl.Acquisition;
-            InstrumentID = InstAccess.InstrumentId.ToString();
+            InstrumentId = InstAccess.InstrumentId.ToString();
             InstrumentName = InstAccess.InstrumentName;
             MsScanContainer = InstAccess.GetMsScanContainer(0);
-        }
 
-        private void MsScanArrived(object sender, MsScanEventArgs e)
-        {
-
-            // convert to SingleScanDataObject
-             MsScanReadyToSendEventArgs msEventArgs = 
-                 new MsScanReadyToSendEventArgs(e.GetScan().ConvertToSingleScanDataObject());
-            Console.WriteLine("OnDataReceived MS Scan Number: {0}", msEventArgs.ScanData.MinX.ToString()); 
-             // raise ready to send event
-             MsScanReadyToSend(msEventArgs);
+            InstAccessContainer.ServiceConnectionChanged += (o, s) => { };
+            InstAccessContainer.MessagesArrived += (o, s) => { };
+            InstAcq.AcquisitionStreamClosing += (o, s) => { };
+            InstAcq.AcquisitionStreamOpening += (o, s) => { };
+            InstAcq.StateChanged += (o, s) => { };
+            // instacq systemstate also contains an enum, where each value corresponds to the acquisition state 
+            // of the system. Could potentially use this as a read-back for the client. 
+            // InstAcq.State.SystemState
+            MsScanContainer.MsScanArrived += (o, s) => { };
+            
         }
-        public void SendScanInstructionsToInstrument()
+        #endregion
+        #region
+
+        public void GetSystemState()
         {
             
         }
 
-        public void SendScanToServer(object sender, MsScanReadyToSendEventArgs eventArgs)
+        public void CancelAcquisition()
         {
-            string str = JsonConvert.SerializeObject(eventArgs.ScanData);
-            PipeClient.WriteString(str); 
+            throw new NotImplementedException();
         }
-        // General note: in .NET Framework 4.8, event handling needs to be done like the below format, 
-        // not the handler?.Invoke(this, eventArgs) like in .NET 6.0 
-        public void MsScanReadyToSend(MsScanReadyToSendEventArgs eventArgs)
+
+        public void PauseAcquisition()
         {
-            EventHandler<MsScanReadyToSendEventArgs> handler = ReadyToSendScan;
-            if (handler != null)
-            {
-                handler(this, eventArgs); 
-            }
+            throw new NotImplementedException();
         }
+
+        public void ResumeAcquisition()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StartAcquisition()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StartMethodAcquistion(string methodFilePath, string methodName, string outputFileName, string sampleName,
+            double timeInMinutes)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region CloseInstrumentConnection
+        public void CloseInstrumentConnection()
+        {
+            InstAccessContainer.Dispose();
+        }
+        #endregion
+        // enter main loop is obsolete because of the client pipe restructuring. 
+        #region SendScanAction
+
+        #endregion
+
+        #region GetLastScan
+
+        #endregion
+        
+        public void InstrumentOn()
+        {
+            var onMode = InstAcq.CreateOnMode();
+            InstAcq.SetMode(onMode); 
+        }
+        public void InstrumentOff()
+        {
+            IOffMode offMode = InstAcq.CreateOffMode();
+            InstAcq.SetMode(offMode);
+        }
+
+        public void InstrumentStandby()
+        {
+            IStandbyMode sbMode = InstAcq.CreateStandbyMode();
+            InstAcq.SetMode(sbMode);
+        }
+
+        public event EventHandler InstrumentConnected;
+        public event EventHandler InstrumentDisconnected;
+        public event EventHandler<EventArgs> ScanReceived;
+        public event EventHandler ReadyToReceiveScan;
+
+        public void StartMethodAcquisition(string methodFilePath, string methodName,
+            string outputFileName, string sampleName, double timeInMinutes)
+        {
+            var method = CreateMethodAcquisition(methodFilePath, 5, AcquisitionContinuation.Standby,
+                waitForContactClosure: true, methodName, outputFileName, sampleName, timeInMinutes); 
+            InstAcq.StartAcquisition(method);
+        }
+
+        private IAcquisitionMethodRun CreateMethodAcquisition(string methodFilePath, 
+            int singleProcessingDelay, AcquisitionContinuation continuation, 
+            bool waitForContactClosure, string methodName, 
+            string rawFileName, string sampleName, 
+            double timeInMinutes)
+        {
+            var methodAcquisition = InstAcq.CreateMethodAcquisition(methodFilePath);
+            // note: you can set the single processing delay. The instrument will wait 
+            // the number of milliseconds you set before it starts the next scan. 
+            // this needs to be set in the implementation of the interface because I'm not sure if
+            // anything besides Thermo will have this setting. 
+            methodAcquisition.SingleProcessingDelay = singleProcessingDelay;
+            // set the default behavior of inter-acquisition time to put the instrument on standby. 
+            methodAcquisition.Continuation = continuation;
+            methodAcquisition.WaitForContactClosure = waitForContactClosure;
+            methodAcquisition.MethodName = methodName;
+            methodAcquisition.RawFileName = rawFileName; 
+            methodAcquisition.SampleName = sampleName;
+            methodAcquisition.Duration = TimeSpan.FromMinutes(timeInMinutes);
+            return methodAcquisition;
+        }
+
 
 
     }

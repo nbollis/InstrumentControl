@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClientServerCommunication\ClientServerCommunication.csproj" />
+    <ProjectReference Include="..\ClientServerCommunication\ClientServerCommLibrary.csproj" />
   </ItemGroup>
 
   <ItemGroup>

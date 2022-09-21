@@ -3,26 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json; 
 
-namespace ClientServerCommunication
+namespace ClientServerCommLibrary
 {
     public class PipeEventArgs : EventArgs
     {
-        public byte[] Data { get; set; }
-        public int Length { get; set; }
-        public PipeEventArgs(byte[] bytes, int length)
+        public byte[] Buffer;
+
+        public PipeEventArgs(byte[] buff)
         {
-            Data = bytes;
-            Length = length;
+            Buffer = buff;
         }
-        public PipeEventArgs(string str)
+    }
+
+    public static class PipeEventArgsOverrides
+    {
+        public static SingleScanDataObject ToSingleScanDataObject(this PipeEventArgs args)
         {
-            StringToBytes(str);
-        }
-        private void StringToBytes(string str)
-        {
-            Data = Encoding.UTF8.GetBytes(str);
-            Length = Data.Length;
+            // get the string: 
+            string jsonziedObject = Encoding.UTF8.GetString(args.Buffer);
+            return JsonConvert.DeserializeObject<SingleScanDataObject>(jsonziedObject);
         }
     }
 }

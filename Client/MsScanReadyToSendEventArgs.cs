@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Data;
 using System.Runtime; 
 
-namespace Client
+namespace InstrumentClient
 {
     public class MsScanReadyToSendEventArgs : EventArgs
     {

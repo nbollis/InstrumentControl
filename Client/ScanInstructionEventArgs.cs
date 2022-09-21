@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Data;
 
-namespace Client
+namespace InstrumentClient
 {
     public class ScanInstructionsEventArgs : EventArgs
     {
