@@ -19,11 +19,11 @@ namespace InstrumentClient
         void SendScanAction(SingleScanDataObject ssdo); 
         void OpenInstrumentConnection();
         void CloseInstrumentConnection();
-        void GetSystemState();
+        string GetSystemState(int stateOrMode);
         void CancelAcquisition();
         void PauseAcquisition();
         void ResumeAcquisition();
-        void StartAcquisition();
+        void StartAcquisition(string rawFileName);
         void StartMethodAcquistion(string methodFilePath, string methodName, 
             string outputFileName, string sampleName, double timeInMinutes);
         void InstrumentOn();
