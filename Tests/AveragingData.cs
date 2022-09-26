@@ -21,6 +21,8 @@ namespace Tests
     {
         #region  Data Injectors
 
+        public double[] CarbonicAnhydraseTargets { get; set; }
+
         public static double[] GetCarbonicAnhydraseTargets()
         {
             string targetTxtPath = @"D:\Projects\InstrumentControl\Output Folder\AveragingCarbonicAnhydrase\carbonicAnhydrase.txt";
@@ -38,9 +40,10 @@ namespace Tests
         #endregion
 
         [SetUp]
-        public static void Setup()
+        public void Setup()
         {
             Loaders.LoadElements();
+            CarbonicAnhydraseTargets = GetCarbonicAnhydraseTargets();
         }
 
         [Test]
@@ -209,13 +212,13 @@ namespace Tests
 
 
         [Test]
-        public static void DoManyMethodsAndOutputSystematicallySmallerScale()
+        public void DoManyMethodsAndOutputSystematicallySmallerScale()
         {
             #region Value Initialization
 
             //string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinStandardDifferentResolutions\220722IterationAndScoring\TestingBigAlgorithmicChanges";
             string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\FirstPassAtScoring";
-            string[] resolutions = new string[] { "15k", "30k", "45k", "60k" };
+            string[] resolutions = new string[] { "15k", "30k", "45k"/*, "60k"*/ };
             int[] scansToAverage = new int[] { 5 };
             List<string> mzMLpaths = new List<string>();
             foreach (var resolution in resolutions)
@@ -238,9 +241,9 @@ namespace Tests
             List<WeightingType> weightingTypes = new();
             weightingTypes.AddRange(Enum.GetValues<WeightingType>());
 
-            double[] binSizes = new double[] { 0.5, 0.1, 0.05, 0.01, 0.005, 0.001 };
-            double[] sigmas = new double[] { 1.1, 1.2, 1.3, 1.4, 1.5, 2, 3, 4, 5, 6 };
-            double[] percentiles = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 };
+            double[] binSizes = new double[] { /*0.5, 0.1,*/ 0.05/*, 0.01, 0.005, 0.001 */};
+            double[] sigmas = new double[] {/* 1.1, 1.2, */1.3/*, 1.4, 1.5, 2, 3, 4, 5, 6 */};
+            double[] percentiles = new double[] { /*0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7,*/ 0.8, 0.9 };
             foreach (var rejection in rejectionTypes)
             {
                 foreach (var weight in weightingTypes)
@@ -316,6 +319,7 @@ namespace Tests
             foreach (var file in Directory.GetFiles(dataDirectory).Where(p => p.Contains(".txt")))
             {
                 AveragedScanAnalyzer thermo = new(file);
+                thermo.Resolution = double.Parse(file.Split('_')[2].Substring(0, 2));
                 thermo.Options.RejectionType = RejectionType.Thermo;
                 analysis.Add(thermo);
             }
@@ -325,28 +329,28 @@ namespace Tests
             string outpath = "";
             foreach (var item in analysis)
             {
-                //outpath = Path.Combine(directoryPath, "AbsoluteAbundance", item.Header + $"{type}.txt");
-                //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, false);
+                outpath = Path.Combine(directoryPath, "AbsoluteAbundance", item.Header + $"{type}.txt");
+                item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, false);
 
-                //outpath = Path.Combine(directoryPath, "RelativeAbundance", item.Header + $"{type}.txt");
-                //item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
+                outpath = Path.Combine(directoryPath, "RelativeAbundance", item.Header + $"{type}.txt");
+                item.PrintAveragedScanAnalyzerAsTxtOfSpectrum(outpath, true);
 
-                outpath = Path.Combine(directoryPath, "Figures", item.Header + $"{type}.svg");
-                item.PlotModel = SpectrumViewer.CreatePlotModel(item.CompositeSpectrum);
-                SpectrumViewer.WritePlotToSvg(item.PlotModel, outpath);
+                //outpath = Path.Combine(directoryPath, "Figures", item.Header + $"{type}.svg");
+                //item.PlotModel = SpectrumViewer.CreatePlotModel(item.CompositeSpectrum);
+                //SpectrumViewer.WritePlotToSvg(item.PlotModel, outpath);
             }
 
-            // Score the results with numerous methods
-            double[] ppms = new double[] { 100, 75, 50, 25, 10 };
-            double[] sigmasDecreaseFromMean = new double[] { 1.1, 1, 0.9, 0.75, 0.5 };
+            //// Score the results with numerous methods
+            double[] ppms = new double[] { 50 };
+            double[] sigmasDecreaseFromMean = new double[] { 1 };
             foreach (var ppm in ppms)
             {
                 foreach (var sigma in sigmasDecreaseFromMean)
                 {
                     foreach (var item in analysis)
                     {
-                        outpath = Path.Combine(directoryPath, "AbsoluteAbundance", item.Header + $"{type}.txt");
-                        item.ScoreBasedOnRelavantPeaksAboveDeviation(GetCarbonicAnhydraseTargets(), ppm, sigma);
+                        outpath = Path.Combine(directoryPath, "ScoredOutput", item.Header + $"{type}.txt");
+                        item.ScoreBasedOnRelavantPeaksAboveDeviation(CarbonicAnhydraseTargets, ppm, sigma);
                         item.PrintAveragedScanAsTxtWithScore(outpath, false);
                     }
                     outpath = Path.Combine(directoryPath, "Scores", $"CompiledScoredResults_{ppm}_{sigma}_{type}.csv");
@@ -378,8 +382,8 @@ namespace Tests
         {
             string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\FirstPassAtScoring\Scores\Sorted";
             List<string> top3 = new();
-            string[] header = new string[Directory.GetFiles(directoryPath).Count() + 1];
-            foreach (var file in Directory.GetFiles(directoryPath))
+            string[] header = new string[1];
+            foreach (var file in Directory.GetFiles(directoryPath).Where(p => p.Contains("Compiled")))
             {
                 string[] lines = File.ReadAllLines(file);
                 header[0] = lines[0];
@@ -387,14 +391,51 @@ namespace Tests
                 top3.AddRange(lines.Take(new Range(1,3)));
             }
 
-            var sorted = top3.Select(line => new
+            var sorted = top3.ToArray().Select(line => new
             {
                 SortKey = Double.Parse(line.Split("\t")[8]),
+                SecondSort = double.Parse(line.Split("\t")[9]),
                 Line = line
-            }).OrderByDescending(p => p.SortKey).Select(p => p.Line);
+            }).OrderByDescending(p => p.SortKey).ThenByDescending(p => p.SecondSort).Select(p => p.Line);
 
+            string[] output = header.Concat(sorted).ToArray();
+            File.WriteAllLines(Path.Combine(directoryPath, "Top3FromEach.csv"), output);
+        }
 
-            File.WriteAllLines(Path.Combine(directoryPath, "Top3FromEach.csv"), header.Concat(top3));
+        [Test]
+        public static void LoadInAndGraphAllSpectraInFile()
+        {
+            double[] targets = GetCarbonicAnhydraseTargets();
+            string filepath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\Data\CarbonicAnhydraseTargets.txt";
+            using (StreamWriter writer = new StreamWriter(filepath))
+            {
+                foreach (var item in targets.Where(p => p > 590 && p < 1500))
+                {
+                    writer.WriteLine(item + "\t" + 1);
+                }
+            }
+        }
+
+        [Test]
+        public void GetSignalToNoiseEstimate()
+        {
+            string directoryPath = @"D:\Projects\InstrumentControl\Output Folder\6ProteinBackToBack\StoNCalcs";
+            List<AveragedScanAnalyzer> analyzers = new List<AveragedScanAnalyzer>();
+            foreach (var file in Directory.GetFiles(directoryPath).Where(p => p.Contains(".txt")))
+            {
+                AveragedScanAnalyzer scan = new(file);
+                scan.ScoreAndCalculateSignalToNoise(CarbonicAnhydraseTargets, 50, 1);
+                analyzers.Add(scan);
+            }
+
+            string outpath = Path.Combine(directoryPath, "SignalToNoiseCalcs10001400.csv");
+            using (StreamWriter writer = new StreamWriter(File.Create(outpath)))
+            {
+                foreach (var item in analyzers)
+                {
+                    writer.WriteLine(item.Header + "\t" + item.Score + "\t" + item.SignalToNoise);
+                }
+            }
         }
     }
 }

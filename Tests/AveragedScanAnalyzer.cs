@@ -25,6 +25,7 @@ namespace Tests
         public double? PpmAllowed { get; set; }
         public double SigmaAllowed { get; set; }
         public double ScoreIntensityTarget { get; set; }
+        public double SignalToNoise { get; set; }
 
         public double AverageNonZeroYValue
         {
@@ -63,14 +64,14 @@ namespace Tests
             Header = Path.GetFileNameWithoutExtension(filepath);
             string[] splits = Header.Split('_');
             Options = new SpectrumAveragingOptions();
-            if (splits.Length > 2 && !filepath.Contains("-qb"))
-            {
-                Resolution = double.Parse(splits[0]);
-                NumberOfScans = double.Parse(splits[1].Split('S')[0]);
-                Options.RejectionType = (RejectionType)Enum.Parse(typeof(RejectionType), splits[2]);
-                Options.WeightingType = (WeightingType)Enum.Parse(typeof(WeightingType), splits[3]);
-                Options.BinSize = double.Parse(splits[4]);
-            }
+            //if (splits.Length > 2 && !filepath.Contains("-qb"))
+            //{
+            //    Resolution = double.Parse(splits[0]);
+            //    NumberOfScans = double.Parse(splits[1].Split('S')[0]);
+            //    Options.RejectionType = (RejectionType)Enum.Parse(typeof(RejectionType), splits[2]);
+            //    Options.WeightingType = (WeightingType)Enum.Parse(typeof(WeightingType), splits[3]);
+            //    Options.BinSize = double.Parse(splits[4]);
+            //}
 
             string[] lines = File.ReadAllLines(filepath);
             string[] firstline = lines[0].Split("\t");
@@ -152,6 +153,43 @@ namespace Tests
                 }
             }
         }
+
+        public void ScoreAndCalculateSignalToNoise(double[] targetValues, double ppmTolerance, double targetSigmasBelowMean)
+        {
+            Score = 0;
+            PpmAllowed = ppmTolerance;
+            SigmaAllowed = targetSigmasBelowMean;
+            ScoreIntensityTarget = AverageNonZeroYValue - (NonZeroStandardDeviationInY * targetSigmasBelowMean);
+            bool relative = CompositeSpectrum.YArray.Sum() > 1 ? false : true;
+            PpmTolerance tolerance = new(ppmTolerance);
+            List<double> hitPeaks = new();
+
+            foreach (var target in targetValues.Where(p => p >= 1000 && p <= 1400))
+            {
+                //var range = tolerance.GetRange(target);
+                var potentialHits = CompositeSpectrum.XArray.Where(p => tolerance.Within(p, target));
+                foreach (var potentialHit in potentialHits)
+                {
+                    int index = Array.IndexOf(CompositeSpectrum.XArray, potentialHit);
+                    double intensity = CompositeSpectrum.YArray[index];
+                    if (intensity > ScoreIntensityTarget)
+                    {
+                        hitPeaks.Add(CompositeSpectrum.YArray[index]);
+                        Score++;
+                        break;
+                    }
+                }
+            }
+            if (hitPeaks.Count > 0)
+            {
+                double signalValue = hitPeaks.Average();
+                double standardDeviation = SpectrumAveraging.CalculateStandardDeviation(CompositeSpectrum.YArray/*.Where(p => p != 0)*/);
+                SignalToNoise = signalValue / standardDeviation;
+            }
+            else
+                SignalToNoise = 0;
+        }
+
         #endregion
 
         #region IO
@@ -261,13 +299,13 @@ namespace Tests
             string delim = "\t";
             string header = "Resolution" + delim + "Scans" + delim + "Rejection" + delim + "Weighting" + delim + "BinSize"
                 + delim + "MinSigma" + delim + "MaxSigma" + delim + "Percentile" + delim + "Score" + delim +
-                "IntensityScoreTarget" + delim + "PpmAllowedInScore" + delim + "SigmaAllowedInScore";
+                "IntensityScoreTarget" + delim + "PpmAllowedInScore" + delim + "SigmaAllowedInScore" + delim + "RelativeInstensityScoreTarget";
             foreach (var averagedScan in scans)
             {
                 string entry = averagedScan.Resolution + delim + averagedScan.NumberOfScans + delim + averagedScan.Options.RejectionType + delim +
                     averagedScan.Options.WeightingType + delim + averagedScan.Options.BinSize + delim + averagedScan.Options.MinSigmaValue + delim +
                     averagedScan.Options.MaxSigmaValue + delim + averagedScan.Options.Percentile + delim + averagedScan.Score + delim + averagedScan.ScoreIntensityTarget
-                    + delim + averagedScan.PpmAllowed + delim + averagedScan.SigmaAllowed;
+                    + delim + averagedScan.PpmAllowed + delim + averagedScan.SigmaAllowed + delim + averagedScan.ScoreIntensityTarget / averagedScan.CompositeSpectrum.YArray.Max();
                 entries.Add(entry);
             }
             OutputSummaries(entries, header, outpath);
