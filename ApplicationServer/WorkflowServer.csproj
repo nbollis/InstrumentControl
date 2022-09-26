@@ -8,7 +8,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="mzLib" Version="1.0.535" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="SpectralAveraging" Version="1.0.3" />
   </ItemGroup>
 
   <ItemGroup>

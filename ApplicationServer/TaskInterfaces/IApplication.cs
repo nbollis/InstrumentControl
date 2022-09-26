@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace WorkflowServer
 {
-    public enum TaskType
+    public interface IApplication
     {
-        Normalization,
-        Standardization,
-        SpectrumAveraging,
-        ChargeStateEnvelope,
-        BoxcarFragger
+        virtual void GetOptions<T>(T options)
+        {
+
+        }
     }
 }

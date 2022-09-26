@@ -1,11 +1,10 @@
 ﻿using System.IO.Pipes;
 using ClientServerCommunication;
 using Data;
-using InstrumentControl;
 using Newtonsoft;
 using Newtonsoft.Json;
 
-namespace ApplicationServer
+namespace WorkflowServer
 {
     public class Program
     {

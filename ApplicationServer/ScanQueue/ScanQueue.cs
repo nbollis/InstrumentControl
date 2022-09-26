@@ -1,6 +1,6 @@
 ﻿using Data; 
 
-namespace ApplicationServer
+namespace WorkflowServer
 {
     public class ScanQueue
     {
