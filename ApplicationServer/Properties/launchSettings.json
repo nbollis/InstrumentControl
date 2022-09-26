@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ApplicationServer": {
+      "commandName": "Project",
+      "commandLineArgs": "simple Server"
+    }
+  }
+}
