@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace WorkflowServer
 {
-    public interface IApplication
+    public enum Workflows
     {
-        virtual void GetOptions<T>(T options)
-        {
-
-        }
+        DataDependentAcquisiton,
+        WholeChargeStateEnvelopeFragmentation,
+        DeepProteomeProfilingWorkflow,
     }
 }

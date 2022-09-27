@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WorkflowServer
 {
-    public class WholeChargeEnvelopeFragmentationApplication : Application
+    public class WholeChargeEnvelopeFragmentationWorkflow : Workflow
     {
         public override void ProcessScans(object sender, ThresholdReachedEventArgs e)
         {

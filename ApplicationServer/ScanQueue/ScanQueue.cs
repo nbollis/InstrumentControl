@@ -1,4 +1,4 @@
-﻿using Data; 
+﻿using ClientServerCommLibrary;
 
 namespace WorkflowServer
 {
@@ -6,7 +6,7 @@ namespace WorkflowServer
     {
         public Queue<SingleScanDataObject> DataToProcess { get; set; }
         int Threshold { get; set; }
-        public bool ExportToJson { get; set; } = false;
+
         public event EventHandler<ThresholdReachedEventArgs>? ThresholdReached;
 
         public ScanQueue(int processingThreshold)

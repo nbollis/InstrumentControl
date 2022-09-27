@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 
 namespace ProcessStarter
 {
@@ -10,15 +11,17 @@ namespace ProcessStarter
             //string clientPath = args[1];
 
             string serverCommands = "Server";
-            string clientCommands = ". Server tribrid"; 
+            string clientCommands = ". Server tribrid";
+
+            string path = AppDomain.CurrentDomain.BaseDirectory.Split("ProcessStarter")[0];
             ProcessStartInfo serverProcessStartInfo = new(
-                @"C:\Users\Orbitrap Lumos\source\repos\InstrumentControl\ApplicationServer\bin\Debug\net6.0\ApplicationServer.exe")
+                Path.Combine(path, @"ApplicationServer\bin\debug\net6.0\WorkflowServer.exe"))
             {
                 Arguments = serverCommands
             };
 
             ProcessStartInfo clientProcessStartInfo = new(
-                @"C:\Users\Orbitrap Lumos\source\repos\InstrumentControl\Client\bin\Debug\Client.exe")
+                Path.Combine(path, @"Client\bin\debug\Client.exe"))
             {
                 Arguments = clientCommands
             }; 
