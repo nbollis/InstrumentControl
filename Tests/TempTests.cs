@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Pipes;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ using WorkflowServer;
 
 namespace Tests
 {
-    public class TestTask
+    public class TempTests
     {
         public static List<SingleScanDataObject> SsdoList { get; set; }
 
@@ -22,10 +23,10 @@ namespace Tests
             double[] y4 = new double[] { 0, 10, 10, 10, 100, 20, 20, 10, 10, 0 };
 
             SsdoList = new();
-            SsdoList.Add(new SingleScanDataObject(xArray, y1) {ScanOrder = 1});
-            SsdoList.Add(new SingleScanDataObject(xArray, y2) {ScanOrder = 1});
-            SsdoList.Add(new SingleScanDataObject(xArray, y3) {ScanOrder = 1});
-            SsdoList.Add(new SingleScanDataObject(xArray, y4) {ScanOrder = 1});
+            SsdoList.Add(new SingleScanDataObject(xArray, y1) { ScanOrder = 1 });
+            SsdoList.Add(new SingleScanDataObject(xArray, y2) { ScanOrder = 1 });
+            SsdoList.Add(new SingleScanDataObject(xArray, y3) { ScanOrder = 1 });
+            SsdoList.Add(new SingleScanDataObject(xArray, y4) { ScanOrder = 1 });
         }
 
 
@@ -39,6 +40,25 @@ namespace Tests
             // nesting structure is correct in ExecuteTask and ExecuteSpecific
             var result = example1.ExecuteTask(SsdoList);
             Assert.That(result.Count() == 2);
+        }
+
+        [Test]
+        public static void TestScanQueue()
+        {
+            ScanQueue queue = new(3);
+            queue.Enqueue(SsdoList.Take(2));
+            queue.Enqueue(SsdoList[2]);
+        }
+
+        [Test]
+        public static void TestWorkflow()
+        {
+            
+
+            
+
+
+
         }
     }
 }

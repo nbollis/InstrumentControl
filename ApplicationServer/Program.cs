@@ -41,11 +41,11 @@ namespace WorkflowServer
 
             }
 
-            AppServerPipe serverPipe = new AppServerPipe(pipeServer, ms1toQueue, ms2toQueue);
+            AppServerPipe serverPipe = new AppServerPipe(pipeServer);
 
             try
             {
-                serverPipe.StartServer(workflow ?? throw new ArgumentNullException());
+                //serverPipe.StartServer(workflow ?? throw new ArgumentNullException());
             }
             catch (Exception e)
             {

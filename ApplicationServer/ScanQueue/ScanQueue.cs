@@ -7,7 +7,7 @@ namespace WorkflowServer
         public Queue<SingleScanDataObject> DataToProcess { get; set; }
         int Threshold { get; set; }
 
-        public event EventHandler<ThresholdReachedEventArgs>? ThresholdReached;
+        public event EventHandler<ScanQueueThresholdReachedEventArgs>? ThresholdReached;
 
         public ScanQueue(int processingThreshold)
         {
@@ -15,15 +15,26 @@ namespace WorkflowServer
             DataToProcess = new Queue<SingleScanDataObject>(100);
         }
 
-        protected virtual void OnThresholdReached(ThresholdReachedEventArgs e)
+        public void Enqueue(SingleScanDataObject ssdo)
         {
-            // make .NET Framework 4.8 compatible just in case this ever gets ported to 
-            // client in any manner. 
-            EventHandler<ThresholdReachedEventArgs> handler = ThresholdReached;
-            if (handler != null)
+            DataToProcess.Enqueue(ssdo);
+            if (DataToProcess.Count >= Threshold)
             {
-                handler(this, e); 
+                OnThresholdReached();
             }
+        }
+
+        public void Enqueue(IEnumerable<SingleScanDataObject> ssdos)
+        {
+            foreach (var singleScanDataObject in ssdos)
+            {
+                Enqueue(singleScanDataObject);
+            }
+        }
+
+        private void OnThresholdReached()
+        {
+            ThresholdReached?.Invoke(this, new ScanQueueThresholdReachedEventArgs(DataToProcess.DequeueChunk(Threshold)));
         }
     }
 }

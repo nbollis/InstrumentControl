@@ -39,9 +39,5 @@ namespace WorkflowServer
         {
             return new List<SingleScanDataObject>() { scansToProcess.First() };
         }
-
-
-
-        
     }
 }

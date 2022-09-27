@@ -13,22 +13,53 @@ namespace WorkflowServer
     public class WorkflowFactory
     {
         private AppServerPipe ConnectedPipe { get; }
-        public event EventHandler<ScanQueueThresholdReachedEventArgs> Ms1ScanQueueThresholdReached;
-        public event EventHandler<ScanQueueThresholdReachedEventArgs> Ms2ScanQueueThresholdReached;
-
-
-        private List<InstrumentControlTask> Tasks { get; }
-
+        public event EventHandler<ProcessingCompletedEventArgs> ProcessingCompleted;
+        public Dictionary<int, ScanQueue> ScanQueues { get; set; }
+        public List<InstrumentControlTask> Tasks { get; }
 
         public WorkflowFactory(AppServerPipe pipe, List<InstrumentControlTask> tasks)
         {
             ConnectedPipe = pipe;
             Tasks = tasks;
+            ScanQueues = new();
+            CheckTaskListValidity(Tasks);
+
+            ProcessingCompleted += ConnectedPipe.SendDataThroughPipe;
+
+            foreach (var task in Tasks)
+            {
+                ScanQueues.TryAdd(task.AcceptScanOrder, new ScanQueue(task.ScansToAccept));
+                ScanQueues[task.AcceptScanOrder].ThresholdReached += (sender, args) =>
+                {
+                    ProcessingCompleted?.Invoke(this, new ProcessingCompletedEventArgs(task.ExecuteTask(args.ListSsdo)));
+                };
+            }
         }
 
-        public void ExecuteWorkflow()
+        public void ReceiveData(SingleScanDataObject ssdo)
         {
+            try
+            {
+                ScanQueues[ssdo.ScanOrder].Enqueue(ssdo);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error queueing to dictionary of queue with MSnOrder: {ssdo.ScanOrder}" + e.Message);
+            }
+        }
 
+        private static void CheckTaskListValidity(List<InstrumentControlTask> tasks)
+        {
+            int msnOrder = tasks.First().AcceptScanOrder;
+            if (msnOrder != 1)
+                throw new ArgumentException("First task must accept Ms1 Scans");
+
+            for (int i = 1; i < tasks.Count; i++)
+            {
+                if (tasks[i].AcceptScanOrder <= msnOrder)
+                    throw new ArgumentException("All tasks must have sequential MsnOrders");
+                msnOrder = tasks[i].AcceptScanOrder;
+            }
         }
     }
 }

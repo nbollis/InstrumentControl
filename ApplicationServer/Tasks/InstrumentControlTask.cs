@@ -16,13 +16,11 @@ namespace WorkflowServer
         public bool Terminate { get; private set; } = false;
         public InstrumentControlTask? NextTask { get; private set; }
 
-
         public InstrumentControlTask(int acceptScanOrder, int scansToAccept)
         {
             AcceptScanOrder = acceptScanOrder;
             ScansToAccept = scansToAccept;
         }
-
 
         protected abstract IEnumerable<SingleScanDataObject> ExecuteSpecific(IEnumerable<SingleScanDataObject> scansToProcess);
         public IEnumerable<SingleScanDataObject> ExecuteTask(IEnumerable<SingleScanDataObject> scansToProcess)

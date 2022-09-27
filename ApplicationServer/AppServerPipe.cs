@@ -10,87 +10,29 @@ namespace WorkflowServer
     {
         public event EventHandler<EventArgs> PipeConnected;
         public event EventHandler<PipeEventArgs> PipeDataReceived;
-        public event EventHandler<ScanQueueThresholdReachedEventArgs> Ms1ScanQueueThresholdReached;
-        public event EventHandler<ScanQueueThresholdReachedEventArgs> Ms2ScanQueueThresholdReached;
-        public event EventHandler<ProcessingCompletedEventArgs> Ms1ProcessingCompleted;
-        public event EventHandler<ProcessingCompletedEventArgs> Ms2ProcessingCompleted;
         public NamedPipeServerStream PipeServer { get; set; }
-        public Queue<SingleScanDataObject> ScanQueueMS1 { get; set; }
-        public int Ms1ScanQueueThreshold { get; set; }
-        public Queue<SingleScanDataObject> ScanQueueMS2 { get; set; }
-        public int Ms2ScanQueueThreshold { get; set; }
-        private ProcessMs1ScansDelegate? Ms1Delegate { get; set; }
-        private ProcessMs2ScansDelegate? Ms2Delegate { get; set; }
-        // static class with processing workflows? 
-        public AppServerPipe(NamedPipeServerStream pipeServer,
-            int ms1ScanQueueThreshold = 5,
-            int ms2ScanQueueThreshold = 0,
-            ProcessMs1ScansDelegate? ms1Delegate = null,
-            ProcessMs2ScansDelegate? ms2Delegate = null)
+
+        private WorkflowFactory Workflow { get; set; }
+
+        
+        public AppServerPipe(NamedPipeServerStream pipeServer)
         {
             PipeServer = pipeServer;
-            ScanQueueMS1 = new();
-            ScanQueueMS2 = new();
-            Ms1ScanQueueThreshold = ms1ScanQueueThreshold;
-            Ms2ScanQueueThreshold = ms2ScanQueueThreshold;
-            Ms1Delegate = ms1Delegate;
-            Ms2Delegate = ms2Delegate;
+            PipeDataReceived += HandleDataReceived;
         }
 
-        public void StartServer(Workflow workflow)
+        public void StartServer(WorkflowFactory workflow)
         {
+            Workflow = workflow;
             PipeConnected += (obj, sender) =>
             {
                 Console.WriteLine("Pipe client connected. Sent from event.");
             };
 
-            //// delegate for processing needs to be used as a function. 
-            //ProcessMs1ScansDelegate ms1Del = (o, scans) =>
-            //{
-            //    // select highest m/z from the scans and send a singlescandataobject back to client
-            //    List<double> mzPrecursors = new();
-            //    foreach (var sc in scans.ListSsdo)
-            //    {
-            //        double max = sc.YArray.Max();
-            //        int posX = Array.IndexOf(sc.YArray, max);
-            //        mzPrecursors.Add(sc.XArray[posX]);
-            //    }
-
-            //    foreach (var mz in mzPrecursors)
-            //    {
-            //        SingleScanDataObject ssdoTemp = new()
-            //        {
-            //            ScanOrder = 2,
-            //            ScanNumber = 10,
-            //            PrecursorScanNumber = 3,
-            //            MzPrecursor = 15,
-            //            XArray = new double[] { 0, 0 },
-            //            YArray = new double[] { 0, 0 }
-            //        };
-            //        string temp = JsonConvert.SerializeObject(ssdoTemp);
-            //        byte[] buffer = Encoding.UTF8.GetBytes(temp);
-            //        byte[] length = BitConverter.GetBytes(buffer.Length);
-            //        byte[] finalBuffer = length.Concat(buffer).ToArray();
-            //        PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
-            //        PipeServer.WaitForPipeDrain();
-            //    }
-            //};
-
-            PipeDataReceived += HandleDataReceived;
-            Ms1ScanQueueThresholdReached += workflow.Ms1ScanDelegate.Invoke;
-            Ms2ScanQueueThresholdReached += workflow.Ms2ScanDelegate.Invoke;
-            Ms1ProcessingCompleted += (object? obj, ProcessingCompletedEventArgs sender) =>
-            {
-
-
-            };
-            Ms2ProcessingCompleted += SendDataThroughPipe;
-
             var connectionResult = PipeServer.BeginWaitForConnection(Connected, null);
             // wait for the connection to occur before proceeding. 
             connectionResult.AsyncWaitHandle.WaitOne();
             connectionResult.AsyncWaitHandle.Close();
-            var serializer = new JsonSerializer();
             StartReaderAsync();
             while (PipeServer.IsConnected)
             {
@@ -100,46 +42,24 @@ namespace WorkflowServer
 
         public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender)
         {
-            byte[] buffer = Encoding.UTF8.GetBytes("15");
-            var taskResult = new ValueTask();
-            taskResult = PipeServer.WriteAsync(buffer);
-            buffer = null;
+            string temp = JsonConvert.SerializeObject(sender.ssdo);
+            byte[] buffer = Encoding.UTF8.GetBytes(temp);
+            byte[] length = BitConverter.GetBytes(buffer.Length);
+            byte[] finalBuffer = length.Concat(buffer).ToArray();
+            PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
+            PipeServer.WaitForPipeDrain();
         }
 
         private void HandleDataReceived(object? obj, PipeEventArgs eventArgs)
         {
-            // convert pipeeventargs to single scan data object
+            // convert PipeEventArgs to single scan data object
             SingleScanDataObject ssdo = eventArgs.ToSingleScanDataObject();
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
-            if (ssdo.ScanOrder == 1)
-            {
-                ScanQueueMS1.Enqueue(ssdo);
-                if (ScanQueueMS1.Count == Ms1ScanQueueThreshold)
-                {
-                    OnMs1QueueThresholdReached(ScanQueueMS1);
-                }
-            }
-            else if (Ms2Delegate != null && ssdo.ScanOrder == 2)
-            {
-                ScanQueueMS2.Enqueue(ssdo);
-                if (ScanQueueMS2.Count == Ms2ScanQueueThreshold)
-                {
-                    OnMs2QueueThresholdReached(ScanQueueMS2);
-                }
-            }
+            Workflow.ReceiveData(ssdo);
             Console.WriteLine("\n");
         }
-        private void OnMs1QueueThresholdReached(Queue<SingleScanDataObject> queue)
-        {
-            Ms1ScanQueueThresholdReached?.Invoke(this,
-                new ScanQueueThresholdReachedEventArgs(queue.DequeueChunk(Ms1ScanQueueThreshold)));
-        }
-        private void OnMs2QueueThresholdReached(Queue<SingleScanDataObject> queue)
-        {
-            Ms2ScanQueueThresholdReached?.Invoke(this,
-                new ScanQueueThresholdReachedEventArgs(queue.DequeueChunk(Ms2ScanQueueThreshold)));
-        }
+ 
         private void Connected(IAsyncResult ar)
         {
             OnConnection();
