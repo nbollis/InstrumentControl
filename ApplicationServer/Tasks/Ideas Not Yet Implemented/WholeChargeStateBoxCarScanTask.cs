@@ -14,7 +14,7 @@ namespace WorkflowServer
 
     //    }
 
-    //    public override void RunSpecific<T, U>(T options, U data) 
+    //    public override void RunSpecific<T, U>(T options, U data)
     //    {
     //        if (options == null || data == null)
     //        {
@@ -29,7 +29,7 @@ namespace WorkflowServer
     //            throw new ArgumentException("Invalid DataObject for BoxCarScanTask");
     //        }
 
-            
+
     //        //// get mzValues to isolate
     //        //List<double>[] mzValues = (data as SingleScanDataObject).GetChargeStateEnvelopeMz(); // NOT A REAL METHOD YET
 

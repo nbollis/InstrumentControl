@@ -12,7 +12,7 @@ namespace WorkflowServer
         public event EventHandler<PipeEventArgs> PipeDataReceived;
         public NamedPipeServerStream PipeServer { get; set; }
 
-        private WorkflowFactory Workflow { get; set; }
+        private Workflow Workflow { get; set; }
 
         
         public AppServerPipe(NamedPipeServerStream pipeServer)
@@ -21,7 +21,7 @@ namespace WorkflowServer
             PipeDataReceived += HandleDataReceived;
         }
 
-        public void StartServer(WorkflowFactory workflow)
+        public void StartServer(Workflow workflow)
         {
             Workflow = workflow;
             PipeConnected += (obj, sender) =>

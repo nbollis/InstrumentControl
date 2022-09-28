@@ -13,7 +13,7 @@ namespace Tests
     public class TestWorkflow
     {
         public static AppServerPipe Pipe { get; set; }
-        public static WorkflowFactory BasicWorkflow { get; set; }
+        public static Workflow BasicWorkflow { get; set; }
         public static List<SingleScanDataObject> SsdoList { get; set; }
 
         [OneTimeSetUp]
@@ -54,7 +54,7 @@ namespace Tests
             ExampleTask example2 = new(2, 4);
             ExampleTask example3 = new(3, 4);
 
-            WorkflowFactory workflow = new(Pipe, 
+            Workflow workflow = new(Pipe, 
                 new List<InstrumentControlTask>() { example1, example2, example3 });
             Assert.That(workflow.ScanQueues.Count == 3);
             Assert.That(workflow.Tasks.Count == 3);
@@ -77,7 +77,7 @@ namespace Tests
                 { example1, example2, example3 };
             try
             {
-                var workflow = new WorkflowFactory(Pipe, correctOrder);
+                var workflow = new Workflow(Pipe, correctOrder);
             }
             catch (Exception e)
             {
@@ -88,7 +88,7 @@ namespace Tests
                 { example2, example1, example3 };
             try
             {
-                var workflow = new WorkflowFactory(Pipe, noMs1First);
+                var workflow = new Workflow(Pipe, noMs1First);
                 Assert.That(false);
             }
             catch (ArgumentException e)
@@ -104,7 +104,7 @@ namespace Tests
                 { example1, example3, example2 };
             try
             {
-                var workflow = new WorkflowFactory(Pipe, outOfOrder);
+                var workflow = new Workflow(Pipe, outOfOrder);
                 Assert.That(false);
             }
             catch (ArgumentException e)
@@ -125,7 +125,7 @@ namespace Tests
             example1.AddNextTask(example2);
 
             List<InstrumentControlTask> tasks = new List<InstrumentControlTask>() { example1 };
-            WorkflowFactory workflow = new WorkflowFactory(Pipe, tasks);
+            Workflow workflow = new Workflow(Pipe, tasks);
         }
     }
 }
