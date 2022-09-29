@@ -73,7 +73,6 @@ namespace WorkflowServer
                     byte[] length = BitConverter.GetBytes(buffer.Length);
                     byte[] finalBuffer = length.Concat(buffer).ToArray();
                     PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
-                    PipeServer.WaitForPipeDrain();
                 }
 
             };
@@ -111,11 +110,13 @@ namespace WorkflowServer
             SingleScanDataObject ssdo = eventArgs.ToSingleScanDataObject();
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
+            // TODO: refactor and make handling more robust downstream.
             if (ssdo.ScanOrder == 1)
             {
                 ScanQueueMS1.Enqueue(ssdo);
                 if (ScanQueueMS1.Count == Ms1ScanQueueThreshold)
                 {
+                    // method raises event
                     OnMs1QueueThresholdReached(ScanQueueMS1);
                 }
             }
@@ -124,9 +125,10 @@ namespace WorkflowServer
                 ScanQueueMS2.Enqueue(ssdo);
                 if (ScanQueueMS2.Count == Ms2ScanQueueThreshold)
                 {
+                    // method raises handler
                     OnMs2QueueThresholdReached(ScanQueueMS2);
                 }
-            }
+            } // TODO: Handle scan order > 2. 
             Console.WriteLine("\n");
         }
         private void OnMs1QueueThresholdReached(Queue<SingleScanDataObject> queue)

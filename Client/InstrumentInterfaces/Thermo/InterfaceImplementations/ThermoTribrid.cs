@@ -2,6 +2,7 @@
 using System.Runtime; 
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using ClientServerCommLibrary;
 using Thermo.Interfaces.FusionAccess_V1;
@@ -12,50 +13,90 @@ using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.TNG.Factory;
 using System.Linq;
 using System.Text;
-using Data; 
-using System.Threading.Tasks;
-using System.Timers;
-using Newtonsoft.Json;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Modes;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Workflow;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
-
-using ScanInstructions = ClientServerCommunication.ScanInstructions;
-using SingleScanDataObject = Data.SingleScanDataObject;
 
 
 namespace InstrumentClient
 {
     public class ThermoTribrid : IInstrument
-    {
-        public ClientPipe PipeClient { get; set; }
-        public static IScans MScan { get; set; }
+    { 
+        // IScans contains CanAcceptNextCustomScan and PossibleParametersChanged. 
         public string InstrumentId { get; private set; }
         public string InstrumentName { get; private set; }
+        // InstAccessContainer contains MessagesArrived, ServiceConnectionChanged. 
         public static IFusionInstrumentAccessContainer InstAccessContainer { get; private set; }
+        // InstAccess contains ContactClosureChanged, AcquisitionErrorsArrived, 
+        // ConnectionChanged. 
         public static IFusionInstrumentAccess InstAccess { get; private set; }
+        // MsScanContainer contains events MsScanArrived
         public static IFusionMsScanContainer MsScanContainer { get; private set; }
+        // InstAcq contains events AcquisitionStreamClosing, AcquisitionStreamOpening,
+        // StateChanged
         public static IAcquisition InstAcq { get; private set; }
         public static IControl InstControl { get; private set; }
         // Private Properties
         private int SystemState { get; set; }
+        private static IScans MScan { get; set; }
         // Constructors
         public ThermoTribrid()
         {
-            InstAccessContainer = Factory<IFusionInstrumentAccessContainer>.Create(); 
+            InstAccessContainer = Factory<IFusionInstrumentAccessContainer>.Create();
         }
         #region OpenInstrumentConnection
 
         public SingleScanDataObject GetLastScan()
         {
-            throw new NotImplementedException();
+            IMsScan scan = MsScanContainer.GetLastMsScan();
+            return scan.ConvertToSingleScanDataObject(); 
         }
 
         public void SendScanAction(SingleScanDataObject ssdo)
         {
-            throw new NotImplementedException();
+            if (ssdo.ScanType == null) 
+                throw new ArgumentException("ScanAction type is invalid! (property was null)");
+            
+            switch (ssdo.ScanType)
+            {
+                case (ScanType.CustomScan): 
+                    SendRepeatingScan();
+                    break;
+                case (ScanType.RepeatingScan): 
+                    SendCustomScan();
+                    break;
+            }
         }
 
+        private IDictionary<string, string> SsdoToDictionary(SingleScanDataObject ssdo)
+        {
+            Dictionary<string, string> valuesDict = new Dictionary<string, string>();
+            
+            // create an ssdo property to Thermo instrument value name. 
+            
+            
+            return valuesDict;
+        }
+        private void CreateRepeatingScan(SingleScanDataObject ssdo)
+        {
+            IRepeatingScan rscan = MScan.CreateRepeatingScan();
+            
+
+        }
+        private void SendRepeatingScan()
+        {
+
+        }
+        private void CreateCustomScan(SingleScanDataObject ssdo)
+        {
+
+        }
+
+        private void SendCustomScan()
+        {
+
+        }
+        
         public void OpenInstrumentConnection()
         {
             InstAccessContainer.StartOnlineAccess();
@@ -74,6 +115,7 @@ namespace InstrumentClient
             InstrumentId = InstAccess.InstrumentId.ToString();
             InstrumentName = InstAccess.InstrumentName;
             MsScanContainer = InstAccess.GetMsScanContainer(0);
+            MScan = InstControl.GetScans(false); 
 
             InstAccessContainer.ServiceConnectionChanged += (o, s) => { };
             InstAccessContainer.MessagesArrived += (o, s) => { };
@@ -87,11 +129,29 @@ namespace InstrumentClient
                     handler(this, s); 
                 }
             };
-            // instacq systemstate also contains an enum, where each value corresponds to the acquisition state 
+
+            // instacq.systemstate also contains an enum, where each value corresponds to the acquisition state 
             // of the system. Could potentially use this as a read-back for the client. 
             // InstAcq.State.SystemState
-            MsScanContainer.MsScanArrived += (o, s) => { };
-            
+            MsScanContainer.MsScanArrived += (o, s) =>
+            {
+                // convert to single scan data object and raise this.ScanReceived 
+                var ssdo = s.GetScan().ConvertToSingleScanDataObject();
+                EventHandler<ScanReceivedEventArgs> handler = ScanReceived;
+                if (handler != null)
+                {
+                    handler(this, new ScanReceivedEventArgs(ssdo)); 
+                }
+            };
+
+            MScan.CanAcceptNextCustomScan += (o, s) =>
+            {
+                EventHandler handler = InstrumentReadyToReceiveScan;
+                if (handler != null)
+                {
+                    handler(this, EventArgs.Empty); 
+                }
+            };
         }
         #endregion
         #region
@@ -115,7 +175,6 @@ namespace InstrumentClient
                     return sb.ToString();
                 };
             }
-
             throw new ArgumentException("Error: State and Mode unable to be found."); 
         }
 
@@ -192,14 +251,7 @@ namespace InstrumentClient
             InstAccessContainer.Dispose();
         }
         #endregion
-        
-        #region SendScanAction
 
-        #endregion
-
-        #region GetLastScan
-
-        #endregion
         
         public void InstrumentOn()
         {
@@ -220,11 +272,36 @@ namespace InstrumentClient
 
         public event EventHandler InstrumentConnected;
         public event EventHandler InstrumentDisconnected;
-        public event EventHandler<EventArgs> ScanReceived;
-        public event EventHandler ReadyToReceiveScan;
+        public event EventHandler<ScanReceivedEventArgs> ScanReceived;
+        public event EventHandler InstrumentReadyToReceiveScan;
         // TODO: Change from StateChangedEventArgs to a Custom Class that doesn't use a 
         // thermo-based class. 
         public event EventHandler<StateChangedEventArgs> SystemStateChanged; 
 
+    }
+
+    public class ScanReceivedEventArgs : EventArgs
+    {
+        public SingleScanDataObject Ssdo { get; set; }
+        public ScanReceivedEventArgs(SingleScanDataObject ssdo)
+        {
+            Ssdo = ssdo;
+        }
+    }
+
+    public enum ConnectionState
+    {
+        Connected = 1,
+        Disconnected = 0
+    }
+    public class InstrumentConnectionStateEventArgs : EventArgs
+    {
+
+        public ConnectionState ConnectionStatus { get; set; }
+
+        public InstrumentConnectionStateEventArgs(ConnectionState connection)
+        {
+            ConnectionStatus = connection; 
+        }
     }
 }

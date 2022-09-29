@@ -73,9 +73,13 @@
     <Compile Include="Factories\ThermoTribridFactory.cs" />
     <Compile Include="InstrumentClientPipe.cs" />
     <Compile Include="InstrumentInterfaces\IInstrument.cs" />
+    <Compile Include="InstrumentInterfaces\Thermo\DataHandling\InstrumentSettingEnums.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\DataHandling\MsScanExtensions.cs" />
+    <Compile Include="InstrumentInterfaces\Thermo\DataHandling\ThermoTribridSsdoMapping.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\InterfaceImplementations\ThermoQE.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\InterfaceImplementations\ThermoTribrid.cs" />
+    <Compile Include="InstrumentInterfaces\Thermo\ThermoScanTranslator\ThermoTribridScanTranslator.cs" />
+    <Compile Include="IScanTranslator.cs" />
     <Compile Include="MsScanReadyToSendEventArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -89,10 +93,6 @@
     <ProjectReference Include="..\ClientServerCommunication\ClientServerCommLibrary.csproj">
       <Project>{0e9b5801-5167-44cc-90d3-c8caf1df8f6a}</Project>
       <Name>ClientServerCommLibrary</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Data\Data.csproj">
-      <Project>{6b34249b-a513-4a4a-9ed5-cb633bcab646}</Project>
-      <Name>Data</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

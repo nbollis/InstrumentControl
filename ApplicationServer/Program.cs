@@ -1,6 +1,5 @@
 ﻿using System.IO.Pipes;
-using ClientServerCommunication;
-using Data;
+using ClientServerCommLibrary;
 using InstrumentControl;
 using Newtonsoft;
 using Newtonsoft.Json;

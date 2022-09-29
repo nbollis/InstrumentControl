@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ClientServerCommLibrary;
 using System.IO.Pipes;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 
 
 namespace InstrumentClient
@@ -103,17 +104,27 @@ namespace InstrumentClient
             instr.OpenInstrumentConnection();
             instr.InstrumentConnected += (obj, sender) => { InstrumentConnectedBool = true; };
             instr.InstrumentDisconnected += (obj, sender) => { InstrumentConnectedBool = false; };
-            instr.ReadyToReceiveScan += (obj, sender) => { instrReadyToReceiveScan = true; };
+            instr.InstrumentReadyToReceiveScan += (obj, sender) =>
+            {
+                // check if queue contains anything and send scan action if it does. 
+                if (ScanInstructionsQueue.Count > 0)
+                {
+                    instr.SendScanAction(ScanInstructionsQueue.Dequeue());
+                }
+            };
             instr.ScanReceived += (obj, sender) =>
             {
-                // send scan to the server. 
+                // convert to byte[] and send to WorkflowServer. 
+                byte[] buffer = SerializeAndCreateBuffer(sender.Ssdo); 
+                PipeClient.WriteAsync(buffer, 0, buffer.Length);
             };
             
+            // don't think I need this event after all. 
             ScanQueueThresholdReached += (obj, sender) =>
             {
                 // send the scan to the instrument
-            };
 
+            };
             // enter instrument main routine: 
             while (InstrumentConnectedBool)
             {
@@ -121,5 +132,11 @@ namespace InstrumentClient
             }
         }
         #endregion
+
+        private byte[] SerializeAndCreateBuffer<T>(T obj)
+        {
+            string jsonString = JsonConvert.SerializeObject(obj);
+            return Encoding.UTF8.GetBytes(jsonString);
+        }
     }
 }

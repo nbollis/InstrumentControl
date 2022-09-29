@@ -1,8 +1,5 @@
-﻿using ClientServerCommunication;
+﻿using ClientServerCommLibrary;
 using System;
-using Data;
-using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
-using ScanInstructions = Data.ScanInstructions;
 
 namespace InstrumentClient
 {
@@ -15,6 +12,11 @@ namespace InstrumentClient
         // send action (Ms1 scan, SIM scan, boxcar scan, etc.) to instrument
         // open instrument connection
         // close instrument connection
+        
+        /// <summary>
+        /// Used for explicitly gaining access to the last received instrument scan without requiring an event. 
+        /// </summary>
+        /// <returns>Returns SingleScanDataObject. </returns>
         SingleScanDataObject GetLastScan();
         void SendScanAction(SingleScanDataObject ssdo); 
         void OpenInstrumentConnection();
@@ -28,11 +30,12 @@ namespace InstrumentClient
             string outputFileName, string sampleName, double timeInMinutes);
         void InstrumentOn();
         void InstrumentOff();
-        void InstrumentStandby(); 
+        void InstrumentStandby();
+        void GetScanPossibleParameters();
 
         event EventHandler InstrumentConnected;
         event EventHandler InstrumentDisconnected;
-        event EventHandler<EventArgs> ScanReceived;
-        event EventHandler ReadyToReceiveScan; 
+        event EventHandler<ScanReceivedEventArgs> ScanReceived;
+        event EventHandler InstrumentReadyToReceiveScan;
     }
 }
