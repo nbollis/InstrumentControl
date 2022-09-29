@@ -20,7 +20,7 @@ namespace ClientServerCommLibrary
         public double TotalIonCurrent { get; set; }
         public double MinX { get; set; }
         public double MaxX { get; set; }
-        public ScanInstructions ScanInstructions { get; private set; }
+        public ScanInstructions ScanInstructions { get; set; }
 
         public SingleScanDataObject()
         {
@@ -58,7 +58,7 @@ namespace ClientServerCommLibrary
         {
             ScanInstructions = si;
         }
-        // TODO: Fill out the method. 
+        // TODO: Check that the required fields are correctly set. Will probably require a static dictionary to check against. 
         private bool ValidateScanInstructionsForInstrument(ScanInstructions si, string instrument)
         {
             return true; 

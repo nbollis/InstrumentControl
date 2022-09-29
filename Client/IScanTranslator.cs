@@ -7,8 +7,8 @@ using ClientServerCommLibrary;
 
 namespace Client
 {
-    public interface IScanTranslator
+    public abstract class ScanTranslator
     {
-        T Translate<T>(SingleScanDataObject ssdo) where T: new(); 
+        public abstract void Translate(SingleScanDataObject ssdo); 
     }
 }

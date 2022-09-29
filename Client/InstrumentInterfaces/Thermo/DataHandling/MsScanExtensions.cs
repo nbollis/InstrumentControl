@@ -79,8 +79,7 @@ namespace InstrumentClient
                     YArray = scan.Centroids.Select(c => c.Intensity).ToArray(),
                     TotalIonCurrent = 1E6,
                     MinX = scan.GetValueFromHeaderDict<double>("FirstMass"),
-                    MaxX = scan.GetValueFromHeaderDict<double>("LastMass"),
-                    Resolution = scan.GetValueFromHeaderDict<double>("")
+                    MaxX = scan.GetValueFromHeaderDict<double>("LastMass")
                 };
                 return sso;
             }

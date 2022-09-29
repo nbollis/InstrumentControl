@@ -54,18 +54,18 @@ namespace InstrumentClient
 
         public void SendScanAction(SingleScanDataObject ssdo)
         {
-            if (ssdo.ScanType == null) 
+            if (ssdo.ScanInstructions.ScanType == null) 
                 throw new ArgumentException("ScanAction type is invalid! (property was null)");
             
-            switch (ssdo.ScanType)
-            {
-                case (ScanType.CustomScan): 
-                    SendRepeatingScan();
-                    break;
-                case (ScanType.RepeatingScan): 
-                    SendCustomScan();
-                    break;
-            }
+            //switch (ssdo.ScanInstructions.ScanType)
+            ////{
+            ////    case (ScanInstructions.CustomScan): 
+            ////        SendRepeatingScan();
+            ////        break;
+            ////    case (ScanType.RepeatingScan): 
+            ////        SendCustomScan();
+            ////        break;
+            //}
         }
 
         private IDictionary<string, string> SsdoToDictionary(SingleScanDataObject ssdo)
@@ -268,6 +268,11 @@ namespace InstrumentClient
         {
             IStandbyMode sbMode = InstAcq.CreateStandbyMode();
             InstAcq.SetMode(sbMode);
+        }
+
+        public void GetScanPossibleParameters()
+        {
+            throw new NotImplementedException();
         }
 
         public event EventHandler InstrumentConnected;

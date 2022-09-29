@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Client.InstrumentInterfaces.Thermo.DataHandling
+namespace Client
 {
     public static class ThermoTribridSsdoMapping
     {
         public static readonly Dictionary<string, string> TrbridToSsdoMapping = new Dictionary<string, string>
         {
             // key = ssdo; value = Tribrid
-            {"MinX", "FirstMass"},
-            {"MaxX", "LastMass"},
+            {"FirstMass", "FirstMass"},
+            {"LastMass", "LastMass"},
             {"AnalyzerType", "Analyzer"},
             {"ScanType", "ScanType"},
             {"SourceEnergy", "SourceCIDEnergy"},
