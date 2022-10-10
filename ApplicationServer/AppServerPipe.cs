@@ -23,8 +23,6 @@ namespace WorkflowServer
         private ProcessMs2ScansDelegate? Ms2Delegate { get; set; }
         // static class with processing workflows? 
         public AppServerPipe(NamedPipeServerStream pipeServer,
-            StreamWriter sw,
-            StreamReader sr,
             int ms1ScanQueueThreshold,
             int ms2ScanQueueThreshold,
             ProcessMs1ScansDelegate ms1Delegate = null,
@@ -46,63 +44,55 @@ namespace WorkflowServer
                 Console.WriteLine("Pipe client connected. Sent from event.");
             };
             // delegate for processing needs to be used as a function. 
-            ProcessMs1ScansDelegate ms1Del = (o, scans) =>
-            {
-                // select highest m/z from the scans and send a singlescandataobject back to client
-                List<double> mzPrecursors = new();
-                foreach (var sc in scans.ListSsdo)
-                {
-                    double max = sc.YArray.Max();
-                    int posX = Array.IndexOf(sc.YArray, max);
-                    mzPrecursors.Add(sc.XArray[posX]);
-                }
+            //ProcessMs1ScansDelegate ms1Del = (o, scans) =>
+            //{
+            //    // select highest m/z from the scans and send a singlescandataobject back to client
+            //    List<double> mzPrecursors = new();
+            //    foreach (var sc in scans.ListSsdo)
+            //    {
+            //        double max = sc.YArray.Max();
+            //        int posX = Array.IndexOf(sc.YArray, max);
+            //        mzPrecursors.Add(sc.XArray[posX]);
+            //    }
 
-                foreach (var mz in mzPrecursors)
-                {
-                    SingleScanDataObject ssdoTemp = new()
-                    {
-                        ScanOrder = 2,
-                        ScanNumber = 10,
-                        PrecursorScanNumber = 3,
-                        MzPrecursor = 15,
-                        XArray = new double[] { 0, 0 },
-                        YArray = new double[] { 0, 0 }
-                    };
-                    string temp = JsonConvert.SerializeObject(ssdoTemp);
-                    byte[] buffer = Encoding.UTF8.GetBytes(temp);
-                    byte[] length = BitConverter.GetBytes(buffer.Length);
-                    byte[] finalBuffer = length.Concat(buffer).ToArray();
-                    PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
-                }
+            //    foreach (var mz in mzPrecursors)
+            //    {
+            //        SingleScanDataObject ssdoTemp = new()
+            //        {
+            //            ScanOrder = 2,
+            //            ScanNumber = 10,
+            //            PrecursorScanNumber = 3,
+            //            MzPrecursor = 15,
+            //            XArray = new double[] { 0, 0 },
+            //            YArray = new double[] { 0, 0 }
+            //        };
+            //        string temp = JsonConvert.SerializeObject(ssdoTemp);
+            //        byte[] buffer = Encoding.UTF8.GetBytes(temp);
+            //        byte[] length = BitConverter.GetBytes(buffer.Length);
+            //        byte[] finalBuffer = length.Concat(buffer).ToArray();
+            //        PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
+            //    }
 
-            };
+            //};
 
             PipeDataReceived += HandleDataReceived;
-            Ms1ScanQueueThresholdReached += ms1Del.Invoke;
+            Ms1ScanQueueThresholdReached += Ms1Delegate.Invoke;
             Ms2ScanQueueThresholdReached += Ms2Delegate.Invoke;
             Ms1ProcessingCompleted += (object? obj, ProcessingCompletedEventArgs sender) =>
             {
 
-
+                Console.WriteLine("Ms1 Processing Completed"); 
             };
             Ms2ProcessingCompleted += (object? obj, ProcessingCompletedEventArgs sender) =>
             {
-                byte[] buffer = Encoding.UTF8.GetBytes("15");
-                var taskResult = new ValueTask();
-                taskResult = PipeServer.WriteAsync(buffer);
-                buffer = null;
+                Console.WriteLine("Ms2 Processing Completed."); 
             };
 
             var connectionResult = PipeServer.BeginWaitForConnection(Connected, null);
             // wait for the connection to occur before proceeding. 
             connectionResult.AsyncWaitHandle.WaitOne();
             connectionResult.AsyncWaitHandle.Close();
-            var serializer = new JsonSerializer();
             StartReaderAsync();
-            while (PipeServer.IsConnected)
-            {
-
-            }
         }
         private void HandleDataReceived(object? obj, PipeEventArgs eventArgs)
         {
@@ -146,12 +136,10 @@ namespace WorkflowServer
             OnConnection();
             PipeServer.EndWaitForConnection(ar);
         }
-
         private void OnConnection()
         {
             PipeConnected?.Invoke(this, EventArgs.Empty);
         }
-
         private void StartByteReaderAsync(Action<byte[]> packetReceived)
         {
             byte[] byteDataLength = new byte[sizeof(int)];
@@ -171,7 +159,6 @@ namespace WorkflowServer
                         });
                 });
         }
-
         public void StartReaderAsync()
         {
             StartByteReaderAsync((b) =>

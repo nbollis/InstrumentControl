@@ -21,7 +21,7 @@ namespace InstrumentClient
 
             ClientPipe clientPipe = new ClientPipe(pipeClient);
 
-            string instrumentType = args[0];
+            string instrumentType = "tribrid";
             IInstrumentFactory factory = null;
 
             switch (instrumentType)
@@ -40,6 +40,10 @@ namespace InstrumentClient
             {
                 clientPipe.ConnectClientToServer(); 
                 clientPipe.BeginInstrumentConnection(instrumentApi);
+                while (true)
+                {
+
+                }
             }
             catch (Exception e)
             {
@@ -48,8 +52,9 @@ namespace InstrumentClient
             }
             finally
             {
-                pipeClient.Dispose();
+                
             }
+            pipeClient.Close(); 
         }
 
 
