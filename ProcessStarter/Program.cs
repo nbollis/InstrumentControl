@@ -9,10 +9,10 @@ namespace ProcessStarter
             //string serverPath = args[0];
             //string clientPath = args[1];
 
-            string serverCommands = "Server";
-            string clientCommands = @". Server tribrid"; 
+            string serverCommands = @"";
+            string clientCommands = @"tribrid"; 
             ProcessStartInfo serverProcessStartInfo = new(
-                @"C:\Users\Orbitrap Lumos\source\repos\InstrumentControl\ApplicationServer\bin\Debug\net6.0\ApplicationServer.exe")
+                @"C:\Users\Orbitrap Lumos\source\repos\InstrumentControl\ApplicationServer\bin\Debug\net6.0\WorkflowServer.exe")
             {
                 Arguments = serverCommands
             };

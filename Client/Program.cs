@@ -38,11 +38,37 @@ namespace InstrumentClient
 
             try
             {
+                System.Timers.Timer timer = new System.Timers.Timer();
+                int i = 0; 
+
                 clientPipe.ConnectClientToServer(); 
                 clientPipe.BeginInstrumentConnection(instrumentApi);
-                while (true)
-                {
+                Console.WriteLine(instrumentApi.GetSystemState(1));
 
+                while (i < 6)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            instrumentApi.StartAcquisition("test.raw");
+                            break;
+                        case 1:
+                            instrumentApi.PauseAcquisition();
+                            break;
+                        case 2:
+                            instrumentApi.CancelAcquisition();
+                            break;
+                        case 3:
+                            instrumentApi.InstrumentStandby();
+                            break;
+                        case 4:
+                            break;
+                        default:
+                            Console.WriteLine("Test completed");
+                            break;
+                    }
+                    Console.WriteLine(instrumentApi.GetSystemState(1) + "\n");
+                    i++;
                 }
             }
             catch (Exception e)
