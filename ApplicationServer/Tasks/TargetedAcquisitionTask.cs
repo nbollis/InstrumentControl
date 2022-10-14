@@ -10,12 +10,12 @@ namespace WorkflowServer
 {
     public class TargetedAcquisitionTask : InstrumentControlTask
     {
-        public double[] MassesToTarget { get; private set; }
+        public List<double> MassesToTarget { get; private set; }
         public Tolerance Tolerance { get; private set; }
         public double RelativeIntensityCutoff { get; private set; }
         public override int ScansOutputted => AcceptScanOrder;
 
-        public TargetedAcquisitionTask(int acceptedScanOrder, int scansToAccept, double[] massesToTarget,
+        public TargetedAcquisitionTask(int acceptedScanOrder, int scansToAccept, List<double> massesToTarget,
             Tolerance tolerance, double relativeIntensityCutoff) : base(acceptedScanOrder, scansToAccept)
         {
             MassesToTarget = massesToTarget;

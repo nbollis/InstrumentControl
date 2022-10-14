@@ -38,7 +38,12 @@ namespace Tests
 
             ExampleTask example1 = new(1, 4);
             BasicWorkflow = new(Pipe, new List<InstrumentControlTask>() { example1 });
+
+            // TODO: spin up a client pipe in new thread and connect to be able to test
+            // Will need to likely test the connection stuff in the OneTimeSetup
         }
+        
+
 
         [Test]
         public static void TestBasicWorkflowConstructor()
