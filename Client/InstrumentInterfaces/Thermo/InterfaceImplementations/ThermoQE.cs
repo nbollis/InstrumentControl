@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ClientServerCommLibrary;
 using ClientServerCommunication;
-using Data;
 
 namespace InstrumentClient
 {
@@ -24,7 +24,7 @@ namespace InstrumentClient
 
         public void CloseInstrumentConnection()
         {
-            throw new NotSupportedException(); 
+            throw new NotSupportedException();
         }
 
         public void MsScanReadyToSend(MsScanReadyToSendEventArgs scanEventArgs)

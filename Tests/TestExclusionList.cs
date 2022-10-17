@@ -13,7 +13,7 @@ namespace Tests
         [Test]
         public static void TestExclusionListItem()
         {
-            var item = new ExclusionListItem(15000, 150, 155);
+            var item = new MassTargetListItem(15000, 150, 155);
             Assert.That(item.WithinTimeSpan(154));
             Assert.That(!item.WithinTimeSpan(144));
         }
@@ -23,12 +23,12 @@ namespace Tests
         {
             double[] testData = new double[] { 15, 47, 200, 36 };
             double[] currentTime = new double[] { 15000, 17000, 18000, 20000 };
-            ExclusionList exclusionList = new();
+            MassTargetList massTargetList = new();
             for (int i = 0; i < testData.Length; i++)
             {
-                exclusionList.Add(testData[i], currentTime[i]);
+                massTargetList.Add(testData[i], currentTime[i]);
             }
-            Assert.That(exclusionList.TheExclusionList.Count, Is.EqualTo(testData.Length));
+            Assert.That(massTargetList.MassTargets.Count, Is.EqualTo(testData.Length));
         }
 
         [Test]
@@ -38,22 +38,22 @@ namespace Tests
             ScanProductionGlobalVariables.TimeToExcludeInMilliseconds = 1000;
             double[] testData = new double[] { 15, 47, 200, 36 };
             double[] currentTime = new double[] { 15000, 17000, 18000, 20000 };
-            ExclusionList exclusionList = new();
+            MassTargetList massTargetList = new();
             for (int i = 0; i < testData.Length; i++)
             {
-                exclusionList.Add(testData[i], currentTime[i]);
+                massTargetList.Add(testData[i], currentTime[i]);
             }
 
             // mass found and within time
-            Assert.That(exclusionList.ExcludeMassAtCurrentTime(15, 15500));
-            Assert.That(exclusionList.ExcludeMassAtCurrentTime(36.000001, 20001));
-            Assert.That(exclusionList.ExcludeMassAtCurrentTime(15, 14000));
-            Assert.That(exclusionList.ExcludeMassAtCurrentTime(15, 16000));
+            Assert.That(massTargetList.CheckMassAtCurrentTime(15, 15500));
+            Assert.That(massTargetList.CheckMassAtCurrentTime(36.000001, 20001));
+            Assert.That(massTargetList.CheckMassAtCurrentTime(15, 14000));
+            Assert.That(massTargetList.CheckMassAtCurrentTime(15, 16000));
 
             // mass found not within time
-            Assert.That(!exclusionList.ExcludeMassAtCurrentTime(15, 20000));
-            Assert.That(!exclusionList.ExcludeMassAtCurrentTime(15, 13999));
-            Assert.That(!exclusionList.ExcludeMassAtCurrentTime(15, 16001));
+            Assert.That(!massTargetList.CheckMassAtCurrentTime(15, 20000));
+            Assert.That(!massTargetList.CheckMassAtCurrentTime(15, 13999));
+            Assert.That(!massTargetList.CheckMassAtCurrentTime(15, 16001));
 
         }
     }

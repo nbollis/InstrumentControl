@@ -1,8 +1,9 @@
 ﻿using System; 
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using System.Collections.Generic;
-using System.Linq; 
-using Data; 
+using System.Linq;
+using ClientServerCommLibrary;
+
 namespace InstrumentClient
 {
     public static class MsScanExtensions
@@ -71,18 +72,18 @@ namespace InstrumentClient
 				return outputArray;
 			}
 
-            public static SingleScanDataObject ConvertToSingleScanDataObject(this IMsScan scan)
-            {
-                SingleScanDataObject sso = new SingleScanDataObject()
-                {
-                    XArray = scan.Centroids.Select(c => c.Mz).ToArray(),
-                    YArray = scan.Centroids.Select(c => c.Intensity).ToArray(),
-                    TotalIonCurrent = 1E6,
-                    MinX = scan.GetValueFromHeaderDict<double>("FirstMass"),
-                    MaxX = scan.GetValueFromHeaderDict<double>("LastMass"),
-                    Resolution = scan.GetValueFromHeaderDict<double>("")
-                };
-                return sso;
-            }
+            //public static SingleScanDataObject ConvertToSingleScanDataObject(this IMsScan scan)
+            //{
+            //    SingleScanDataObject sso = new SingleScanDataObject()
+            //    {
+            //        XArray = scan.Centroids.Select(c => c.Mz).ToArray(),
+            //        YArray = scan.Centroids.Select(c => c.Intensity).ToArray(),
+            //        TotalIonCurrent = 1E6,
+            //        MinX = scan.GetValueFromHeaderDict<double>("FirstMass"),
+            //        MaxX = scan.GetValueFromHeaderDict<double>("LastMass"),
+            //        Resolution = scan.GetValueFromHeaderDict<double>("")
+            //    };
+            //    return sso;
+            //}
     }
 }

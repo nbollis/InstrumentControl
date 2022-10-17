@@ -8,5 +8,12 @@ namespace ClientServerCommunication
 {
     public class ScanInstructions
     {
+        public List<double> MassesToIsolate { get; set; }
+
+
+        public ScanInstructions()
+        {
+            MassesToIsolate = new List<double>();
+        }
     }
 }

@@ -14,30 +14,32 @@ namespace WorkflowServer
     public class AsyncIfThenElseActivity<TContext> : IActivity<TContext>
         where TContext : IActivityContext
     {
-        private readonly Func<TContext, bool> _Condition;
-        private readonly IActivityCollection<TContext> _ThenActivities;
-        private readonly IActivityCollection<TContext>? _ElseActivities;
+        private readonly Func<TContext, bool> condition;
+        private readonly IActivityCollection<TContext> thenActivities;
+        private readonly IActivityCollection<TContext>? elseActivities;
 
-        public AsyncIfThenElseActivity(Func<TContext, bool> condition, IActivityCollection<TContext> thenActivities)
+        public AsyncIfThenElseActivity(Func<TContext, bool> condition, 
+            IActivityCollection<TContext> thenActivities)
         {
-            _Condition = condition ?? throw new ArgumentNullException(nameof(condition));
-            _ThenActivities = thenActivities ?? throw new ArgumentNullException(nameof(thenActivities));
-            _ElseActivities = null;
+            this.condition = condition ?? throw new ArgumentNullException(nameof(condition));
+            this.thenActivities = thenActivities ?? throw new ArgumentNullException(nameof(thenActivities));
+            elseActivities = null;
         }
 
-        public AsyncIfThenElseActivity(Func<TContext, bool> condition, IActivityCollection<TContext> thenActivities, IActivityCollection<TContext> elseActivities)
+        public AsyncIfThenElseActivity(Func<TContext, bool> condition, 
+            IActivityCollection<TContext> thenActivities, IActivityCollection<TContext> elseActivities)
         {
-            _Condition = condition ?? throw new ArgumentNullException(nameof(condition));
-            _ThenActivities = thenActivities ?? throw new ArgumentNullException(nameof(thenActivities));
-            _ElseActivities = elseActivities ?? throw new ArgumentNullException(nameof(elseActivities));
+            this.condition = condition ?? throw new ArgumentNullException(nameof(condition));
+            this.thenActivities = thenActivities ?? throw new ArgumentNullException(nameof(thenActivities));
+            this.elseActivities = elseActivities ?? throw new ArgumentNullException(nameof(elseActivities));
         }
 
         public async Task ExecuteAsync(TContext context)
         {
-            if (_Condition(context))
-                await RunActivities(_ThenActivities, context);
-            else if (_ElseActivities != null)
-                await RunActivities(_ElseActivities, context);
+            if (condition(context))
+                await RunActivities(thenActivities, context);
+            else if (elseActivities != null)
+                await RunActivities(elseActivities, context);
         }
 
         private async Task RunActivities(IActivityCollection<TContext> activities, TContext context)

@@ -6,17 +6,32 @@ using System.Threading.Tasks;
 
 namespace WorkflowServer
 {
-    public class ExclusionListItem
+    public class MassTargetListItem
     {
         public double Mass { get; set; }
         public double StartTime { get; set; }
         public double EndTime { get; set; }
 
-        public ExclusionListItem(double mass, double startTime, double endTime)
+        public MassTargetListItem(double mass, double startTime, double endTime)
         {
             Mass = mass;
             StartTime = startTime;
             EndTime = endTime;
+        }
+
+        public static List<MassTargetListItem> CreateListItemsInBulk(List<double> masses, 
+            List<double> retentionTimes, double startIncrement, double endIncrement)
+        {
+            List<MassTargetListItem> items = new List<MassTargetListItem>();
+            for (var i = 0; i < masses.Count; i++)
+            {
+                var mass = masses[i];
+                var retentionTime = retentionTimes[i];
+                MassTargetListItem item = new(mass, retentionTime - startIncrement, retentionTime + endIncrement);
+                items.Add(item);
+            }
+
+            return items;
         }
 
         public bool WithinTimeSpan(double retentionTime)

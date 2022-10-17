@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkflowServer.AAActivities.Activities.Base;
 
 namespace WorkflowServer
 {
@@ -12,14 +11,6 @@ namespace WorkflowServer
     /// </summary>
     public static class ActivityCollectionBuilderExtensions
     {
-
-
-
-
-
-
-
-
         public delegate IActivityCollectionBuilder<TContext> ConfigureActivities<TContext>(IActivityCollectionBuilder<TContext> configure)
             where TContext : IActivityContext;
 

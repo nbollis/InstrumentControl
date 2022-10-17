@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WorkflowServer
 {
-    internal class DefaultActivityContext : IActivityContext
+    public class DefaultActivityContext : IActivityContext
     {
         public bool Cancel { get; set; } = false;
     }
