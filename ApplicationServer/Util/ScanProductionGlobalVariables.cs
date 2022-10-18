@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkflowServer
+namespace WorkflowServer.Util
 {
     /// <summary>
     /// Class to hold variables that do not need to change throughout a run, but are 

@@ -8,20 +8,20 @@ namespace WorkflowServer
 {
     public class Program
     {
-        // args should contain {a list of tasks}
+        // args should contain a serialized ActivityCollection
         public static void Main(string[] args)
         {
             NamedPipeServerStream pipeServer =
                 new NamedPipeServerStream("test",
                     PipeDirection.InOut, 1, PipeTransmissionMode.Byte);
 
-            List<InstrumentControlTask> tasks = JsonConvert.DeserializeObject<List<InstrumentControlTask>>(args[0]) ?? throw new NullReferenceException();
+            //List<InstrumentControlTask> tasks = JsonConvert.DeserializeObject<List<InstrumentControlTask>>(args[0]) ?? throw new NullReferenceException();
             AppServerPipe serverPipe = new AppServerPipe(pipeServer);
-            Workflow workflow = new(serverPipe, tasks);
+            //Workflow workflow = new(serverPipe, tasks);
 
             try
             {
-                serverPipe.StartServer(workflow);
+                //serverPipe.StartServer(workflow);
             }
             catch (Exception e)
             {

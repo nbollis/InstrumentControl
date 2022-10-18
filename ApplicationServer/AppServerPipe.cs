@@ -56,7 +56,10 @@ namespace WorkflowServer
             SingleScanDataObject ssdo = eventArgs.ToSingleScanDataObject();
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
-            Workflow.ReceiveData(ssdo);
+            //TODO add these to the correct scan queue
+
+
+            //Workflow.ReceiveData(ssdo);
             Console.WriteLine("\n");
         }
  

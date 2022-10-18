@@ -1,9 +1,11 @@
 ﻿using MzLibUtil;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WorkflowServer.Util;
 
 namespace WorkflowServer
 {
@@ -14,9 +16,22 @@ namespace WorkflowServer
     /// </summary>
     public class MassTargetList 
     {
+        #region Private Properties
+
         private List<double> hitTargets;
 
-        public List<MassTargetListItem> MassTargets { get; set; }
+        #endregion
+
+        #region Public Properties
+
+        public List<MassTargetListItem> InclusionList { get; set; }
+        public List<MassTargetListItem> ExclusionList { get; set; }
+
+        public enum MassTargetListTypes
+        {
+            Exclusion,
+            Inclusion
+        }
         public double TimeToExcludeInMilliseconds { get; set; }
         public PpmTolerance Tolerance { get; set; }
 
@@ -25,13 +40,22 @@ namespace WorkflowServer
             get => hitTargets.Any();
         }
 
+        #endregion
+
+        #region Constructor
+
         public MassTargetList()
         {
-            MassTargets = new List<MassTargetListItem>();
             TimeToExcludeInMilliseconds = ScanProductionGlobalVariables.TimeToExcludeInMilliseconds;
             Tolerance = new PpmTolerance(ScanProductionGlobalVariables.ExclusionMatchingPpmTolerance);
             hitTargets = new();
+            ExclusionList = new();
+            InclusionList = new();
         }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Returns and clears all hit targets
@@ -57,59 +81,74 @@ namespace WorkflowServer
 
         /// <summary>
         /// returns all masses to be searched for at a specific retention time
+        /// Exclusion --> returns masses not in list
+        /// Inclusion --> returns masses in list
         /// </summary>
         /// <param name="retentionTime"></param>
         /// <returns></returns>
-        public IEnumerable<MassTargetListItem> GetTargetsToSearchForAtSpecificTime(double retentionTime)
+        public IEnumerable<MassTargetListItem> GetInclusionListItemsAtSpecificRetentionTime(double retentionTime)
         {
-            foreach (var item in MassTargets)
+            foreach (var item in InclusionList)
             {
                 if (item.WithinTimeSpan(retentionTime))
                     yield return item;
             }
         }
 
-
-
-
-        // BELOW -> Old Implementation
-        // TODO: Fix this all so its nice
-
-
-
-
-
+        /// <summary>
+        /// Checks a list of masses to see if they are in the exclusion list
+        /// </summary>
+        /// <param name="valuesToCheck"></param>
+        /// <param name="retentionTime"></param>
+        /// <returns>All masses not found within exclusion list at specific retention time</returns>
+        public IEnumerable<double> GetTargetsNotFoundWithinExclusionListAtSpecificRetentionTime(List<double> valuesToCheck, double retentionTime)
+        {
+            var exclusionListItemsWithinTime = ExclusionList.Where(p => p.WithinTimeSpan(retentionTime));
+            foreach (var val in valuesToCheck)
+            {
+                if (!exclusionListItemsWithinTime.Any(p => Tolerance.Within(p.Mass, val)))
+                    yield return val;
+            }
+        }
 
         /// <summary>
         /// Adds a value to the exclusion list
         /// </summary>
         /// <param name="mz"></param>
         /// <param name="currentTime"></param>
-        public void Add(double mz, double currentTime)
+        public void Add(double mz, double currentTime, MassTargetListTypes listType)
         {
-            MassTargets.Add(new MassTargetListItem(mz, currentTime - TimeToExcludeInMilliseconds, currentTime + TimeToExcludeInMilliseconds));
-        }
-
-        /// <summary>
-        /// Checks to see if the mass is found at the current time
-        /// </summary>
-        /// <param name="mass"></param>
-        /// <param name="currentTime"></param>
-        /// <returns>True if the mass is meant to be excluded</returns>
-        public bool CheckMassAtCurrentTime(double mass, double currentTime)
-        {
-            var massesWithinTime = MassTargets.Where(p => p.WithinTimeSpan(currentTime));
-            if (massesWithinTime.Any(p => Tolerance.Within(mass, p.Mass)))
-                return true;
-            else
-                return false;
+            switch (listType)
+            {
+                case MassTargetListTypes.Inclusion:
+                    InclusionList.Add(new MassTargetListItem(mz, currentTime - TimeToExcludeInMilliseconds, currentTime + TimeToExcludeInMilliseconds));
+                    break;
+                case MassTargetListTypes.Exclusion:
+                    ExclusionList.Add(new MassTargetListItem(mz, currentTime - TimeToExcludeInMilliseconds, currentTime + TimeToExcludeInMilliseconds));
+                    break;
+            }
         }
 
 
 
 
 
+        // TODO: Add params to list constructor and remove from global data
+        // evaluate if these are necessary
+        public void CreateInclusionList()
+        {
+            InclusionList = new();
+        }
 
+        public void CreateExclusionList()
+        {
+            ExclusionList = new();
+        }
+
+
+
+
+        // TODO: Implement these taking in a filestream so it can be called from anywhere
         /// <summary>
         /// Exports exclusion list in json format for use in later runs
         /// </summary>
@@ -127,6 +166,8 @@ namespace WorkflowServer
         {
             throw new NotImplementedException();
         }
+
+        #endregion
 
     }
 }

@@ -9,6 +9,11 @@ using MzLibUtil;
 
 namespace WorkflowServer
 {
+    /// <summary>
+    /// Checks the MassTarget inclusions list and sets hit targets masses if found
+    /// Will cancel the subsequent operations if no targets are found
+    /// </summary>
+    /// <typeparam name="TContext"></typeparam>
     public class CheckInclusionListActivity<TContext> : IActivity<TContext>
         where TContext : IActivityContext
     {
@@ -25,11 +30,11 @@ namespace WorkflowServer
         public Task ExecuteAsync(TContext context)
         {
             SpectraActivityContext specContext = context as SpectraActivityContext ?? throw new ArgumentNullException(nameof(context));
-            SingleScanDataObject scan = specContext.SingleScanDataObject;
+            SingleScanDataObject scan = specContext.FirstSingleScanDataObject;
             MassTargetList inclusionList = specContext.MassTargetList ?? throw new ArgumentNullException(nameof(context));
 
             // find all targets at current time
-            var allTargets = inclusionList.GetTargetsToSearchForAtSpecificTime(scan.RetentionTime);
+            var allTargets = inclusionList.GetInclusionListItemsAtSpecificRetentionTime(scan.RetentionTime);
             foreach (var target in allTargets)
             {
                 // get the masses that match the target
@@ -46,6 +51,10 @@ namespace WorkflowServer
                     {
                         int mostIntenseIndex = Array.IndexOf(scan.YArray, maxIntensityWithinRange);
                         inclusionList.AddHitTarget(scan.XArray[mostIntenseIndex]);
+                    }
+                    else
+                    {
+                        specContext.Cancel = true;
                     }
                 }
             }

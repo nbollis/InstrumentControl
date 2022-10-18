@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommunication;
+using MathNet.Numerics.Statistics;
 
 namespace ClientServerCommLibrary
 {
@@ -40,6 +42,22 @@ namespace ClientServerCommLibrary
             YArray = yArray;
             PrecursorScanNumber = precursorScanNumber;
             MzPrecursor = mzPrecursor;
+        }
+
+        public IEnumerable<(double mass, double intensity)> FilterByNumberOfMostIntense(int topNPeaks)
+        {
+            var quantile = 1.0 - (double)topNPeaks / YArray.Length;
+            quantile = Math.Max(0, quantile);
+            quantile = Math.Min(1, quantile);
+            double cutoffYvalue = YArray.Quantile(quantile);
+
+            for (int i = 0; i < YArray.Length; i++)
+            {
+                if (YArray[i] >= cutoffYvalue)
+                {
+                    yield return (XArray[i], YArray[i]);
+                }
+            }
         }
     }
 }

@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace WorkflowServer
 {
-    public interface IData
+    internal class SpectralAveragingActivity
     {
-
     }
 }

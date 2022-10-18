@@ -6,12 +6,7 @@ using System.Threading.Tasks;
 
 namespace WorkflowServer
 {
-    public enum TaskType
+    internal class AddIsolatedMassesToExclusionListActivity
     {
-        Normalization,
-        Standardization,
-        SpectrumAveraging,
-        ChargeStateEnvelope,
-        BoxcarFragger
     }
 }
