@@ -7,6 +7,9 @@ using Newtonsoft.Json;
 
 namespace ClientServerCommLibrary
 {
+    /// <summary>
+    /// Class used to pass buffer sent from client to server or server to client. 
+    /// </summary>
     public class PipeEventArgs : EventArgs
     {
         public byte[] Buffer;

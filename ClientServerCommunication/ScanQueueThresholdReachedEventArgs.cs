@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ClientServerCommLibrary
 {
+    /// <summary>
+    /// Class used to pass scans when the scan queue threshold is triggered. 
+    /// </summary>
     public class ScanQueueThresholdReachedEventArgs : EventArgs
     {
         public IEnumerable<SingleScanDataObject> ListSsdo { get; set; }

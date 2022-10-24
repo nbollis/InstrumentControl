@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommLibrary;
 using System.IO.Pipes;
+using System.Runtime.Remoting.Channels;
 using Microsoft.Win32;
 
 
@@ -100,11 +101,7 @@ namespace InstrumentClient
         #region Client to Instrument Methods
         public void BeginInstrumentConnection(IInstrument instr)
         {
-            bool instrReadyToReceiveScan = false; 
             instr.OpenInstrumentConnection();
-           
-            instr.InstrumentConnected += (obj, sender) => { InstrumentConnectedBool = true; };
-            instr.InstrumentDisconnected += (obj, sender) => { InstrumentConnectedBool = false; };
             instr.InstrumentReadyToReceiveScan += (obj, sender) =>
             {
                 // check if queue contains anything and send scan action if it does. 
@@ -113,32 +110,16 @@ namespace InstrumentClient
                     instr.SendScanAction(ScanInstructionsQueue.Dequeue());
                 }
             };
-            instr.ScanReceived += (obj, sender) =>
-            {
-                // convert to byte[] and send to WorkflowServer. 
-                Console.WriteLine("Scan received event activated");
-                // need to create the correct buffer format, which is length is the first n bytes, 
-                // followed by the actual data. 
-                byte[] buffer = sender.Ssdo.CreateSerializedSingleScanDataObject(); 
-                PipeClient.WriteAsync(buffer, 0, buffer.Length);
-                PipeClient.WaitForPipeDrain(); 
-            };
 
-            // don't think I need this event after all. 
-            ScanQueueThresholdReached += (obj, sender) =>
-            {
-                // send the scan to the instrument
-
-            };
-            //// enter instrument main routine: 
-           
-
-
+            instr.ScanReceived += SendScanToServer;
         }
         #endregion
 
-
-
- 
+        private void SendScanToServer(object obj, ScanReceivedEventArgs sender)
+        {
+            byte[] buffer = sender.Ssdo.CreateSerializedSingleScanDataObject();
+            PipeClient.WriteAsync(buffer, 0, buffer.Length); 
+            PipeClient.WaitForPipeDrain();
+        }
     }
 }

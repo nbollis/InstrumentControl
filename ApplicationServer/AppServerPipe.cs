@@ -6,6 +6,9 @@ using ClientServerCommLibrary;
 
 namespace WorkflowServer
 {
+    /// <summary>
+    /// Class is used to communicate and run processing workflows on data received from the client. 
+    /// </summary>
     internal class AppServerPipe
     {
         public event EventHandler<EventArgs> PipeConnected;
@@ -37,44 +40,16 @@ namespace WorkflowServer
             Ms2Delegate = ms2Delegate;
         }
 
+        /// <summary>
+        /// Begins the server connection; starts the async buffer reader; connects event handler methods to events. 
+        /// </summary>
         public void StartServer()
         {
             PipeConnected += (obj, sender) =>
             {
                 Console.WriteLine("Pipe client connected. Sent from event.");
             };
-            // delegate for processing needs to be used as a function. 
-            //ProcessMs1ScansDelegate ms1Del = (o, scans) =>
-            //{
-            //    // select highest m/z from the scans and send a singlescandataobject back to client
-            //    List<double> mzPrecursors = new();
-            //    foreach (var sc in scans.ListSsdo)
-            //    {
-            //        double max = sc.YArray.Max();
-            //        int posX = Array.IndexOf(sc.YArray, max);
-            //        mzPrecursors.Add(sc.XArray[posX]);
-            //    }
-
-            //    foreach (var mz in mzPrecursors)
-            //    {
-            //        SingleScanDataObject ssdoTemp = new()
-            //        {
-            //            ScanOrder = 2,
-            //            ScanNumber = 10,
-            //            PrecursorScanNumber = 3,
-            //            MzPrecursor = 15,
-            //            XArray = new double[] { 0, 0 },
-            //            YArray = new double[] { 0, 0 }
-            //        };
-            //        string temp = JsonConvert.SerializeObject(ssdoTemp);
-            //        byte[] buffer = Encoding.UTF8.GetBytes(temp);
-            //        byte[] length = BitConverter.GetBytes(buffer.Length);
-            //        byte[] finalBuffer = length.Concat(buffer).ToArray();
-            //        PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
-            //    }
-
-            //};
-
+  
             PipeDataReceived += HandleDataReceived;
             Ms1ScanQueueThresholdReached += Ms1Delegate.Invoke;
             Ms2ScanQueueThresholdReached += Ms2Delegate.Invoke;
@@ -85,6 +60,7 @@ namespace WorkflowServer
             };
             Ms2ProcessingCompleted += (object? obj, ProcessingCompletedEventArgs sender) =>
             {
+
                 Console.WriteLine("Ms2 Processing Completed."); 
             };
 
@@ -94,6 +70,12 @@ namespace WorkflowServer
             connectionResult.AsyncWaitHandle.Close();
             StartReaderAsync();
         }
+        /// <summary>
+        /// Used to determine which queue scan that was received from server should go into. 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="eventArgs"></param>
+        /// <exception cref="ArgumentException"></exception>
         private void HandleDataReceived(object? obj, PipeEventArgs eventArgs)
         {
             // convert pipeeventargs to single scan data object
@@ -121,16 +103,28 @@ namespace WorkflowServer
             } // TODO: Handle scan order > 2. 
             Console.WriteLine("\n");
         }
+        /// <summary>
+        /// Triggers event that begins processing of Ms1 queue. 
+        /// </summary>
+        /// <param name="queue"></param>
         private void OnMs1QueueThresholdReached(Queue<SingleScanDataObject> queue)
         {
             Ms1ScanQueueThresholdReached?.Invoke(this,
                 new ScanQueueThresholdReachedEventArgs(queue.DequeueChunk(Ms1ScanQueueThreshold)));
         }
+        /// <summary>
+        ///  Triggers event that begins processing of Ms2 queue. 
+        /// </summary>
+        /// <param name="queue"></param>
         private void OnMs2QueueThresholdReached(Queue<SingleScanDataObject> queue)
         {
             Ms2ScanQueueThresholdReached?.Invoke(this,
                 new ScanQueueThresholdReachedEventArgs(queue.DequeueChunk(Ms2ScanQueueThreshold)));
         }
+        /// <summary>
+        /// Callback method used to wait for client pipe connection. 
+        /// </summary>
+        /// <param name="ar"></param>
         private void Connected(IAsyncResult ar)
         {
             OnConnection();
@@ -140,6 +134,14 @@ namespace WorkflowServer
         {
             PipeConnected?.Invoke(this, EventArgs.Empty);
         }
+        /// <summary>
+        /// Begins asynchronous buffer reading. Converts the first four bytes into the integer size of the object contained in the rest of the buffer.
+        /// Then creates the buffer of that size and reads the data into the buffer. 
+        ///
+        /// DO NOT MODIFY OR THINK ABOUT
+        /// MODIFYING THIS METHOD UNLESS YOU 100% KNOW WHAT IT DOES AND WHAT YOU ARE CHANGING. 
+        /// </summary>
+        /// <param name="packetReceived">The Action delegate determines what is done with the byte buffer that is received.</param>
         private void StartByteReaderAsync(Action<byte[]> packetReceived)
         {
             byte[] byteDataLength = new byte[sizeof(int)];
@@ -159,10 +161,20 @@ namespace WorkflowServer
                         });
                 });
         }
+        /// <summary>
+        /// Starts the reader asynchronously and triggers the PipeDataReceived event when data is received from the pipe. 
+        /// </summary>
         public void StartReaderAsync()
         {
             StartByteReaderAsync((b) =>
                 PipeDataReceived?.Invoke(this, new PipeEventArgs(b)));
+        }
+
+        private void SendScanToClient(object obj, ProcessingCompletedEventArgs sender)
+        {
+            byte[] buffer = sender.Ssdo.CreateSerializedSingleScanDataObject();
+            PipeServer.WriteAsync(buffer, 0, buffer.Length); 
+            PipeServer.WaitForPipeDrain();
         }
     }
 }
