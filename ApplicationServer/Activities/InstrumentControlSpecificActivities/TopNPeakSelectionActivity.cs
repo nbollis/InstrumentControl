@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommLibrary;
 using ClientServerCommunication;
+using WorkflowServer.Util;
 
 namespace WorkflowServer
 {
@@ -39,7 +40,7 @@ namespace WorkflowServer
                 if (useExclusionList)
                 {
                     var nonExcludedTargets =
-                        targetList.GetTargetsNotFoundWithinExclusionListAtSpecificRetentionTime(potentialTargets,
+                        targetList.GetTargetsNotExcludedAtSpecificRetentionTime(potentialTargets,
                             specContext.FirstSingleScanDataObject.RetentionTime).ToList();
 
                     targets = nonExcludedTargets.Count() < topNPeaksToIsolateAndFragment ? 
@@ -61,7 +62,7 @@ namespace WorkflowServer
                 if (useExclusionList)
                 {
                     var nonExcludedTargets =
-                        targetList.GetTargetsNotFoundWithinExclusionListAtSpecificRetentionTime(
+                        targetList.GetTargetsNotExcludedAtSpecificRetentionTime(
                             potentialTargets.Select(p => p.mass).ToList(),
                             specContext.FirstSingleScanDataObject.RetentionTime).ToList();
 

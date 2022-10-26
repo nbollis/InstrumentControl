@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkflowServer
+namespace WorkflowServer.Util
 {
     public class MassTargetListItem
     {
@@ -19,15 +19,15 @@ namespace WorkflowServer
             EndTime = endTime;
         }
 
-        public static List<MassTargetListItem> CreateListItemsInBulk(List<double> masses, 
-            List<double> retentionTimes, double startIncrement, double endIncrement)
+        public static List<MassTargetListItem> CreateListItemsInBulk(List<double> masses,
+            List<double> retentionTimes, double bufferTimeInms)
         {
             List<MassTargetListItem> items = new List<MassTargetListItem>();
             for (var i = 0; i < masses.Count; i++)
             {
                 var mass = masses[i];
                 var retentionTime = retentionTimes[i];
-                MassTargetListItem item = new(mass, retentionTime - startIncrement, retentionTime + endIncrement);
+                MassTargetListItem item = new(mass, retentionTime - bufferTimeInms, retentionTime + bufferTimeInms);
                 items.Add(item);
             }
 

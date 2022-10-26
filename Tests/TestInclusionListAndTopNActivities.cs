@@ -11,6 +11,7 @@ using ClientServerCommunication;
 using Microsoft.Extensions.DependencyInjection;
 using MzLibUtil;
 using WorkflowServer;
+using WorkflowServer.Util;
 
 namespace Tests
 {
@@ -29,10 +30,10 @@ namespace Tests
             double[] y4 = new double[] { 0, 10, 10, 10, 100, 20, 20, 10, 10, 0 };
 
             SsdoList = new();
-            SsdoList.Add(new SingleScanDataObject(xArray, y1) { ScanOrder = 1, RetentionTime = 2000});
-            SsdoList.Add(new SingleScanDataObject(xArray, y2) { ScanOrder = 1, RetentionTime = 3000 });
-            SsdoList.Add(new SingleScanDataObject(xArray, y3) { ScanOrder = 1, RetentionTime = 4000 });
-            SsdoList.Add(new SingleScanDataObject(xArray, y4) { ScanOrder = 1, RetentionTime = 5000 });
+            SsdoList.Add(new SingleScanDataObject(xArray, y1) { MsNOrder = 1, RetentionTime = 2000});
+            SsdoList.Add(new SingleScanDataObject(xArray, y2) { MsNOrder = 1, RetentionTime = 3000 });
+            SsdoList.Add(new SingleScanDataObject(xArray, y3) { MsNOrder = 1, RetentionTime = 4000 });
+            SsdoList.Add(new SingleScanDataObject(xArray, y4) { MsNOrder = 1, RetentionTime = 5000 });
 
             provider = new ServiceCollection().BuildServiceProvider();
         }

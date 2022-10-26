@@ -5,15 +5,22 @@ using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommLibrary;
 using ClientServerCommunication;
+using WorkflowServer.Util;
 
 namespace WorkflowServer
 {
+    /// <summary>
+    /// Context that is passed between activities
+    /// </summary>
     public class SpectraActivityContext : ActivityContext
     {
         public ScanInstructions ScanInstructions { get; set; }
         public SingleScanDataObject FirstSingleScanDataObject => SingleScanDataObjects.First();
         public List<SingleScanDataObject> SingleScanDataObjects { get; set; }
 
+        /// <summary>
+        /// Contains both inclusion and exclusion lists
+        /// </summary>
         public MassTargetList MassTargetList { get; set; }
         
         /// <summary>
@@ -24,6 +31,7 @@ namespace WorkflowServer
         /// </summary>
         public Queue<double[]> MassesToTarget { get; set; }
 
+        public ScanQueueManager ScanQueueManager { get; set; }
 
 
         public SpectraActivityContext(SingleScanDataObject ssdo, MassTargetList massTargetList)
@@ -33,6 +41,8 @@ namespace WorkflowServer
             ScanInstructions = ssdo.ScanInstructions;
             MassTargetList = massTargetList;
             MassesToTarget = new();
+            ScanQueueManager = ScanQueueManager.Instance;
         }
+
     }
 }

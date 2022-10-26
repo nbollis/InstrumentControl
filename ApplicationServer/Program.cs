@@ -15,13 +15,11 @@ namespace WorkflowServer
                 new NamedPipeServerStream("test",
                     PipeDirection.InOut, 1, PipeTransmissionMode.Byte);
 
-            //List<InstrumentControlTask> tasks = JsonConvert.DeserializeObject<List<InstrumentControlTask>>(args[0]) ?? throw new NullReferenceException();
             AppServerPipe serverPipe = new AppServerPipe(pipeServer);
-            //Workflow workflow = new(serverPipe, tasks);
 
             try
             {
-                //serverPipe.StartServer(workflow);
+                serverPipe.StartServer(args);
             }
             catch (Exception e)
             {

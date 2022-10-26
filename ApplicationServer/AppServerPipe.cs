@@ -3,6 +3,7 @@ using System.IO.Pipes;
 using System.Text; 
 using Newtonsoft.Json; 
 using ClientServerCommLibrary;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace WorkflowServer
 {
@@ -12,18 +13,20 @@ namespace WorkflowServer
         public event EventHandler<PipeEventArgs> PipeDataReceived;
         public NamedPipeServerStream PipeServer { get; set; }
 
-        private Workflow Workflow { get; set; }
+        private IActivityCollection<IActivityContext> activityCollection;
+        private SpectraActivityContext spectraActivityContext;
+        private ServiceProvider serviceProvider;
 
-        
         public AppServerPipe(NamedPipeServerStream pipeServer)
         {
             PipeServer = pipeServer;
             PipeDataReceived += HandleDataReceived;
+            serviceProvider = new ServiceCollection().BuildServiceProvider();
         }
 
-        public void StartServer(Workflow workflow)
+        public async Task StartServer(string[] startupContext)
         {
-            Workflow = workflow;
+            ParseStartupContext(startupContext);
             PipeConnected += (obj, sender) =>
             {
                 Console.WriteLine("Pipe client connected. Sent from event.");
@@ -34,12 +37,19 @@ namespace WorkflowServer
             connectionResult.AsyncWaitHandle.WaitOne();
             connectionResult.AsyncWaitHandle.Close();
             StartReaderAsync();
+
+            DefaultActivityRunner<IActivityContext> runner = new(serviceProvider);
             while (PipeServer.IsConnected)
             {
-
+                await runner.RunAsync(activityCollection, spectraActivityContext);
             }
         }
 
+        /// <summary>
+        /// Method for returning data to the client
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="sender"></param>
         public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender)
         {
             string temp = JsonConvert.SerializeObject(sender.ssdo);
@@ -50,19 +60,24 @@ namespace WorkflowServer
             PipeServer.WaitForPipeDrain();
         }
 
+        /// <summary>
+        /// Receives data from the client
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="eventArgs"></param>
+        /// <exception cref="ArgumentException"></exception>
         private void HandleDataReceived(object? obj, PipeEventArgs eventArgs)
         {
             // convert PipeEventArgs to single scan data object
             SingleScanDataObject ssdo = eventArgs.ToSingleScanDataObject();
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
-            //TODO add these to the correct scan queue
-
+            spectraActivityContext.ScanQueueManager.EnqueueScan(ssdo);
 
             //Workflow.ReceiveData(ssdo);
             Console.WriteLine("\n");
         }
- 
+
         private void Connected(IAsyncResult ar)
         {
             OnConnection();
@@ -92,6 +107,20 @@ namespace WorkflowServer
                             StartByteReaderAsync(packetReceived);
                         });
                 });
+        }
+
+        /// <summary>
+        /// Takes the args from the program and parses them into the proper fields
+        /// </summary>
+        /// <param name="context">args passed from god to server</param>
+        /// <exception cref="ArgumentException">Thrown if deserialization results in null values</exception>
+        private void ParseStartupContext(string[] context)
+        {
+            activityCollection = JsonConvert.DeserializeObject<IActivityCollection<IActivityContext>>(context[0]) ??
+                                 throw new ArgumentException("Activity Collection not properly deserialized");
+            spectraActivityContext = JsonConvert.DeserializeObject<SpectraActivityContext>(context[1]) ??
+                                     throw new ArgumentException(
+                                         "Spectra Activity Context not properly deserialized");
         }
 
         public void StartReaderAsync()

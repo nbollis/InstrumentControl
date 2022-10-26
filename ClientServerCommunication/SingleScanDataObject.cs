@@ -13,7 +13,7 @@ namespace ClientServerCommLibrary
     public class SingleScanDataObject
     {
         public ScanInstructions ScanInstructions { get; set; }
-        public int ScanOrder { get; set; }
+        public int MsNOrder { get; set; }
         public int ScanNumber { get; set; }
         public int? PrecursorScanNumber { get; set; }
         public double? MzPrecursor { get; set; }
@@ -30,13 +30,13 @@ namespace ClientServerCommLibrary
             XArray = xArray;
             YArray = yArray;
         }
-        public SingleScanDataObject(int scanOrder, int scanNumber,
+        public SingleScanDataObject(int msNOrder, int scanNumber,
             double[] xArray,
             double[] yArray,
             int? precursorScanNumber = null,
             double? mzPrecursor = null)
         {
-            ScanOrder = scanOrder;
+            MsNOrder = msNOrder;
             ScanNumber = scanNumber;
             XArray = xArray;
             YArray = yArray;

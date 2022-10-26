@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommLibrary;
 using MzLibUtil;
+using WorkflowServer.Util;
 
 namespace WorkflowServer
 {

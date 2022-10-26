@@ -5,16 +5,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WorkflowServer.Util;
 
-namespace WorkflowServer
+namespace WorkflowServer.Util
 {
     /// <summary>
     /// A list of mass targets to check for inclusion or exclusion
     /// private hitTargets field will be what to select fragment
     ///    if they are found by an external class
     /// </summary>
-    public class MassTargetList 
+    public class MassTargetList
     {
         #region Private Properties
 
@@ -35,6 +34,9 @@ namespace WorkflowServer
         public double TimeToExcludeInMilliseconds { get; set; }
         public PpmTolerance Tolerance { get; set; }
 
+        /// <summary>
+        /// If inclusion list was searched and targets were identified
+        /// </summary>
         public bool FoundTargets
         {
             get => hitTargets.Any();
@@ -44,10 +46,10 @@ namespace WorkflowServer
 
         #region Constructor
 
-        public MassTargetList()
+        public MassTargetList(double bufferTimeOnLists = 1000, double ppmTolerance = 10)
         {
-            TimeToExcludeInMilliseconds = ScanProductionGlobalVariables.TimeToExcludeInMilliseconds;
-            Tolerance = new PpmTolerance(ScanProductionGlobalVariables.ExclusionMatchingPpmTolerance);
+            TimeToExcludeInMilliseconds = bufferTimeOnLists;
+            Tolerance = new PpmTolerance(ppmTolerance);
             hitTargets = new();
             ExclusionList = new();
             InclusionList = new();
@@ -81,8 +83,6 @@ namespace WorkflowServer
 
         /// <summary>
         /// returns all masses to be searched for at a specific retention time
-        /// Exclusion --> returns masses not in list
-        /// Inclusion --> returns masses in list
         /// </summary>
         /// <param name="retentionTime"></param>
         /// <returns></returns>
@@ -96,12 +96,26 @@ namespace WorkflowServer
         }
 
         /// <summary>
+        /// returns all masses to be excluded for at a specific retention time
+        /// </summary>
+        /// <param name="retentionTime"></param>
+        /// <returns></returns>
+        public IEnumerable<MassTargetListItem> GetExclusionListItemsAtSpecificRetentionTime(double retentionTime)
+        {
+            foreach (var item in ExclusionList)
+            {
+                if (item.WithinTimeSpan(retentionTime))
+                    yield return item;
+            }
+        }
+
+        /// <summary>
         /// Checks a list of masses to see if they are in the exclusion list
         /// </summary>
         /// <param name="valuesToCheck"></param>
         /// <param name="retentionTime"></param>
         /// <returns>All masses not found within exclusion list at specific retention time</returns>
-        public IEnumerable<double> GetTargetsNotFoundWithinExclusionListAtSpecificRetentionTime(List<double> valuesToCheck, double retentionTime)
+        public IEnumerable<double> GetTargetsNotExcludedAtSpecificRetentionTime(List<double> valuesToCheck, double retentionTime)
         {
             var exclusionListItemsWithinTime = ExclusionList.Where(p => p.WithinTimeSpan(retentionTime));
             foreach (var val in valuesToCheck)
@@ -130,30 +144,12 @@ namespace WorkflowServer
         }
 
 
-
-
-
-        // TODO: Add params to list constructor and remove from global data
-        // evaluate if these are necessary
-        public void CreateInclusionList()
-        {
-            InclusionList = new();
-        }
-
-        public void CreateExclusionList()
-        {
-            ExclusionList = new();
-        }
-
-
-
-
         // TODO: Implement these taking in a filestream so it can be called from anywhere
         /// <summary>
         /// Exports exclusion list in json format for use in later runs
         /// </summary>
         /// <exception cref="NotImplementedException"></exception>
-        public void ExportExclusionList()
+        public void ExportList(Stream stream, MassTargetListTypes listType)
         {
             throw new NotImplementedException();
         }
@@ -162,7 +158,7 @@ namespace WorkflowServer
         /// Imports an exclusion list and adds it to the current list
         /// </summary>
         /// <exception cref="NotImplementedException"></exception>
-        public void ImportExclusionList()
+        public void ImportList(Stream stream, MassTargetListTypes listType)
         {
             throw new NotImplementedException();
         }
