@@ -37,11 +37,7 @@ namespace ApplicationServer
             appPipe.StartServer();
             while (connectedBool)
             {
-                //appPipe.PipeDataReceived += (obj, ev) =>
-                //{
-                //    var scan = ev.ToSingleScanDataObject();
-                //    Console.WriteLine(scan.MaxX.ToString());
-                //}; 
+
             }
         }
     }

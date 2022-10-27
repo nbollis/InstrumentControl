@@ -13,6 +13,7 @@ using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.TNG.Factory;
 using System.Linq;
 using System.Text;
+using Client;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Modes;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Workflow;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
@@ -59,10 +60,10 @@ namespace InstrumentClient
             
             //switch (ssdo.ScanInstructions.ScanType)
             ////{
-            ////    case (ScanInstructions.CustomScan): 
+            ////    case (ScanInstructions.RepeatingScan): 
             ////        SendRepeatingScan();
             ////        break;
-            ////    case (ScanType.RepeatingScan): 
+            ////    case (ScanType.CustomScan): 
             ////        SendCustomScan();
             ////        break;
             //}
@@ -77,24 +78,58 @@ namespace InstrumentClient
             
             return valuesDict;
         }
-        private void CreateRepeatingScan(SingleScanDataObject ssdo)
+        private IRepeatingScan CreateRepeatingScan(SingleScanDataObject ssdo)
         {
             IRepeatingScan rscan = MScan.CreateRepeatingScan();
+            Dictionary<string,string> scanValues = ThermoTribridScanTranslator.TranslateSsdo(ssdo);
             
+            // iterates through the scan and only sets values that differ. 
+            foreach (string key in scanValues.Keys)
+            {
+                if (rscan.Values[key] == scanValues[key])
+                {
+                    continue;
+                }
+
+                rscan.Values[key] = scanValues[key];
+            }
+
+            return rscan; 
 
         }
-        private void SendRepeatingScan()
+        /// <summary>
+        /// Uses the ScanType property of SingleScanDataObject to set a repeating scan. 
+        /// </summary>
+        /// <param name="ssdo"></param>
+        /// <returns>Boolean value indicating if scan was sent to the instrument.</returns>
+        private bool SendRepeatingScan(SingleScanDataObject ssdo)
         {
-
+            var scan = CreateRepeatingScan(ssdo);
+            return MScan.SetRepetitionScan(scan);
         }
-        private void CreateCustomScan(SingleScanDataObject ssdo)
+        private ICustomScan CreateCustomScan(SingleScanDataObject ssdo)
         {
+            ICustomScan cscan = MScan.CreateCustomScan();
+            Dictionary<string, string> scanValues = ThermoTribridScanTranslator.TranslateSsdo(ssdo);
 
+            // iterates through the scan and only sets values that differ. 
+            foreach (string key in scanValues.Keys)
+            {
+                if (cscan.Values[key] == scanValues[key])
+                {
+                    continue;
+                }
+
+                cscan.Values[key] = scanValues[key];
+            }
+
+            return cscan;
         }
 
-        private void SendCustomScan()
+        private bool SendCustomScan(SingleScanDataObject ssdo)
         {
-
+            ICustomScan cscan = CreateCustomScan(ssdo);
+            return MScan.SetCustomScan(cscan); 
         }
         
         public void OpenInstrumentConnection()
@@ -130,12 +165,10 @@ namespace InstrumentClient
                 }
             };
 
-            // instacq.systemstate also contains an enum, where each value corresponds to the acquisition state 
-            // of the system. Could potentially use this as a read-back for the client. 
-            // InstAcq.State.SystemState
             MsScanContainer.MsScanArrived += (o, s) =>
             {
-                // convert to single scan data object and raise this.ScanReceived 
+                // convert to single scan data object and raise this.ScanReceived
+                //
                 var ssdo = s.GetScan().ConvertToSingleScanDataObject();
                 EventHandler<ScanReceivedEventArgs> handler = ScanReceived;
                 if (handler != null)

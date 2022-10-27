@@ -44,7 +44,12 @@ namespace ClientServerCommLibrary
         }
         #endregion
 
+        public Dictionary<string, string> ToDictionary()
+        {
+            var result = new Dictionary<string, string>();
 
+        }
     }
+
 
 }

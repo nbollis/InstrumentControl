@@ -17,7 +17,7 @@ namespace Client
         {
             throw new NotImplementedException();
         }
-        private Dictionary<string, string> TranslateSsdo(SingleScanDataObject ssdo)
+        public static Dictionary<string, string> TranslateSsdo(SingleScanDataObject ssdo)
         {
             var result = new Dictionary<string, string>();
             PropertyInfo[] properties = typeof(ScanInstructions).GetProperties();
@@ -26,22 +26,16 @@ namespace Client
             {
                 // set result key by matching the property name to the constant dictionary key 
                 // and returning the value. 
+                
+                // get the key 
                 string newKey = ThermoTribridSsdoMapping.TrbridToSsdoMapping[property.Name];
-                var propType = property.GetType();
                 string valConvertToString = String.Empty;
 
-                switch (propType.Name)
-                {
-                    case nameof(Double):
-                        break;
-                    case nameof(Int32):
-                        break;
-                    case nameof(Enum):
-                        break; 
-                }
+                // get the value
+                string value = (string)property.GetValue(ssdo); 
 
+                result.Add(newKey, value);
             }
-
             return result; 
         }
         private static string GetEnumString<T>(T enumOfType) where T : Enum
