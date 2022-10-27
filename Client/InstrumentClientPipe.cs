@@ -96,6 +96,8 @@ namespace InstrumentClient
                 });
         }
         #endregion
+
+
         #region Client to Instrument Methods
         public void BeginInstrumentConnection(IInstrument instr)
         {

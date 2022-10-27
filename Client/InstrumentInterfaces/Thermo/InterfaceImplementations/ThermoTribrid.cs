@@ -10,14 +10,12 @@ using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 using Thermo.TNG.Factory;
 using System.Linq;
-using Data; 
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Modes;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Workflow;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
 using ScanInstructions = ClientServerCommunication.ScanInstructions;
-using SingleScanDataObject = Data.SingleScanDataObject;
 
 
 namespace InstrumentClient

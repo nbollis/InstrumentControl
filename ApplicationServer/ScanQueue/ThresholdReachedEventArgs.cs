@@ -1,6 +1,8 @@
-﻿using Data; 
+﻿
 
-namespace ApplicationServer
+using ClientServerCommLibrary;
+
+namespace WorkflowServer
 {
     public class ThresholdReachedEventArgs : EventArgs
     {

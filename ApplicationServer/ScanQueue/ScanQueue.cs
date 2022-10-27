@@ -1,29 +1,51 @@
-﻿using Data; 
+﻿using System.Collections.Concurrent;
+using ClientServerCommLibrary;
 
-namespace ApplicationServer
+namespace WorkflowServer
 {
     public class ScanQueue
     {
-        public Queue<SingleScanDataObject> DataToProcess { get; set; }
+        public ConcurrentQueue<SingleScanDataObject> DataToProcess { get; set; }
         int Threshold { get; set; }
-        public bool ExportToJson { get; set; } = false;
-        public event EventHandler<ThresholdReachedEventArgs>? ThresholdReached;
+        public bool ThresholdReacheda { get; set; } = false;
+
+        public event EventHandler<ScanQueueThresholdReachedEventArgs>? ThresholdReached;
 
         public ScanQueue(int processingThreshold)
         {
             Threshold = processingThreshold;
-            DataToProcess = new Queue<SingleScanDataObject>(100);
+            DataToProcess = new ConcurrentQueue<SingleScanDataObject>();
         }
 
-        protected virtual void OnThresholdReached(ThresholdReachedEventArgs e)
+        public void Enqueue(SingleScanDataObject ssdo)
         {
-            // make .NET Framework 4.8 compatible just in case this ever gets ported to 
-            // client in any manner. 
-            EventHandler<ThresholdReachedEventArgs> handler = ThresholdReached;
-            if (handler != null)
+            DataToProcess.Enqueue(ssdo);
+            if (DataToProcess.Count >= Threshold)
             {
-                handler(this, e); 
+                ThresholdReacheda = true;
+                OnThresholdReached();
             }
+        }
+
+        public void Enqueue(IEnumerable<SingleScanDataObject> ssdos)
+        {
+            foreach (var singleScanDataObject in ssdos)
+            {
+                Enqueue(singleScanDataObject);
+            }
+        }
+
+        private void OnThresholdReached()
+        {
+            List<SingleScanDataObject> ssdoList = new List<SingleScanDataObject>();
+            for (int i = 0; i < Threshold; i++)
+            {
+                if (DataToProcess.TryDequeue(out SingleScanDataObject? result))
+                {
+                    ssdoList.Add(result);
+                }
+            }
+            ThresholdReached?.Invoke(this, new ScanQueueThresholdReachedEventArgs(ssdoList));
         }
     }
 }
