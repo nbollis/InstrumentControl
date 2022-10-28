@@ -43,6 +43,8 @@ namespace GUI
         /// </summary>
         private BitmapImage icon;
 
+        private ApplicationPage currentPage;
+
         #endregion
 
 
@@ -144,7 +146,11 @@ namespace GUI
             }
         }
 
-        public ApplicationPage CurrentPage { get; set; } = ApplicationPage.ConstructMethodPage;
+        public ApplicationPage CurrentPage
+        {
+            get => currentPage;
+            set => SetProperty(ref currentPage, value/*, nameof(CurrentPage)*/);
+        }
 
         public ApplicationViewModel ApplicationViewModel { get; set; }
 
