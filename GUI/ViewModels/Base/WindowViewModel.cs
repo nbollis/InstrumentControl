@@ -47,7 +47,6 @@ namespace GUI
 
         #endregion
 
-
         #region Public Properties
 
         /// <summary>
@@ -190,6 +189,7 @@ namespace GUI
         public WindowViewModel(Window window)
         {
             mWindow = window;
+            CurrentPage = ApplicationPage.ConstructMethodPage;
             //string filepath = Path.Join(ApplicationPath, @"Images\AveragingIcon.png");
             //icon = new BitmapImage(new Uri(filepath));
 

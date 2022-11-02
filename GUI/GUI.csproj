@@ -22,4 +22,11 @@
     <Folder Include="ViewModels\Activities\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ApplicationServer\WorkflowServer.csproj" />
+    <ProjectReference Include="..\ClientServerCommunication\ClientServerCommLibrary.csproj" />
+    <ProjectReference Include="..\Client\InstrumentClient.csproj" />
+    <ProjectReference Include="..\ProcessStarter\ProcessStarter.csproj" />
+  </ItemGroup>
+
 </Project>

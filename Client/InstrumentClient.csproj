@@ -76,6 +76,7 @@
     <Compile Include="InstrumentInterfaces\Thermo\DataHandling\MsScanExtensions.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\InterfaceImplementations\ThermoQE.cs" />
     <Compile Include="InstrumentInterfaces\Thermo\InterfaceImplementations\ThermoTribrid.cs" />
+    <Compile Include="InstrumentType.cs" />
     <Compile Include="MsScanReadyToSendEventArgs.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

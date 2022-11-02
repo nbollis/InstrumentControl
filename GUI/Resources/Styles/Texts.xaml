@@ -20,6 +20,12 @@
     <system:Double x:Key="FontSizeXLarge">24</system:Double>
     <system:Double x:Key="FontSizeXXLarge">30</system:Double>
 
+    <!-- font awesome icons -->
+    <system:String x:Key="FontAwesomeFileCirclePlusIcon">&#xe494;</system:String>
+    <system:String x:Key="FontAwesomeSaveIcon">&#xe183;</system:String>
+    <system:String x:Key="FontAwesomeSaveAsIcon">&#xe182;</system:String>
+    <system:String x:Key="FontAwesomeTrashIcon">&#xe2b4;</system:String>
+
     <Style TargetType="{x:Type Control}" x:Key="BaseStyle">
         <!--<Setter Property="FontFamily" Value="{StaticResource LatoThin}" />-->
         <Setter Property="FontSize" Value="{StaticResource FontSizeRegular}" />

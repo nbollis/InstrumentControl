@@ -7,6 +7,9 @@
         <ResourceDictionary Source="Buttons.xaml" />
     </ResourceDictionary.MergedDictionaries>
 
-
+    <Style TargetType="TextBox" x:Key="TextBoxStyle">
+        <Setter Property="Background" Value="{StaticResource BackgroundVeryLightBrush}" />
+        <Setter Property="Margin" Value="0 2 0 2"></Setter>
+    </Style>
    
 </ResourceDictionary>
