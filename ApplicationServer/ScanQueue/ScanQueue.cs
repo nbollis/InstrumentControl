@@ -5,47 +5,50 @@ namespace WorkflowServer
 {
     public class ScanQueue
     {
-        public ConcurrentQueue<SingleScanDataObject> DataToProcess { get; set; }
-        int Threshold { get; set; }
-        public bool ThresholdReacheda { get; set; } = false;
+        public ConcurrentQueue<SingleScanDataObject> Queue { get; set; }
 
-        public event EventHandler<ScanQueueThresholdReachedEventArgs>? ThresholdReached;
+        public int Count => Queue.Count;
 
-        public ScanQueue(int processingThreshold)
+        public ScanQueue()
         {
-            Threshold = processingThreshold;
-            DataToProcess = new ConcurrentQueue<SingleScanDataObject>();
+            Queue = new ConcurrentQueue<SingleScanDataObject>();
         }
 
-        public void Enqueue(SingleScanDataObject ssdo)
+        /// <summary>
+        /// En queues a single SingleScanDataObject
+        /// </summary>
+        /// <param name="singleScanDataObject"></param>
+        public void Enqueue(SingleScanDataObject singleScanDataObject)
         {
-            DataToProcess.Enqueue(ssdo);
-            if (DataToProcess.Count >= Threshold)
-            {
-                ThresholdReacheda = true;
-                OnThresholdReached();
-            }
+            Queue.Enqueue(singleScanDataObject);
         }
 
-        public void Enqueue(IEnumerable<SingleScanDataObject> ssdos)
+        /// <summary>
+        /// En queue multiple single scan data objects
+        /// </summary>
+        /// <param name="singleScanDataObjects"></param>
+        public void EnqueueMany(IEnumerable<SingleScanDataObject> singleScanDataObjects)
         {
-            foreach (var singleScanDataObject in ssdos)
+            foreach (var singleScanDataObject in singleScanDataObjects)
             {
                 Enqueue(singleScanDataObject);
             }
         }
 
-        private void OnThresholdReached()
+        public bool TryDequeue(out SingleScanDataObject singleScanData)
         {
-            List<SingleScanDataObject> ssdoList = new List<SingleScanDataObject>();
-            for (int i = 0; i < Threshold; i++)
+            return Queue.TryDequeue(out singleScanData);
+        }
+
+        public IEnumerable<SingleScanDataObject> DequeueMany(int toDequeue)
+        {
+            for (int i = 0; i < toDequeue; i++)
             {
-                if (DataToProcess.TryDequeue(out SingleScanDataObject? result))
+                if (TryDequeue(out SingleScanDataObject result))
                 {
-                    ssdoList.Add(result);
+                    yield return result;
                 }
             }
-            ThresholdReached?.Invoke(this, new ScanQueueThresholdReachedEventArgs(ssdoList));
         }
     }
 }
