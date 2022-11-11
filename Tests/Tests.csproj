@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -19,6 +19,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApplicationServer\WorkflowServer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestData\TDYeastFractionMS1.mzML">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

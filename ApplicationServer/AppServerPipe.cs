@@ -1,7 +1,7 @@
 ﻿using System;
-using System.IO.Pipes; 
-using System.Text; 
-using Newtonsoft.Json; 
+using System.IO.Pipes;
+using System.Text;
+using Newtonsoft.Json;
 using ClientServerCommLibrary;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -72,7 +72,7 @@ namespace WorkflowServer
             SingleScanDataObject ssdo = eventArgs.ToSingleScanDataObject();
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
-            spectraActivityContext.ScanQueueManager.EnqueueScan(ssdo);
+            ScanQueueManager.EnqueueScan(ssdo);
 
             //Workflow.ReceiveData(ssdo);
             Console.WriteLine("\n");
