@@ -8,11 +8,11 @@ namespace ClientServerCommLibrary
 {
     public class ProcessingCompletedEventArgs : EventArgs
     {
-        public IEnumerable<SingleScanDataObject> ssdo { get; set; }
+        public ScanInstructions ScanInstructions { get; private set; }
 
-        public ProcessingCompletedEventArgs(IEnumerable<SingleScanDataObject> ssdo)
+        public ProcessingCompletedEventArgs(ScanInstructions scanInstructions)
         {
-            this.ssdo = ssdo;
+            ScanInstructions = scanInstructions;
         }
     }
 }

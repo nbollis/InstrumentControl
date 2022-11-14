@@ -15,7 +15,6 @@ using Newtonsoft.Json;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Modes;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Workflow;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
-using ScanInstructions = ClientServerCommunication.ScanInstructions;
 
 
 namespace InstrumentClient

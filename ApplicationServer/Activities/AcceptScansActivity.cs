@@ -14,13 +14,10 @@ namespace WorkflowServer
         private readonly int msNOrder;
         private readonly int scansToDequeue;
 
-        private AutoResetEvent readyToStop;
-
         public AcceptScansActivity(int msNOrder, int scansToDequeue)
         {
             this.msNOrder = msNOrder;
             this.scansToDequeue = scansToDequeue;
-            readyToStop = new AutoResetEvent(false);
         }
 
         public async Task ExecuteAsync(TContext context)
