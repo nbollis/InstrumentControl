@@ -6,9 +6,11 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommLibrary;
+using Easy.Common;
 using IO.MzML;
 using MassSpectrometry;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using WorkflowServer;
 
 namespace Tests
@@ -33,6 +35,36 @@ namespace Tests
         }
 
         [Test]
+        public static void TempTest()
+        {
+            IActivityContext context = new SpectraActivityContext();
+            ScanQueueManager.BuildQueues(new List<int>() { 1 });
+            var runner = new DefaultActivityRunner<IActivityContext>(provider);
+
+            AcceptScansActivity<IActivityContext> acceptScansActivity = new(1, 5);
+            TopNPeakSelectionActivity<IActivityContext> topNActivity = new(3, false, false);
+            SendDDAScanInstructionsActivity<IActivityContext> sendDDAActivity = new(new ScanInstructions());
+
+            IActivityCollection<IActivityContext> collection = new DefaultActivityCollectionBuilder<IActivityContext>(provider)
+                .Then(acceptScansActivity)
+                .Then(topNActivity)
+                .Then(sendDDAActivity)
+                .Build();
+
+            DummyAppServerPipe pipe = new DummyAppServerPipe(pipeServerStream);
+            collection.ConnectPipe(pipe);
+
+            pipe.StartServer(collection, context, provider);
+            var scans = ActualMS1Scans.Take(16);
+
+            foreach (var scan in scans.Take(5))
+            {
+                pipe.HandleDataReceived(new SingleScanDataObject(scan.MsnOrder, scan.OneBasedScanNumber, scan.MassSpectrum.XArray, scan.MassSpectrum.YArray, scan.OneBasedPrecursorScanNumber, null, scan.RetentionTime));
+            }
+
+        }
+
+        [Test]
         public static void TestActivityCollection()
         {
             IActivityContext context = new SpectraActivityContext();
@@ -41,10 +73,12 @@ namespace Tests
 
             AcceptScansActivity<IActivityContext> acceptScansActivity = new(1, 5);
             TopNPeakSelectionActivity<IActivityContext> topNActivity = new(3, false, false);
-            
+            SendDDAScanInstructionsActivity<IActivityContext> sendDDAActivity = new(new ScanInstructions());
+
             IActivityCollection<IActivityContext> collection = new DefaultActivityCollectionBuilder<IActivityContext>(provider)
                 .Then(acceptScansActivity)
                 .Then(topNActivity)
+                .Then(sendDDAActivity)
                 .Build();
 
             DummyAppServerPipe pipe = new DummyAppServerPipe(pipeServerStream);

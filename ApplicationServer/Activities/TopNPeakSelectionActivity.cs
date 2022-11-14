@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommLibrary;
-using ClientServerCommunication;
 using WorkflowServer.Util;
 
 namespace WorkflowServer
@@ -32,56 +31,59 @@ namespace WorkflowServer
             SpectraActivityContext specContext = context as SpectraActivityContext ?? throw new ArgumentNullException(nameof(context));
             MassTargetList targetList = specContext.MassTargetList ?? throw new ArgumentNullException(nameof(context));
 
-            List<double> targets = new();
-            // identify targets based on use of inclusion and exclusion lists
-            if (useInclusionList)
+            foreach (var singleScanDataObject in specContext.DataToProcess)
             {
-                var potentialTargets = targetList.GetHitTargets();
-                if (useExclusionList)
+                List<double> targets = new();
+                // identify targets based on use of inclusion and exclusion lists
+                if (useInclusionList)
                 {
-                    var nonExcludedTargets =
-                        targetList.GetTargetsNotExcludedAtSpecificRetentionTime(potentialTargets,
-                            specContext.FirstSingleScanDataObject.RetentionTime).ToList();
+                    var potentialTargets = targetList.GetHitTargets();
+                    if (useExclusionList)
+                    {
+                        var nonExcludedTargets =
+                            targetList.GetTargetsNotExcludedAtSpecificRetentionTime(potentialTargets,
+                                singleScanDataObject.RetentionTime).ToList();
 
-                    targets = nonExcludedTargets.Count() < topNPeaksToIsolateAndFragment ?
-                        nonExcludedTargets :
-                        nonExcludedTargets.Take(topNPeaksToIsolateAndFragment).ToList(); ;
+                        targets = nonExcludedTargets.Count() < topNPeaksToIsolateAndFragment ?
+                            nonExcludedTargets :
+                            nonExcludedTargets.Take(topNPeaksToIsolateAndFragment).ToList(); ;
+                    }
+                    else
+                    {
+                        targets = potentialTargets.Count() < topNPeaksToIsolateAndFragment ?
+                            potentialTargets :
+                            potentialTargets.Take(topNPeaksToIsolateAndFragment).ToList();
+                    }
                 }
                 else
                 {
-                    targets = potentialTargets.Count() < topNPeaksToIsolateAndFragment ?
-                        potentialTargets :
-                        potentialTargets.Take(topNPeaksToIsolateAndFragment).ToList();
-                }
-            }
-            else
-            {
-                var potentialTargets =
-                    specContext.FirstSingleScanDataObject.FilterByNumberOfMostIntense(topNPeaksToIsolateAndFragment * 3)
-                        .OrderByDescending(p => p.intensity);
-                if (useExclusionList)
-                {
-                    var nonExcludedTargets =
-                        targetList.GetTargetsNotExcludedAtSpecificRetentionTime(
-                            potentialTargets.Select(p => p.mass).ToList(),
-                            specContext.FirstSingleScanDataObject.RetentionTime).ToList();
+                    var potentialTargets =
+                        singleScanDataObject.FilterByNumberOfMostIntense(topNPeaksToIsolateAndFragment * 10)
+                            .OrderByDescending(p => p.intensity);
+                    if (useExclusionList)
+                    {
+                        var nonExcludedTargets =
+                            targetList.GetTargetsNotExcludedAtSpecificRetentionTime(
+                                potentialTargets.Select(p => p.mass).ToList(),
+                                singleScanDataObject.RetentionTime).ToList();
 
-                    targets = nonExcludedTargets.Count() < topNPeaksToIsolateAndFragment ?
-                        nonExcludedTargets :
-                        nonExcludedTargets.Take(topNPeaksToIsolateAndFragment).ToList(); ;
+                        targets = nonExcludedTargets.Count() < topNPeaksToIsolateAndFragment ?
+                            nonExcludedTargets :
+                            nonExcludedTargets.Take(topNPeaksToIsolateAndFragment).ToList(); ;
+                    }
+                    else
+                    {
+                        targets = potentialTargets.Count() < topNPeaksToIsolateAndFragment ?
+                            potentialTargets.Select(p => p.mass).ToList() :
+                            potentialTargets.Select(p => p.mass).Take(topNPeaksToIsolateAndFragment).ToList();
+                    }
                 }
-                else
-                {
-                    targets = potentialTargets.Count() < topNPeaksToIsolateAndFragment ?
-                        potentialTargets.Select(p => p.mass).ToList() :
-                        potentialTargets.Select(p => p.mass).Take(topNPeaksToIsolateAndFragment).ToList();
-                }
-            }
 
-            // assign targets to be isolated and fragmented
-            foreach (var target in targets)
-            {
-                specContext.MassesToTarget.Enqueue(new double[] { target });
+                // assign targets to be isolated and fragmented
+                foreach (var target in targets)
+                {
+                    specContext.MassesToTarget.Enqueue(new double[] { target });
+                }
             }
 
             return Task.CompletedTask;

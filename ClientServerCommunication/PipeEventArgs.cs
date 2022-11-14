@@ -25,5 +25,11 @@ namespace ClientServerCommLibrary
             string jsonziedObject = Encoding.UTF8.GetString(args.Buffer);
             return JsonConvert.DeserializeObject<SingleScanDataObject>(jsonziedObject);
         }
+
+        public static ScanInstructions ToScanInstructions(this PipeEventArgs args)
+        {
+            string jsonziedObject = Encoding.UTF8.GetString(args.Buffer);
+            return JsonConvert.DeserializeObject<ScanInstructions>(jsonziedObject);
+        }
     }
 }

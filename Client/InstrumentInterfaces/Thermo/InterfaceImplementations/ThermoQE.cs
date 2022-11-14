@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommLibrary;
-using ClientServerCommunication;
 
 namespace InstrumentClient
 {

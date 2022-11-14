@@ -10,11 +10,11 @@ using WorkflowServer;
 
 namespace Tests
 {
-    public class DummyAppServerPipe
+    public class DummyAppServerPipe : IPipe
     {
         private IActivityCollection<IActivityContext> activityCollection;
         private SpectraActivityContext spectraActivityContext;
-        private ServiceProvider serviceProvider; 
+        private ServiceProvider serviceProvider;
         public NamedPipeServerStream PipeServer { get; set; }
 
         public DummyAppServerPipe(NamedPipeServerStream pipeServer)
@@ -32,7 +32,7 @@ namespace Tests
             DefaultActivityRunner<IActivityContext> runner = new(serviceProvider);
             while (true)
             {
-               await runner.RunAsync(activityCollection, spectraActivityContext);
+                await runner.RunAsync(activityCollection, spectraActivityContext);
             }
         }
 
@@ -42,6 +42,11 @@ namespace Tests
 
             //Workflow.ReceiveData(ssdo);
             Console.WriteLine("\n");
+        }
+
+        public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender)
+        {
+
         }
     }
 }
