@@ -27,7 +27,7 @@ namespace WorkflowServer
 
         public async Task StartServer(string[] startupContext)
         {
-
+            // if the startup context contains the number of required elements
             if (startupContext.Length == 2)
             {
                 ParseStartupContext(startupContext);
@@ -141,7 +141,9 @@ namespace WorkflowServer
         /// </summary>
         private void GenerateStartupContext()
         {
-            // TODO: Implement this with a class that can build the activity collection
+            activityCollection = WorkflowInjector.GetDDAActivityCollection();
+            activityCollection.ConnectPipe(this);
+            spectraActivityContext = WorkflowInjector.GetSpectraActivityContext();
         }
 
         public void StartReaderAsync()
