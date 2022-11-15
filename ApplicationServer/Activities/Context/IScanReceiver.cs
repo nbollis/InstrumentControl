@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace WorkflowServer
 {
-    internal class AddIsolatedMassesToExclusionListActivity
+    public interface IScanReceiver
     {
+        public int MsNOrder { get; set; }
     }
 }

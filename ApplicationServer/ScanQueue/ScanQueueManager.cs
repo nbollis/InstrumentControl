@@ -32,8 +32,13 @@ namespace WorkflowServer
             var nOrders = msNOrders as int[] ?? msNOrders.ToArray();
             for (var i = 0; i < nOrders.Count(); i++)
             {
-                ScanQueues.TryAdd(nOrders.ElementAt(i), new ScanQueue());
+                BuildQueue(nOrders[i]);
             }
+        }
+
+        public static void BuildQueue(int msnOrder)
+        {
+            ScanQueues.TryAdd(msnOrder, new ScanQueue());
         }
 
         /// <summary>

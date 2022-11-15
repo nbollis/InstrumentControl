@@ -4,19 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ClientServerCommLibrary;
+using Easy.Common.Extensions;
 
 
 namespace WorkflowServer
 {
-    public class AcceptScansActivity<TContext> : IActivity<TContext>
+    public class AcceptScansActivity<TContext> : IActivity<TContext>, IScanReceiver
         where TContext : IActivityContext
     {
-        private readonly int msNOrder;
+        public int MsNOrder { get; set; }
         private readonly int scansToDequeue;
 
         public AcceptScansActivity(int msNOrder, int scansToDequeue)
         {
-            this.msNOrder = msNOrder;
+            this.MsNOrder = msNOrder;
             this.scansToDequeue = scansToDequeue;
         }
 
@@ -46,7 +47,7 @@ namespace WorkflowServer
         private Task WaitForScans(SpectraActivityContext context)
         {
 
-            while (!ScanQueueManager.CheckQueue(msNOrder, scansToDequeue))
+            while (!ScanQueueManager.CheckQueue(MsNOrder, scansToDequeue))
             {
                 // 30kD scan on fusion lumos orbitrap scans at a rate of 15 Hz
                 // this translates to 66ms, hence the 25 ms timeout
@@ -55,11 +56,10 @@ namespace WorkflowServer
                 Thread.Sleep(25);
             }
 
-            ScanQueueManager.TryDequeueMany(msNOrder, scansToDequeue,
+            ScanQueueManager.TryDequeueMany(MsNOrder, scansToDequeue,
                 out IEnumerable<SingleScanDataObject> singleScanDataObjects);
 
-            context.DataToProcess.AddRange(singleScanDataObjects);
-
+            singleScanDataObjects.ForEach(p => context.DataToProcess.Enqueue(p));
             return Task.CompletedTask;
         }
     }

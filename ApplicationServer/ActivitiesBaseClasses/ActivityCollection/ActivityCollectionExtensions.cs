@@ -20,6 +20,12 @@ namespace WorkflowServer
                 {
                     ((IScanSender)activity).SendScan += pipe.SendDataThroughPipe;
                 }
+
+                if (activity is IScanReceiver)
+                {
+                    ScanQueueManager.BuildQueue(((IScanReceiver)activity).MsNOrder);
+                }
+
             }
             return collection;
         }

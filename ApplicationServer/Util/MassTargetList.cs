@@ -126,10 +126,10 @@ namespace WorkflowServer.Util
         }
 
         /// <summary>
-        /// Adds a value to the exclusion list
+        /// Adds a value to the exclusion or inclusion list
         /// </summary>
-        /// <param name="mz"></param>
-        /// <param name="currentTime"></param>
+        /// <param name="mz">mass of species</param>
+        /// <param name="currentTime">retention time of species</param>
         public void Add(double mz, double currentTime, MassTargetListTypes listType)
         {
             switch (listType)

@@ -39,7 +39,7 @@ namespace WorkflowServer
             return context;
         }
 
-        private static ScanInstructions GetBaseMS2Scan()
+        public static ScanInstructions GetBaseMS2Scan()
         {
             ScanInstructions instructions = new();
             instructions.FirstMass = 300;

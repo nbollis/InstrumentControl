@@ -31,8 +31,9 @@ namespace WorkflowServer
             SpectraActivityContext specContext = context as SpectraActivityContext ?? throw new ArgumentNullException(nameof(context));
             MassTargetList targetList = specContext.MassTargetList ?? throw new ArgumentNullException(nameof(context));
 
-            foreach (var singleScanDataObject in specContext.DataToProcess)
+            while (specContext.DataToProcess.Any())
             {
+                var singleScanDataObject = specContext.DataToProcess.Dequeue();
                 List<double> targets = new();
                 // identify targets based on use of inclusion and exclusion lists
                 if (useInclusionList)
@@ -83,6 +84,10 @@ namespace WorkflowServer
                 foreach (var target in targets)
                 {
                     specContext.MassesToTarget.Enqueue(new double[] { target });
+                    if (useExclusionList)
+                    {
+                        specContext.MassTargetList.Add(target, singleScanDataObject.RetentionTime, MassTargetList.MassTargetListTypes.Exclusion);
+                    }
                 }
             }
 

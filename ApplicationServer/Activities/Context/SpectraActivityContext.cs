@@ -14,9 +14,8 @@ namespace WorkflowServer
     /// </summary>
     public class SpectraActivityContext : ActivityContext
     {
-        public ScanInstructions ScanInstructions { get; set; }
         public SingleScanDataObject FirstSingleScanDataObject => DataToProcess.First();
-        public List<SingleScanDataObject> DataToProcess { get; set; }
+        public Queue<SingleScanDataObject> DataToProcess { get; set; }
 
         /// <summary>
         /// Contains both inclusion and exclusion lists
@@ -31,13 +30,13 @@ namespace WorkflowServer
         /// </summary>
         public Queue<double[]> MassesToTarget { get; set; }
 
-        //TODO: Change constructor to take the IActivityCollection<IActivityContext> as the only input parameter
-        //TODO: Make this obsolete
+
+        //TODO: Remove all references
+        [Obsolete]
         public SpectraActivityContext(SingleScanDataObject ssdo, MassTargetList massTargetList)
         {
             DataToProcess = new();
-            DataToProcess.Add(ssdo);
-            ScanInstructions = ssdo.ScanInstructions;
+            DataToProcess.Enqueue(ssdo);
             MassTargetList = massTargetList;
             MassesToTarget = new();
         }
@@ -45,7 +44,6 @@ namespace WorkflowServer
         public SpectraActivityContext()
         {
             DataToProcess = new();
-            ScanInstructions = new();
             MassTargetList = new();
             MassesToTarget = new();
         }
