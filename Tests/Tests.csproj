@@ -21,4 +21,8 @@
     <ProjectReference Include="..\ApplicationServer\WorkflowServer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="TestData\" />
+  </ItemGroup>
+
 </Project>
