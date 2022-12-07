@@ -1,6 +1,5 @@
 ﻿using System.IO.Pipes;
 using ClientServerCommLibrary;
-using ClientServerCommunication;
 using Newtonsoft;
 using Newtonsoft.Json;
 

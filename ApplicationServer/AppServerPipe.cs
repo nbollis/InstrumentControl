@@ -1,16 +1,17 @@
 ﻿using System;
-using System.IO.Pipes; 
-using System.Text; 
-using Newtonsoft.Json; 
+using System.IO.Pipes;
+using System.Text;
+using Newtonsoft.Json;
 using ClientServerCommLibrary;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace WorkflowServer
 {
-    public class AppServerPipe
+    public class AppServerPipe : IPipe
     {
         public event EventHandler<EventArgs> PipeConnected;
         public event EventHandler<PipeEventArgs> PipeDataReceived;
+
         public NamedPipeServerStream PipeServer { get; set; }
 
         private IActivityCollection<IActivityContext> activityCollection;
@@ -26,7 +27,16 @@ namespace WorkflowServer
 
         public async Task StartServer(string[] startupContext)
         {
-            ParseStartupContext(startupContext);
+            // if the startup context contains the number of required elements
+            if (startupContext.Length == 2)
+            {
+                ParseStartupContext(startupContext);
+            }
+            else
+            {
+                GenerateStartupContext();
+            }
+
             PipeConnected += (obj, sender) =>
             {
                 Console.WriteLine("Pipe client connected. Sent from event.");
@@ -52,7 +62,7 @@ namespace WorkflowServer
         /// <param name="sender"></param>
         public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender)
         {
-            string temp = JsonConvert.SerializeObject(sender.ssdo);
+            string temp = JsonConvert.SerializeObject(sender.ScanInstructions);
             byte[] buffer = Encoding.UTF8.GetBytes(temp);
             byte[] length = BitConverter.GetBytes(buffer.Length);
             byte[] finalBuffer = length.Concat(buffer).ToArray();
@@ -66,13 +76,13 @@ namespace WorkflowServer
         /// <param name="obj"></param>
         /// <param name="eventArgs"></param>
         /// <exception cref="ArgumentException"></exception>
-        private void HandleDataReceived(object? obj, PipeEventArgs eventArgs)
+        public void HandleDataReceived(object? obj, PipeEventArgs eventArgs)
         {
             // convert PipeEventArgs to single scan data object
             SingleScanDataObject ssdo = eventArgs.ToSingleScanDataObject();
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
-            spectraActivityContext.ScanQueueManager.EnqueueScan(ssdo);
+            ScanQueueManager.EnqueueScan(ssdo);
 
             //Workflow.ReceiveData(ssdo);
             Console.WriteLine("\n");
@@ -118,9 +128,22 @@ namespace WorkflowServer
         {
             activityCollection = JsonConvert.DeserializeObject<IActivityCollection<IActivityContext>>(context[0]) ??
                                  throw new ArgumentException("Activity Collection not properly deserialized");
+            activityCollection.ConnectPipe(this);
+
+
             spectraActivityContext = JsonConvert.DeserializeObject<SpectraActivityContext>(context[1]) ??
                                      throw new ArgumentException(
                                          "Spectra Activity Context not properly deserialized");
+        }
+
+        /// <summary>
+        /// Generates startup context if no parameters are passed in
+        /// </summary>
+        private void GenerateStartupContext()
+        {
+            activityCollection = WorkflowInjector.GetDDAActivityCollection();
+            activityCollection.ConnectPipe(this);
+            spectraActivityContext = WorkflowInjector.GetSpectraActivityContext();
         }
 
         public void StartReaderAsync()
@@ -128,5 +151,10 @@ namespace WorkflowServer
             StartByteReaderAsync((b) =>
                 PipeDataReceived?.Invoke(this, new PipeEventArgs(b)));
         }
+    }
+
+    public interface IPipe
+    {
+        public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender);
     }
 }

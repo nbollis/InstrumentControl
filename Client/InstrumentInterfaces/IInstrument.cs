@@ -1,5 +1,4 @@
-﻿using ClientServerCommunication;
-using System;
+﻿using System;
 using ClientServerCommLibrary;
 using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -34,7 +35,8 @@ namespace ClientServerCommLibrary
             double[] xArray,
             double[] yArray,
             int? precursorScanNumber = null,
-            double? mzPrecursor = null)
+            double? mzPrecursor = null,
+            double retentionTime = 0)
         {
             MsNOrder = msNOrder;
             ScanNumber = scanNumber;
@@ -42,6 +44,7 @@ namespace ClientServerCommLibrary
             YArray = yArray;
             PrecursorScanNumber = precursorScanNumber;
             MzPrecursor = mzPrecursor;
+            RetentionTime = retentionTime;
         }
 
         public IEnumerable<(double mass, double intensity)> FilterByNumberOfMostIntense(int topNPeaks)
@@ -58,6 +61,25 @@ namespace ClientServerCommLibrary
                     yield return (XArray[i], YArray[i]);
                 }
             }
+        }
+
+        public override bool Equals(object x)
+        {
+            var scanDataObject = x as SingleScanDataObject;
+            if (scanDataObject == null ) return false;
+            if (!scanDataObject.XArray.SequenceEqual(XArray)) return false;
+            if (!scanDataObject.YArray.SequenceEqual(YArray)) return false;
+            if (scanDataObject.MsNOrder != MsNOrder) return false;
+            if (scanDataObject.ScanNumber != ScanNumber) return false;   
+            if (Math.Abs(scanDataObject.RetentionTime - RetentionTime) > 0.001) return false;
+            if (scanDataObject.PrecursorScanNumber != PrecursorScanNumber) return false;
+            if (scanDataObject.MzPrecursor != MzPrecursor) return false;
+            return true;
+        }
+
+        public int GetHashCode(object obj)
+        {
+            throw new NotImplementedException();
         }
     }
 }
