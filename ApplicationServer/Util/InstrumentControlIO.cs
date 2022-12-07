@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -96,11 +97,11 @@ namespace WorkflowServer
         }
 
         /// <summary>
-        /// Return an IRnumerable list of all deserialized file
+        /// Return an IEnumerable list of all deserialized file
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="folder">The folder to check</param>
-        /// <returns>IRnumerable list of all deserialized file</returns>
+        /// <returns>IEnumerable list of all deserialized file</returns>
         public static IEnumerable<T> LoadAllOfTypeT<T>(Type folder)
         {
             if (CheckforTypeFolder(folder)){
@@ -123,7 +124,6 @@ namespace WorkflowServer
             string[] folders = Directory.GetDirectories(pathToCheck);
             foreach(string folder in folders)
             {
-                //var temp = folder.Split(@"\");
                 string folderName = folder.Split(@"\").Last();
                 var type = Type.GetType(folderName);
                 if (type == null)
@@ -131,14 +131,8 @@ namespace WorkflowServer
                     var list = folderName.Split(@".").Take(folderName.Split('.').Length - 1);
                     string s = string.Join(".", list);
                     type = Type.GetType(folderName + "," + s);
-                    //dictionary.Add(Type.GetType(folderName+","+s), LoadAllOfTypeT<object>(Type.GetType(folderName + "," + s)).ToList());
                 }
-                
-                
-                    //var temp = Type.GetType("MassSpectrometry.MzSpectrum,MassSpectrometry");
                     dictionary.Add((type), LoadAllOfTypeT<object>(type).ToList());
-                
-                //LoadAllOfTypeT<object>(Type.GetType(folderName)).ToList();
             }
             return dictionary;
         }
@@ -175,8 +169,10 @@ namespace WorkflowServer
         }
     }
 }
+
 namespace WorkflowServer.Test.Testing
 {
+    [ExcludeFromCodeCoverage]
     public class Dummy
     {
         public int intTest = 2;

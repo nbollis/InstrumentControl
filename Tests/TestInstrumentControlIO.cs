@@ -41,7 +41,6 @@ namespace Tests
         {
             double[] testArray2 = new double[] { 0, 1, 2, 3, 4, 5, 6, 7 };
             string filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, @"TestData\something.txt");
-            //Assert.That(!File.Exists(filePath), Is.True);
             InstrumentControlIO.Serialize(filePath, testArray2);
             Assert.That(File.Exists(filePath), Is.True);
 
@@ -87,7 +86,6 @@ namespace Tests
             Type doubleType = testArray2.GetType();
             string nameToTest = "testArray2";
             string filePath = InstrumentControlIO.GetFilePath(doubleType, nameToTest);
-            //bool b = InstrumentControlIO.CheckforTypeFolder(doubleType);
             InstrumentControlIO.Save("nameNotExisted", testArray2);
             string directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DataFiles");
             Assert.That(Directory.Exists(directoryPath), Is.True);
