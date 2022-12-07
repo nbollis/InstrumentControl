@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="TestData\" />
     <None Update="TestData\TDYeastFractionMS1.mzML">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
