@@ -12,7 +12,7 @@ namespace InstrumentClient
         // send action (Ms1 scan, SIM scan, boxcar scan, etc.) to instrument
         // open instrument connection
         // close instrument connection
-        
+        // This is basically a mediator or adaptor design pattern
         /// <summary>
         /// Used for explicitly gaining access to the last received instrument scan without requiring an event. 
         /// </summary>
@@ -32,6 +32,8 @@ namespace InstrumentClient
         void InstrumentOff();
         void InstrumentStandby();
         void GetScanPossibleParameters();
+
+        // TODO: Add retention time tracker
 
         event EventHandler InstrumentConnected;
         event EventHandler InstrumentDisconnected;

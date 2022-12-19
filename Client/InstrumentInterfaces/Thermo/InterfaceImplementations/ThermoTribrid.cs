@@ -14,6 +14,7 @@ using Thermo.TNG.Factory;
 using System.Linq;
 using System.Text;
 using Client;
+using Thermo.Interfaces.InstrumentAccess_V1;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Modes;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Workflow;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
@@ -69,15 +70,6 @@ namespace InstrumentClient
             //}
         }
 
-        private IDictionary<string, string> SsdoToDictionary(SingleScanDataObject ssdo)
-        {
-            Dictionary<string, string> valuesDict = new Dictionary<string, string>();
-            
-            // create an ssdo property to Thermo instrument value name. 
-            
-            
-            return valuesDict;
-        }
         private IRepeatingScan CreateRepeatingScan(SingleScanDataObject ssdo)
         {
             IRepeatingScan rscan = MScan.CreateRepeatingScan();
@@ -152,43 +144,85 @@ namespace InstrumentClient
             MsScanContainer = InstAccess.GetMsScanContainer(0);
             MScan = InstControl.GetScans(false); 
 
-            InstAccessContainer.ServiceConnectionChanged += (o, s) => { };
-            InstAccessContainer.MessagesArrived += (o, s) => { };
-            InstAcq.AcquisitionStreamClosing += (o, s) => { };
-            InstAcq.AcquisitionStreamOpening += (o, s) => { };
-            InstAcq.StateChanged += (o, s) =>
-            {
-                EventHandler<StateChangedEventArgs> handler = SystemStateChanged;
-                if (handler != null)
-                {
-                    handler(this, s); 
-                }
-            };
+            InstAccessContainer.ServiceConnectionChanged += OnServiceConnectionChanged;
+            InstAccessContainer.MessagesArrived += OnMessagesArrived;
+            InstAcq.AcquisitionStreamClosing += OnAcquisitionStreamClosing;
+            InstAcq.AcquisitionStreamOpening += OnAcquisitionStreamOpening; 
+            InstAcq.StateChanged += OnStateChanged; 
 
-            MsScanContainer.MsScanArrived += (o, s) =>
-            {
-                // convert to single scan data object and raise this.ScanReceived
-                //
-                var ssdo = s.GetScan().ConvertToSingleScanDataObject();
-                EventHandler<ScanReceivedEventArgs> handler = ScanReceived;
-                if (handler != null)
-                {
-                    handler(this, new ScanReceivedEventArgs(ssdo)); 
-                }
-            };
-
-            MScan.CanAcceptNextCustomScan += (o, s) =>
-            {
-                EventHandler handler = InstrumentReadyToReceiveScan;
-                if (handler != null)
-                {
-                    handler(this, EventArgs.Empty); 
-                }
-            };
+            MsScanContainer.MsScanArrived += OnMsScanArrived; 
         }
+
+        /// <summary>
+        /// ServiceConnection refers to the connection between the instrument and the API. Will be thrown when online access begins. 
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="eventArgs"></param>
+        private void OnServiceConnectionChanged(object obj, EventArgs eventArgs)
+        {
+            // 
+
+        }
+
+        private void OnMessagesArrived(object obj, MessagesArrivedEventArgs maEventArgs)
+        {
+
+        }
+
+        private void OnAcquisitionStreamClosing(object obj, EventArgs eventArgs)
+        {
+            
+        }
+
+        private void OnAcquisitionStreamOpening(object obj, AcquisitionOpeningEventArgs eventArgs)
+        {
+
+        }
+
+        private void OnStateChanged(object obj, StateChangedEventArgs scEventArgs)
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(scEventArgs.State.SystemMode.ToString());
+            sb.AppendLine(scEventArgs.State.SystemState.ToString());
+            
+            EventHandler<InstrumentStateChangedEventArgs> handler = SystemStateChanged;
+            if (handler != null)
+            {
+                handler(this, new InstrumentStateChangedEventArgs(sb.ToString()));
+            }
+        }
+
+        private void OnMsScanArrived(object obj, MsScanEventArgs msScanEventArgs)
+        {
+            // convert to single scan data object and raise this.ScanReceived
+            //
+            var ssdo = msScanEventArgs.GetScan().ConvertToSingleScanDataObject();
+            EventHandler<ScanReceivedEventArgs> handler = ScanReceived;
+            if (handler != null)
+            {
+                handler(this, new ScanReceivedEventArgs(ssdo));
+            }
+        }
+
+        private void OnCanAcceptNextCustomScan(object obj, EventArgs eventArgs)
+        {
+            EventHandler handler = InstrumentReadyToReceiveScan;
+            if (handler != null)
+            {
+                handler(this, EventArgs.Empty);
+            }
+        }
+
         #endregion
         #region
 
+        /// <summary>
+        /// The Thermo API has two similar things: instrument state and instrument mode. The instrument Mode decribes the state of the instrument, i.e.
+        /// On, Off, Standby, while the Instrument State refers to data acquisition. 
+        /// </summary>
+        /// <param name="stateOrMode"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public string GetSystemState(int stateOrMode)
         {
             if (stateOrMode > 2 || stateOrMode < 0)
@@ -314,8 +348,18 @@ namespace InstrumentClient
         public event EventHandler InstrumentReadyToReceiveScan;
         // TODO: Change from StateChangedEventArgs to a Custom Class that doesn't use a 
         // thermo-based class. 
-        public event EventHandler<StateChangedEventArgs> SystemStateChanged; 
+        public event EventHandler<InstrumentStateChangedEventArgs> SystemStateChanged; 
 
+    }
+
+    public class InstrumentStateChangedEventArgs : EventArgs
+    {
+        public string Message { get; set; }
+
+        public InstrumentStateChangedEventArgs(string stateAndModeMessage)
+        {
+            Message = stateAndModeMessage;
+        }
     }
 
     public class ScanReceivedEventArgs : EventArgs
@@ -327,6 +371,7 @@ namespace InstrumentClient
         }
     }
 
+    
     public enum ConnectionState
     {
         Connected = 1,

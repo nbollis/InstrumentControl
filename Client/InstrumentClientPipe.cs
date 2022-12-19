@@ -8,7 +8,7 @@ using System.IO.Pipes;
 using System.Runtime.Remoting.Channels;
 using Microsoft.Win32;
 
-
+// TODO: Make abstract class for 
 
 namespace InstrumentClient
 {
@@ -79,8 +79,16 @@ namespace InstrumentClient
         private void StartByteReaderAsync(Action<byte[]> packetReceived)
         {
             byte[] byteDataLength = new byte[sizeof(int)];
-
+            // byte[] objectType = new byte[sizeof(short)]; 
+            // flag 0x0 = ScanInstruction
+            // flag 0x1 = SSDO
+            // flag 0x2 = StartupInfo
+            
             PipeClient.ReadAsync(byteDataLength, 0, sizeof(int))
+                .ContinueWith(s =>
+                {
+                    // TODO: Add object flag type 
+                })
                 .ContinueWith(t =>
                 {
                     int len = t.Result;
