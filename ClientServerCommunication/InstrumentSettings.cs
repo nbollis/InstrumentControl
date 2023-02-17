@@ -93,4 +93,9 @@ namespace ClientServerCommLibrary
         Postive,
         Negative
     }
+    public enum CustomOrRepeatingScan
+    {
+        Custom, 
+        Repeating
+    }
 }

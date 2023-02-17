@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ClientServerCommLibrary; 
 
 namespace InstrumentClient
 {
@@ -13,6 +14,18 @@ namespace InstrumentClient
     {
         public static void Main(string[] args)
         {
+
+            // dummy ssdo for testing 
+            SingleScanDataObject ssdoTest = new SingleScanDataObject()
+            {
+                ScanInstructions = new ScanInstructions()
+                {
+                    FirstMass = 151, 
+                    LastMass = 690
+                }
+            }; 
+
+
             NamedPipeClientStream pipeClient =
                 new NamedPipeClientStream(".", "test",
                     PipeDirection.InOut,
@@ -37,8 +50,22 @@ namespace InstrumentClient
 
             try
             {
-                clientPipe.ConnectClientToServer(); 
+                // the general architectural guideline is that if the instrument throws an 
+                // event, then the client needs to respond to it. This adds a layer of abstraction between the instrument and
+                // this client that ensures we can extend it to other instruments in the future.
+                //
+                // It is the responsibility of the person implementing the instrument to client interface to only expose
+                // the absolutely necessary information to this instrument client. The instrument client should only provide the absolutely necessary information to the 
+                // application server. This prevents bloat and future issues. 
+
+                //clientPipe.ConnectClientToServer(); 
                 clientPipe.BeginInstrumentConnection(instrumentApi);
+                instrumentApi.OpenInstrumentConnection();
+                instrumentApi.ScanReceived += (obj, sender) =>
+                {
+                    clientPipe.ScanInstructionsQueue.Enqueue(sender.Ssdo); 
+                };
+                instrumentApi.SendScanAction(ssdoTest);
             }
             catch (Exception e)
             {
@@ -88,5 +115,13 @@ namespace InstrumentClient
         //// TODO: Write method to query what type of instrument is attached. 
 
 
+    }
+    public class MsScanArrivedEventArgs : EventArgs
+    {
+        public SingleScanDataObject Ssdo { get; set; }
+        public MsScanArrivedEventArgs(SingleScanDataObject ssdo)
+        {
+            Ssdo = ssdo;
+        }
     }
 }

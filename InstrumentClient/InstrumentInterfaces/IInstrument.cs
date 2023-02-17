@@ -1,6 +1,5 @@
 ﻿using System;
 using ClientServerCommLibrary;
-using Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer;
 
 namespace InstrumentClient
 {
@@ -30,7 +29,7 @@ namespace InstrumentClient
 
         event EventHandler InstrumentConnected;
         event EventHandler InstrumentDisconnected;
-        event EventHandler<EventArgs> ScanReceived;
-        event EventHandler ReadyToReceiveScan; 
+        event EventHandler<MsScanArrivedEventArgs> ScanReceived;
+        event EventHandler ReadyToReceiveScanInstructions; 
     }
 }

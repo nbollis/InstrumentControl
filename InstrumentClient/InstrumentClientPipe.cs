@@ -59,6 +59,7 @@ namespace InstrumentClient
             if (handler != null)
             {
                 handler.Invoke(this, EventArgs.Empty);
+                Console.WriteLine("Instrument client connected to workflow server."); 
             }
         }
         /// <summary>
@@ -71,6 +72,11 @@ namespace InstrumentClient
             Console.WriteLine("Client: Handling data received...");
             // convert the PipeEventArgs to a SingleScanDataObject
             var ssdo = eventArgs.ToSingleScanDataObject();
+            if(ssdo == null)
+            {
+                return; 
+            }
+
             ScanInstructionsQueue.Enqueue(ssdo);
         }
 
@@ -105,10 +111,11 @@ namespace InstrumentClient
             instr.OpenInstrumentConnection();
             instr.InstrumentConnected += (obj, sender) => { InstrumentConnectedBool = true; };
             instr.InstrumentDisconnected += (obj, sender) => { InstrumentConnectedBool = false; };
-            instr.ReadyToReceiveScan += (obj, sender) => { instrReadyToReceiveScan = true; };
+           
             instr.ScanReceived += (obj, sender) =>
             {
                 // send scan to the server. 
+
             };
             
             ScanQueueThresholdReached += (obj, sender) =>
