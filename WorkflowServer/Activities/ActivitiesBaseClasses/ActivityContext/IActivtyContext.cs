@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InstrumentClient
+namespace WorkflowServer.Activities
 {
-    public enum InstrumentType
+    public interface IActivityContext
     {
-        ThermoQE,
-        ThermoFusionLumos,
+        bool Cancel { get; set; }
     }
 }

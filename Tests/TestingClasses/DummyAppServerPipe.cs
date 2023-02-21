@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using ClientServerCommLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using WorkflowServer;
+using WorkflowServer.Activities;
 
 namespace Tests
 {

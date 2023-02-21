@@ -12,6 +12,7 @@ using MassSpectrometry;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using WorkflowServer;
+using WorkflowServer.Activities;
 
 namespace Tests
 {
@@ -89,7 +90,6 @@ namespace Tests
             {
                 pipe.HandleDataReceived(new SingleScanDataObject(scan.MsnOrder, scan.OneBasedScanNumber, scan.MassSpectrum.XArray, scan.MassSpectrum.YArray, scan.OneBasedPrecursorScanNumber, null, scan.RetentionTime));
             }
-
         }
 
         [Test]

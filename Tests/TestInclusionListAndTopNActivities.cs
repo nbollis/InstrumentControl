@@ -10,6 +10,7 @@ using ClientServerCommLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using MzLibUtil;
 using WorkflowServer;
+using WorkflowServer.Activities;
 using WorkflowServer.Util;
 
 namespace Tests

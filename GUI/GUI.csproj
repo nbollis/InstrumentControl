@@ -23,10 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ApplicationServer\WorkflowServer.csproj" />
     <ProjectReference Include="..\ClientServerCommunication\ClientServerCommLibrary.csproj" />
     <ProjectReference Include="..\Client\InstrumentClient.csproj" />
+    <ProjectReference Include="..\InstrumentClient\InstrumentClient.csproj" />
     <ProjectReference Include="..\ProcessStarter\ProcessStarter.csproj" />
+    <ProjectReference Include="..\WorkflowServer\WorkflowServer.csproj" />
   </ItemGroup>
 
 </Project>
