@@ -20,9 +20,10 @@ namespace InstrumentClient
         // Public properties
         public NamedPipeClientStream PipeClient { get; set; }
         public Queue<SingleScanDataObject> ScanInstructionsQueue { get; set; }
+        public Queue<SingleScanDataObject> InstrumentScanQueue { get; set; }
         public int ScanQueueThreshold { get; set; }
         // Private properties
-        private bool InstrumentConnectedBool { get; set; }
+        public bool InstrumentConnectedBool { get; set; }
         // Constructors
         public ClientPipe(NamedPipeClientStream pipeClient,
             int ms1ScanQueueThreshold = 0,
@@ -31,6 +32,25 @@ namespace InstrumentClient
             ProcessMs2ScansDelegate ms2Delegate = null)
         {
             PipeClient = pipeClient;
+            ScanInstructionsQueue = new Queue<SingleScanDataObject>();
+            InstrumentScanQueue = new Queue<SingleScanDataObject>();
+        }
+        /// <summary>
+        /// Wrapper around enqueue method that also check to see if the scan 
+        /// added to the queue ends up triggering the ScanQueueThresholdReached event. 
+        /// </summary>
+        public void EnqueueInstrumentScan(SingleScanDataObject ssdo)
+        {
+            InstrumentScanQueue.Enqueue(ssdo); 
+            if(InstrumentScanQueue.Count >= ScanQueueThreshold)
+            {
+                var ssdoList = InstrumentScanQueue.DequeueChunk(chunkSize: ScanQueueThreshold); 
+                var handler = ScanQueueThresholdReached;
+                if(handler != null)
+                {
+                    handler.Invoke(this, new ScanQueueThresholdReachedEventArgs(ssdoList));
+                }
+            }
         }
 
         #region Client To Server Methods
@@ -59,6 +79,7 @@ namespace InstrumentClient
             if (handler != null)
             {
                 handler.Invoke(this, EventArgs.Empty);
+                Console.WriteLine("Instrument client connected to workflow server."); 
             }
         }
         /// <summary>
@@ -71,6 +92,11 @@ namespace InstrumentClient
             Console.WriteLine("Client: Handling data received...");
             // convert the PipeEventArgs to a SingleScanDataObject
             var ssdo = eventArgs.ToSingleScanDataObject();
+            if(ssdo == null)
+            {
+                return; 
+            }
+
             ScanInstructionsQueue.Enqueue(ssdo);
         }
 
@@ -105,22 +131,7 @@ namespace InstrumentClient
             instr.OpenInstrumentConnection();
             instr.InstrumentConnected += (obj, sender) => { InstrumentConnectedBool = true; };
             instr.InstrumentDisconnected += (obj, sender) => { InstrumentConnectedBool = false; };
-            instr.ReadyToReceiveScan += (obj, sender) => { instrReadyToReceiveScan = true; };
-            instr.ScanReceived += (obj, sender) =>
-            {
-                // send scan to the server. 
-            };
-            
-            ScanQueueThresholdReached += (obj, sender) =>
-            {
-                // send the scan to the instrument
-            };
 
-            // enter instrument main routine: 
-            while (InstrumentConnectedBool)
-            {
-
-            }
         }
         #endregion
     }

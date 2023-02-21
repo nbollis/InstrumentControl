@@ -74,7 +74,7 @@ namespace ClientServerCommLibrary
         Centroid,
         Profile
     }
-    public enum IsolationType
+    public enum IsolationMode
     {
         None,
         Quadrupole,
@@ -92,5 +92,10 @@ namespace ClientServerCommLibrary
     {
         Postive,
         Negative
+    }
+    public enum CustomOrRepeatingScan
+    {
+        Custom, 
+        Repeating
     }
 }

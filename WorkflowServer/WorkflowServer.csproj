@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClientServerCommunication\ClientServerCommLibrary.csproj" />
+    <ProjectReference Include="..\InstrumentClient\InstrumentClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -15,6 +15,20 @@ namespace InstrumentClient
         public event EventHandler InstrumentDisconnected;
         public event EventHandler<EventArgs> ScanReceived;
         public event EventHandler ReadyToReceiveScan;
+        public event EventHandler ReadyToReceiveScanInstructions;
+
+        event EventHandler<MsScanArrivedEventArgs> IInstrument.ScanReceived
+        {
+            add
+            {
+                throw new NotImplementedException();
+            }
+
+            remove
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         public void OpenInstrumentConnection()
         {
@@ -97,6 +111,11 @@ namespace InstrumentClient
         }
 
         public void InstrumentStandby()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MainLoop()
         {
             throw new NotImplementedException();
         }
