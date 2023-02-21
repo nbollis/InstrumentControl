@@ -27,8 +27,6 @@ namespace InstrumentClient
         public bool InstrumentConnectedBool { get; set; }
         // Constructors
         public ClientPipe(NamedPipeClientStream pipeClient,
-            int ms1ScanQueueThreshold = 0,
-            int ms2ScanQueueThreshold = 0,
             ProcessMs1ScansDelegate ms1Delegate = null,
             ProcessMs2ScansDelegate ms2Delegate = null)
         {
@@ -98,6 +96,7 @@ namespace InstrumentClient
             }
 
             ScanInstructionsQueue.Enqueue(ssdo);
+            Console.WriteLine("Client: Instructions received from server");
         }
 
         private void StartByteReaderAsync(Action<byte[]> packetReceived)

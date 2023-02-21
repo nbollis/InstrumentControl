@@ -75,7 +75,9 @@ namespace WorkflowServer
             byte[] finalBuffer = length.Concat(buffer).ToArray();
             PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
             PipeServer.WaitForPipeDrain();
+            Console.WriteLine("Server: Sent instruciton to client");
         }
+
 
         /// <summary>
         /// Receives data from the client
@@ -90,7 +92,43 @@ namespace WorkflowServer
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
             ScanQueueManager.EnqueueScan(ssdo);
-            Console.WriteLine("Server received data.");
+            Console.WriteLine("Server: Received scan from client.");
+        }
+
+
+        /// <summary>
+        /// Takes the args from the program and parses them into the proper fields
+        /// </summary>
+        /// <param name="context">args passed from god to server</param>
+        /// <exception cref="ArgumentException">Thrown if deserialization results in null values</exception>
+        private void ParseStartupContext(string[] context)
+        {
+            activityCollection = JsonConvert.DeserializeObject<IActivityCollection<IActivityContext>>(context[0]) ??
+                                 throw new ArgumentException("Activity Collection not properly deserialized");
+            activityCollection.ConnectPipe(this);
+
+            spectraActivityContext = JsonConvert.DeserializeObject<SpectraActivityContext>(context[1]) ??
+                                     throw new ArgumentException(
+                                         "Spectra Activity Context not properly deserialized");
+        }
+
+        /// <summary>
+        /// Generates startup context if no parameters are passed in
+        /// </summary>
+        private void GenerateStartupContext()
+        {
+            activityCollection = WorkflowInjector.GetDdaActivityCollection();
+            activityCollection.ConnectPipe(this);
+            spectraActivityContext = WorkflowInjector.GetSpectraActivityContext();
+        }
+
+
+
+        #region private pipe methods
+        public void StartReaderAsync()
+        {
+            StartByteReaderAsync((b) =>
+                PipeDataReceived?.Invoke(this, new PipeEventArgs(b)));
         }
 
         private void Connected(IAsyncResult ar)
@@ -124,37 +162,7 @@ namespace WorkflowServer
                 });
         }
 
-        /// <summary>
-        /// Takes the args from the program and parses them into the proper fields
-        /// </summary>
-        /// <param name="context">args passed from god to server</param>
-        /// <exception cref="ArgumentException">Thrown if deserialization results in null values</exception>
-        private void ParseStartupContext(string[] context)
-        {
-            activityCollection = JsonConvert.DeserializeObject<IActivityCollection<IActivityContext>>(context[0]) ??
-                                 throw new ArgumentException("Activity Collection not properly deserialized");
-            activityCollection.ConnectPipe(this);
-
-            spectraActivityContext = JsonConvert.DeserializeObject<SpectraActivityContext>(context[1]) ??
-                                     throw new ArgumentException(
-                                         "Spectra Activity Context not properly deserialized");
-        }
-
-        /// <summary>
-        /// Generates startup context if no parameters are passed in
-        /// </summary>
-        private void GenerateStartupContext()
-        {
-            activityCollection = WorkflowInjector.GetDdaActivityCollection();
-            activityCollection.ConnectPipe(this);
-            spectraActivityContext = WorkflowInjector.GetSpectraActivityContext();
-        }
-
-        public void StartReaderAsync()
-        {
-            StartByteReaderAsync((b) =>
-                PipeDataReceived?.Invoke(this, new PipeEventArgs(b)));
-        }
+        #endregion
     }
 
     public interface IPipe

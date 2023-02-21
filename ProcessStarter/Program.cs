@@ -15,7 +15,7 @@ namespace ProcessStarter
 
             string path = AppDomain.CurrentDomain.BaseDirectory.Split("ProcessStarter")[0];
             ProcessStartInfo serverProcessStartInfo = new(
-                Path.Combine(path, @"ApplicationServer\bin\debug\net6.0\WorkflowServer.exe"))
+                Path.Combine(path, @"WorkflowServer\bin\debug\net6.0\WorkflowServer.exe"))
             {
                 Arguments = serverCommands
             };

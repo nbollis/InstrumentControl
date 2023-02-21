@@ -14,28 +14,27 @@ namespace InstrumentClient
     {
         public static void Main(string[] args)
         {
+            NamedPipeClientStream pipeClient;
+            string instrumentType;
 
-            // dummy ssdo for testing 
-            SingleScanDataObject ssdoTest = new SingleScanDataObject()
+            if (args.Length > 1)
             {
-                ScanInstructions = new ScanInstructions()
-                {
-                    CustomOrRepeating = CustomOrRepeatingScan.Custom, 
-                    FirstMass = 151, 
-                    LastMass = 690, 
-                    OrbitrapResolution = OrbitrapResolution.X_30000
-                }
-            }; 
-
-
-            NamedPipeClientStream pipeClient =
+                pipeClient =
+                new NamedPipeClientStream(args[0], args[1],
+                    PipeDirection.InOut,
+                    PipeOptions.Asynchronous);
+                instrumentType = args[2];
+            }
+            else
+            {
+                pipeClient =
                 new NamedPipeClientStream(".", "test",
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous);
+                instrumentType = args[0];
+            }
 
             ClientPipe clientPipe = new ClientPipe(pipeClient);
-
-            string instrumentType = args[0];
             IInstrumentFactory factory = null;
 
             switch (instrumentType)
@@ -71,7 +70,7 @@ namespace InstrumentClient
 
                 instrumentApi.ScanReceived += (obj, sender) =>
                 {
-                    Console.WriteLine("Scan received"); 
+                    Console.WriteLine("Client: Scan received from instrument"); 
                     clientPipe.EnqueueInstrumentScan(sender.Ssdo);
                 };
                 instrumentApi.ReadyToReceiveScanInstructions += (obj, sender) =>
@@ -85,14 +84,14 @@ namespace InstrumentClient
                     {
                         readyToReceiveScan = false;
                         instrumentApi.SendScanAction(clientPipe.ScanInstructionsQueue.Dequeue());
+                        Console.WriteLine("Client: Instructions sent to instrument");
                     }
 
                     var listSsdo = sender.ListSsdo.ToList(); 
                     foreach(var list in listSsdo)
                     {
-                        Console.WriteLine("Begin send scans"); 
                         clientPipe.SendDataThroughPipe(list);
-                        Console.WriteLine("Scan sent"); 
+                        Console.WriteLine("Client: Scan sent to server"); 
                     }
                 };
                 while (true)
