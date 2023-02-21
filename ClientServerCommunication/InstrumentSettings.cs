@@ -74,7 +74,7 @@ namespace ClientServerCommLibrary
         Centroid,
         Profile
     }
-    public enum IsolationType
+    public enum IsolationMode
     {
         None,
         Quadrupole,

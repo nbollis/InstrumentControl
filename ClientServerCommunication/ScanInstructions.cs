@@ -19,7 +19,7 @@ namespace ClientServerCommLibrary
         public double? SrcRFLens { get; set; }
         public Polarity? Polarity { get; set; }
         public DataType? DataType { get; set; }
-        public IsolationType? IsolationType { get; set; }
+        public IsolationMode? IsolationMode { get; set; }
         public double? AGCTarget { get; set; }
         public double? MaxIT { get; set; }
         public int? Microscans { get; set; }
@@ -77,6 +77,16 @@ namespace ClientServerCommLibrary
                 object temp = properties.First(i => i.Name.Equals(key, StringComparison.InvariantCultureIgnoreCase)).GetValue(this); 
                 if(temp != null)
                 {
+                    if (key == "OrbitrapResolution")
+                    {
+                        temp = (int)temp; 
+                    }
+                    // skip CustomOrRepeatingScan property
+                    if(key == "CustomOrRepeatingScan")
+                    {
+                        continue; 
+                    }
+
                     thermoDict.Add(key, temp.ToString()); 
                 }
             }

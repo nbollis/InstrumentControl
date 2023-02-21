@@ -25,8 +25,8 @@ namespace InstrumentClient
             string outputFileName, string sampleName, double timeInMinutes);
         void InstrumentOn();
         void InstrumentOff();
-        void InstrumentStandby(); 
-
+        void InstrumentStandby();
+        void MainLoop(); 
         event EventHandler InstrumentConnected;
         event EventHandler InstrumentDisconnected;
         event EventHandler<MsScanArrivedEventArgs> ScanReceived;

@@ -49,7 +49,7 @@ namespace WorkflowServer
             instructions.SourceCIDEnergy = 15;
             instructions.Polarity = Polarity.Postive;
             instructions.DataType = DataType.Profile;
-            instructions.IsolationType = IsolationType.Quadrupole;
+            instructions.IsolationMode = IsolationMode.Quadrupole;
             instructions.AGCTarget = 200;
             instructions.MaxIT = 200;
             instructions.Microscans = 5;

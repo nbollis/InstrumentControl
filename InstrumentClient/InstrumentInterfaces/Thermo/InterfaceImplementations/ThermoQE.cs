@@ -114,5 +114,10 @@ namespace InstrumentClient
         {
             throw new NotImplementedException();
         }
+
+        public void MainLoop()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

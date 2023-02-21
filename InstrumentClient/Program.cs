@@ -20,8 +20,10 @@ namespace InstrumentClient
             {
                 ScanInstructions = new ScanInstructions()
                 {
+                    CustomOrRepeating = CustomOrRepeatingScan.Custom, 
                     FirstMass = 151, 
-                    LastMass = 690
+                    LastMass = 690, 
+                    OrbitrapResolution = OrbitrapResolution.X_30000
                 }
             }; 
 
@@ -58,14 +60,36 @@ namespace InstrumentClient
                 // the absolutely necessary information to this instrument client. The instrument client should only provide the absolutely necessary information to the 
                 // application server. This prevents bloat and future issues. 
 
-                //clientPipe.ConnectClientToServer(); 
+                clientPipe.ConnectClientToServer(); 
                 clientPipe.BeginInstrumentConnection(instrumentApi);
-                instrumentApi.OpenInstrumentConnection();
+                clientPipe.ScanQueueThreshold = 1;
+
+
+                bool readyToReceiveScan = true;
+
                 instrumentApi.ScanReceived += (obj, sender) =>
                 {
-                    clientPipe.ScanInstructionsQueue.Enqueue(sender.Ssdo); 
+                    clientPipe.EnqueueInstrumentScan(sender.Ssdo);
                 };
-                instrumentApi.SendScanAction(ssdoTest);
+                instrumentApi.ReadyToReceiveScanInstructions += (obj, sender) =>
+                {
+                    readyToReceiveScan = true;
+                };
+                clientPipe.ScanQueueThresholdReached += (obj, sender) =>
+                {
+                    while(clientPipe.ScanInstructionsQueue.Count > 0)
+                    {
+                        if (readyToReceiveScan)
+                        {
+                            readyToReceiveScan = false;
+                            instrumentApi.SendScanAction(clientPipe.ScanInstructionsQueue.Dequeue());
+                        }
+                    }
+                };
+                while (true)
+                {
+
+                }; 
             }
             catch (Exception e)
             {
