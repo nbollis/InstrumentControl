@@ -19,6 +19,7 @@ namespace WorkflowServer
             try
             {
                 serverPipe.StartServer(args);
+
             }
             catch (Exception e)
             {

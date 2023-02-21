@@ -21,16 +21,30 @@ namespace WorkflowServer.Activities
             SpectraActivityContext specContext =
                 context as SpectraActivityContext ?? throw new NullReferenceException();
 
-            // check if queue has enough to process
-            Task task = new Task(() => WaitForScans(specContext));
+            IEnumerable<SingleScanDataObject> singleScanDataObjects;
+            while (!ScanQueueManager.TryDequeueMany(MsNOrder, scansToDequeue,
+                out singleScanDataObjects))
+            {
+                // 30kD scan on fusion lumos orbitrap scans at a rate of 15 Hz
+                // this translates to 66ms, hence the 25 ms timeout
+                // this number may need to be dynamic based upon the type of instrument attached
+                // but this would violate our encapsulation of server/client
+            }
 
-            // spin this up in new background thread
-            Thread thread = new Thread(task.Start);
-            thread.IsBackground = true;
-            thread.Start();
+            singleScanDataObjects.ForEach(p => specContext.DataToProcess.Enqueue(p));
+            
 
-            // wait until there is enough to dequeue
-            await task;
+
+
+            //// check if queue has enough to process
+            //Task task = new Task(() => WaitForScans(specContext));
+            //            // spin this up in new background thread
+            //Thread thread = new Thread(task.Start);
+            //thread.IsBackground = true;
+            //thread.Start();
+
+            //// wait until there is enough to dequeue
+            //await task;
         }
 
         /// <summary>
@@ -41,18 +55,15 @@ namespace WorkflowServer.Activities
         /// <returns></returns>
         private Task WaitForScans(SpectraActivityContext context)
         {
-
-            while (!ScanQueueManager.CheckQueue(MsNOrder, scansToDequeue))
+            IEnumerable<SingleScanDataObject> singleScanDataObjects;
+            while (!ScanQueueManager.TryDequeueMany(MsNOrder, scansToDequeue,
+                out singleScanDataObjects))
             {
                 // 30kD scan on fusion lumos orbitrap scans at a rate of 15 Hz
                 // this translates to 66ms, hence the 25 ms timeout
                 // this number may need to be dynamic based upon the type of instrument attached
                 // but this would violate our encapsulation of server/client
-                Thread.Sleep(25);
             }
-
-            ScanQueueManager.TryDequeueMany(MsNOrder, scansToDequeue,
-                out IEnumerable<SingleScanDataObject> singleScanDataObjects);
 
             singleScanDataObjects.ForEach(p => context.DataToProcess.Enqueue(p));
             return Task.CompletedTask;

@@ -60,7 +60,9 @@ namespace InstrumentClient
                 // the absolutely necessary information to this instrument client. The instrument client should only provide the absolutely necessary information to the 
                 // application server. This prevents bloat and future issues. 
 
-                clientPipe.ConnectClientToServer(); 
+                clientPipe.ConnectClientToServer();
+                Thread.Sleep(1000); 
+                
                 clientPipe.BeginInstrumentConnection(instrumentApi);
                 clientPipe.ScanQueueThreshold = 1;
 
@@ -69,6 +71,7 @@ namespace InstrumentClient
 
                 instrumentApi.ScanReceived += (obj, sender) =>
                 {
+                    Console.WriteLine("Scan received"); 
                     clientPipe.EnqueueInstrumentScan(sender.Ssdo);
                 };
                 instrumentApi.ReadyToReceiveScanInstructions += (obj, sender) =>
@@ -77,13 +80,19 @@ namespace InstrumentClient
                 };
                 clientPipe.ScanQueueThresholdReached += (obj, sender) =>
                 {
-                    while(clientPipe.ScanInstructionsQueue.Count > 0)
+
+                    if (readyToReceiveScan && clientPipe.ScanInstructionsQueue.Count > 0)
                     {
-                        if (readyToReceiveScan)
-                        {
-                            readyToReceiveScan = false;
-                            instrumentApi.SendScanAction(clientPipe.ScanInstructionsQueue.Dequeue());
-                        }
+                        readyToReceiveScan = false;
+                        instrumentApi.SendScanAction(clientPipe.ScanInstructionsQueue.Dequeue());
+                    }
+
+                    var listSsdo = sender.ListSsdo.ToList(); 
+                    foreach(var list in listSsdo)
+                    {
+                        Console.WriteLine("Begin send scans"); 
+                        clientPipe.SendDataThroughPipe(list);
+                        Console.WriteLine("Scan sent"); 
                     }
                 };
                 while (true)

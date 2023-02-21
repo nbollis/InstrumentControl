@@ -94,7 +94,7 @@ namespace InstrumentClient
             }
             else
             {
-                throw new ArgumentException("SingleScanDataObjectContains no CustomOrRepeatingScan enum"); 
+                throw new ArgumentException("ScanInstructions object no CustomOrRepeatingScan enum"); 
             }            
         }
 
@@ -150,7 +150,7 @@ namespace InstrumentClient
             var scan = s.GetScan();
             bool orderBool = scan.Header.TryGetValue("MSOrder", out string value);
 
-            int order;
+            int order = 0;
             double precursorMz = 0;
             int scanNumber = 0;
             int precursorScanNumber = 0;
@@ -177,6 +177,7 @@ namespace InstrumentClient
             var ssdo = new SingleScanDataObject()
             {
                 ScanInstructions = null,
+                MsNOrder = order,
                 ScanNumber = scanNumber,
                 MzPrecursor = precursorMz,
                 XArray = scan.Centroids.Select(i => i.Mz).ToArray(),

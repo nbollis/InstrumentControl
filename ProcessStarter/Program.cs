@@ -21,7 +21,7 @@ namespace ProcessStarter
             };
 
             ProcessStartInfo clientProcessStartInfo = new(
-                Path.Combine(path, @"Client\bin\debug\Client.exe"))
+                Path.Combine(path, @"InstrumentClient\bin\debug\Client.exe"))
             {
                 Arguments = clientCommands
             }; 

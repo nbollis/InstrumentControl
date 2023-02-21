@@ -42,11 +42,12 @@ namespace WorkflowServer
             {
                 Console.WriteLine("Pipe client connected. Sent from event.");
             };
-
-            var connectionResult = PipeServer.BeginWaitForConnection(Connected, null);
+            
+            var asyncResult = PipeServer.BeginWaitForConnection(Connected, null);
+            asyncResult.AsyncWaitHandle.WaitOne();
+            asyncResult.AsyncWaitHandle.Close(); 
+            
             // wait for the connection to occur before proceeding. 
-            connectionResult.AsyncWaitHandle.WaitOne();
-            connectionResult.AsyncWaitHandle.Close();
             StartReaderAsync();
 
             DefaultActivityRunner<IActivityContext> runner = new(serviceProvider);
@@ -63,7 +64,12 @@ namespace WorkflowServer
         /// <param name="sender"></param>
         public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender)
         {
-            string temp = JsonConvert.SerializeObject(sender.ScanInstructions);
+            SingleScanDataObject wrapperSsdo = new SingleScanDataObject()
+            {
+                ScanInstructions = sender.ScanInstructions
+            };
+
+            string temp = JsonConvert.SerializeObject(wrapperSsdo);
             byte[] buffer = Encoding.UTF8.GetBytes(temp);
             byte[] length = BitConverter.GetBytes(buffer.Length);
             byte[] finalBuffer = length.Concat(buffer).ToArray();
@@ -84,9 +90,7 @@ namespace WorkflowServer
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
             ScanQueueManager.EnqueueScan(ssdo);
-
-            //Workflow.ReceiveData(ssdo);
-            Console.WriteLine("\n");
+            Console.WriteLine("Server received data.");
         }
 
         private void Connected(IAsyncResult ar)

@@ -10,7 +10,7 @@ namespace ClientServerCommLibrary
     public class ScanInstructions
     {
         #region ThermoTribrid Settings
-        public CustomOrRepeatingScan? CustomOrRepeating {get ; set; }
+        public CustomOrRepeatingScan? CustomOrRepeating { get; set; } = CustomOrRepeatingScan.Custom; 
         public double? FirstMass { get; set; }
         public double? LastMass { get; set; }
         public AnalyzerType? Analyzer { get; set; }

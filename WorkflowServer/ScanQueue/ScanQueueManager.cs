@@ -55,6 +55,7 @@ namespace WorkflowServer
             {
                 ScanQueue newQueue = new ScanQueue();
                 ScanQueues.TryAdd(ssdo.MsNOrder, newQueue);
+                ScanQueues[ssdo.MsNOrder].Enqueue(ssdo);
             }
         }
 

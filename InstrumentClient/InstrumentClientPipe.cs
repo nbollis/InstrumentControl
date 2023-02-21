@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ClientServerCommLibrary;
 using System.IO.Pipes;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 
 
 namespace InstrumentClient
@@ -89,7 +90,6 @@ namespace InstrumentClient
         /// <param name="eventArgs"></param>
         private void HandleDataReceived(object obj, PipeEventArgs eventArgs)
         {
-            Console.WriteLine("Client: Handling data received...");
             // convert the PipeEventArgs to a SingleScanDataObject
             var ssdo = eventArgs.ToSingleScanDataObject();
             if(ssdo == null)
@@ -134,5 +134,19 @@ namespace InstrumentClient
 
         }
         #endregion
+        /// <summary>
+        /// Method for returning data to the client
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="sender"></param>
+        public void SendDataThroughPipe(SingleScanDataObject ssdo)
+        {
+            string temp = JsonConvert.SerializeObject(ssdo);
+            byte[] buffer = Encoding.UTF8.GetBytes(temp);
+            byte[] length = BitConverter.GetBytes(buffer.Length);
+            byte[] finalBuffer = length.Concat(buffer).ToArray();
+            PipeClient.Write(finalBuffer, 0, finalBuffer.Length);
+            PipeClient.WaitForPipeDrain();
+        }
     }
 }
