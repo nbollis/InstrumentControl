@@ -14,7 +14,6 @@ namespace InstrumentClient
     public class ClientPipe
     {
         // Events
-        public event EventHandler<EventArgs> PipeConnected;
         public event EventHandler<PipeEventArgs> PipeDataReceived;
 
         // Public properties
@@ -113,13 +112,9 @@ namespace InstrumentClient
 
         public void ConnectClientToServer()
         {
-            PipeConnected += (obj, sender) =>
-            {
-                PrintoutMessage.Print(MessageSource.Client, "Instrument client connected to workflow server.");
-            };
             var connectionResult = PipeClient.ConnectAsync();
             connectionResult.Wait();
-            connectionResult.ContinueWith(i => OnPipeConnected());
+            PrintoutMessage.Print(MessageSource.Client, "Instrument client connected to workflow server.");
 
             StartReaderAsync();
             PipeDataReceived += HandleDataReceivedFromServer;
@@ -153,17 +148,7 @@ namespace InstrumentClient
                 });
         }
 
-        public void OnPipeConnected()
-        {
-            var handler = new EventHandler<EventArgs>(PipeConnected);
-            if (handler != null)
-            {
-                handler.Invoke(this, EventArgs.Empty);
-            }
-        }
-
         #endregion
-
 
         #region Client to Instrument Methods
         public void BeginInstrumentConnection(IInstrument instr)

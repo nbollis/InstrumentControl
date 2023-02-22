@@ -10,7 +10,6 @@ namespace WorkflowServer
 {
     public class AppServerPipe : IPipe
     {
-        public event EventHandler<EventArgs> PipeConnected;
         public event EventHandler<PipeEventArgs> PipeDataReceived;
 
         public NamedPipeServerStream PipeServer { get; set; }
@@ -85,15 +84,13 @@ namespace WorkflowServer
 
         public void ConnectServerToClient()
         {
-            PipeConnected += (obj, sender) =>
-            {
-                PrintoutMessage.Print(MessageSource.Server, "Pipe connected to instrument client");
-            };
-            var asyncResult = PipeServer.BeginWaitForConnection(Connected, null);
-            asyncResult.AsyncWaitHandle.WaitOne();
-            asyncResult.AsyncWaitHandle.Close();
+            var asyncResult = PipeServer.BeginWaitForConnection(null, null);
+
 
             // wait for the connection to occur before proceeding. 
+            PipeServer.EndWaitForConnection(asyncResult);
+            PrintoutMessage.Print(MessageSource.Server, "Pipe connected to instrument client");
+
             StartReaderAsync();
             PipeDataReceived += HandleDataReceivedFromClient;
         }
@@ -102,17 +99,6 @@ namespace WorkflowServer
         {
             StartByteReaderAsync((b) =>
                 PipeDataReceived?.Invoke(this, new PipeEventArgs(b)));
-        }
-
-        private void Connected(IAsyncResult ar)
-        {
-            OnConnection();
-            PipeServer.EndWaitForConnection(ar);
-        }
-
-        private void OnConnection()
-        {
-            PipeConnected?.Invoke(this, EventArgs.Empty);
         }
 
         private void StartByteReaderAsync(Action<byte[]> packetReceived)
