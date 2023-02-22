@@ -43,6 +43,7 @@ namespace WorkflowServer
 
         /// <summary>
         /// Adds scan to the respective queue based upon its MsnOrder
+        /// If the MsnOrder was not defined based upon startup context, the scan will be discarded
         /// </summary>
         /// <param name="ssdo">scan to be en queued</param>
         public static void EnqueueScan(SingleScanDataObject ssdo)
@@ -50,12 +51,6 @@ namespace WorkflowServer
             if(ScanQueues.TryGetValue(ssdo.MsNOrder, out ScanQueue queue))
             {
                 queue.Enqueue(ssdo);
-            }
-            else
-            {
-                ScanQueue newQueue = new ScanQueue();
-                ScanQueues.TryAdd(ssdo.MsNOrder, newQueue);
-                ScanQueues[ssdo.MsNOrder].Enqueue(ssdo);
             }
         }
 

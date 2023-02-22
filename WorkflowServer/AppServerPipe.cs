@@ -22,7 +22,6 @@ namespace WorkflowServer
         public AppServerPipe(NamedPipeServerStream pipeServer)
         {
             PipeServer = pipeServer;
-            PipeDataReceived += HandleDataReceived;
             serviceProvider = new ServiceCollection().BuildServiceProvider();
         }
 
@@ -38,18 +37,6 @@ namespace WorkflowServer
                 GenerateStartupContext();
             }
 
-            PipeConnected += (obj, sender) =>
-            {
-                Console.WriteLine("Pipe client connected. Sent from event.");
-            };
-            
-            var asyncResult = PipeServer.BeginWaitForConnection(Connected, null);
-            asyncResult.AsyncWaitHandle.WaitOne();
-            asyncResult.AsyncWaitHandle.Close(); 
-            
-            // wait for the connection to occur before proceeding. 
-            StartReaderAsync();
-
             DefaultActivityRunner<IActivityContext> runner = new(serviceProvider);
             while (PipeServer.IsConnected)
             {
@@ -57,12 +44,14 @@ namespace WorkflowServer
             }
         }
 
+        #region Pipe Methods
+
         /// <summary>
         /// Method for returning data to the client
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="sender"></param>
-        public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender)
+        public void SendInstructionToClient(object? obj, ProcessingCompletedEventArgs sender)
         {
             SingleScanDataObject wrapperSsdo = new SingleScanDataObject()
             {
@@ -75,9 +64,8 @@ namespace WorkflowServer
             byte[] finalBuffer = length.Concat(buffer).ToArray();
             PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
             PipeServer.WaitForPipeDrain();
-            Console.WriteLine("Server: Sent instruciton to client");
+            PrintoutMessage.Print(MessageSource.Server, "Sent instruciton to client");
         }
-
 
         /// <summary>
         /// Receives data from the client
@@ -85,46 +73,31 @@ namespace WorkflowServer
         /// <param name="obj"></param>
         /// <param name="eventArgs"></param>
         /// <exception cref="ArgumentException"></exception>
-        public void HandleDataReceived(object? obj, PipeEventArgs eventArgs)
+        public void HandleDataReceivedFromClient(object? obj, PipeEventArgs eventArgs)
         {
             // convert PipeEventArgs to single scan data object
             SingleScanDataObject ssdo = eventArgs.ToSingleScanDataObject();
             if (ssdo == null) throw new ArgumentException("single scan data object is null");
 
             ScanQueueManager.EnqueueScan(ssdo);
-            Console.WriteLine("Server: Received scan from client.");
+            PrintoutMessage.Print(MessageSource.Server, $"Received scan from client - Scan Number {ssdo.ScanNumber}");
         }
 
-
-        /// <summary>
-        /// Takes the args from the program and parses them into the proper fields
-        /// </summary>
-        /// <param name="context">args passed from god to server</param>
-        /// <exception cref="ArgumentException">Thrown if deserialization results in null values</exception>
-        private void ParseStartupContext(string[] context)
+        public void ConnectServerToClient()
         {
-            activityCollection = JsonConvert.DeserializeObject<IActivityCollection<IActivityContext>>(context[0]) ??
-                                 throw new ArgumentException("Activity Collection not properly deserialized");
-            activityCollection.ConnectPipe(this);
+            PipeConnected += (obj, sender) =>
+            {
+                PrintoutMessage.Print(MessageSource.Server, "Pipe connected to instrument client");
+            };
+            var asyncResult = PipeServer.BeginWaitForConnection(Connected, null);
+            asyncResult.AsyncWaitHandle.WaitOne();
+            asyncResult.AsyncWaitHandle.Close();
 
-            spectraActivityContext = JsonConvert.DeserializeObject<SpectraActivityContext>(context[1]) ??
-                                     throw new ArgumentException(
-                                         "Spectra Activity Context not properly deserialized");
+            // wait for the connection to occur before proceeding. 
+            StartReaderAsync();
+            PipeDataReceived += HandleDataReceivedFromClient;
         }
 
-        /// <summary>
-        /// Generates startup context if no parameters are passed in
-        /// </summary>
-        private void GenerateStartupContext()
-        {
-            activityCollection = WorkflowInjector.GetDdaActivityCollection();
-            activityCollection.ConnectPipe(this);
-            spectraActivityContext = WorkflowInjector.GetSpectraActivityContext();
-        }
-
-
-
-        #region private pipe methods
         public void StartReaderAsync()
         {
             StartByteReaderAsync((b) =>
@@ -163,10 +136,37 @@ namespace WorkflowServer
         }
 
         #endregion
+
+        /// <summary>
+        /// Takes the args from the program and parses them into the proper fields
+        /// </summary>
+        /// <param name="context">args passed from god to server</param>
+        /// <exception cref="ArgumentException">Thrown if deserialization results in null values</exception>
+        private void ParseStartupContext(string[] context)
+        {
+            activityCollection = JsonConvert.DeserializeObject<IActivityCollection<IActivityContext>>(context[0]) ??
+                                 throw new ArgumentException("Activity Collection not properly deserialized");
+            activityCollection.ConnectPipe(this);
+
+            spectraActivityContext = JsonConvert.DeserializeObject<SpectraActivityContext>(context[1]) ??
+                                     throw new ArgumentException(
+                                         "Spectra Activity Context not properly deserialized");
+        }
+
+        /// <summary>
+        /// Generates startup context if no parameters are passed in
+        /// </summary>
+        private void GenerateStartupContext()
+        {
+            activityCollection = WorkflowInjector.GetDdaActivityCollection();
+            activityCollection.ConnectPipe(this);
+            spectraActivityContext = WorkflowInjector.GetSpectraActivityContext();
+        }
+
     }
 
     public interface IPipe
     {
-        public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender);
+        public void SendInstructionToClient(object? obj, ProcessingCompletedEventArgs sender);
     }
 }

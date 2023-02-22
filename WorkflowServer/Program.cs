@@ -24,8 +24,11 @@ namespace WorkflowServer
 
             try
             {
-                serverPipe.StartServer(args);
+                PrintoutMessage.Print(MessageSource.Server, "Server: Startup Initiated");
+                serverPipe.ConnectServerToClient();
+                Thread.Sleep(1000);
 
+                serverPipe.StartServer(args);
             }
             catch (Exception e)
             {

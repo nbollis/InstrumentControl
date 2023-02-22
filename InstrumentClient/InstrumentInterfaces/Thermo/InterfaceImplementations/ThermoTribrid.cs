@@ -113,7 +113,7 @@ namespace InstrumentClient
             InstrumentName = InstAccess.InstrumentName;
             MsScanContainer = InstAccess.GetMsScanContainer(0);
             scan = InstControl.GetScans(false);
-            Console.WriteLine("Instrument access started");
+            PrintoutMessage.Print(MessageSource.Instrument, "Instrument access started");
             GetInstAccess();
         }
         public void MainLoop()

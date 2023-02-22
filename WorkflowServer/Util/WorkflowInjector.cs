@@ -63,17 +63,17 @@ namespace WorkflowServer
         {
             ScanInstructions instructions = new();
             instructions.FirstMass = 300;
-            instructions.LastMass = 2000;
+            instructions.LastMass = 1500;
             instructions.Analyzer = AnalyzerType.Orbitrap;
             instructions.ScanType = ScanType.MSn;
             instructions.SourceCIDEnergy = 15;
             instructions.Polarity = Polarity.Postive;
             instructions.DataType = DataType.Profile;
             instructions.IsolationMode = IsolationMode.Quadrupole;
-            instructions.AGCTarget = 200;
+            instructions.AGCTarget = 100;
             instructions.MaxIT = 200;
             instructions.Microscans = 5;
-            instructions.OrbitrapResolution = OrbitrapResolution.X_30000;
+            instructions.OrbitrapResolution = OrbitrapResolution.X_60000;
             instructions.CollisionEnergy = 30;
             instructions.IsolationWidth = 4;
             instructions.ActivationType = ActivationType.HCD;

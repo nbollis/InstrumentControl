@@ -16,87 +16,119 @@ namespace InstrumentClient
         // Events
         public event EventHandler<EventArgs> PipeConnected;
         public event EventHandler<PipeEventArgs> PipeDataReceived;
-        public event EventHandler<ScanQueueThresholdReachedEventArgs> ScanQueueThresholdReached;
 
         // Public properties
-        public NamedPipeClientStream PipeClient { get; set; }
-        public Queue<SingleScanDataObject> ScanInstructionsQueue { get; set; }
-        public Queue<SingleScanDataObject> InstrumentScanQueue { get; set; }
-        public int ScanQueueThreshold { get; set; }
-        // Private properties
-        public bool InstrumentConnectedBool { get; set; }
+        public NamedPipeClientStream PipeClient { get; }
+        public Queue<SingleScanDataObject> ScanInstructionsQueue { get; }
+        public bool InstrumentConnectedBool { get; private set; }
+        public int[] ScanOrdersToSendToServer { get; }
+
         // Constructors
-        public ClientPipe(NamedPipeClientStream pipeClient,
-            ProcessMs1ScansDelegate ms1Delegate = null,
-            ProcessMs2ScansDelegate ms2Delegate = null)
+        public ClientPipe(NamedPipeClientStream pipeClient, int[] scanOrdersToSend)
         {
             PipeClient = pipeClient;
             ScanInstructionsQueue = new Queue<SingleScanDataObject>();
-            InstrumentScanQueue = new Queue<SingleScanDataObject>();
+            ScanOrdersToSendToServer = scanOrdersToSend;
         }
-        /// <summary>
-        /// Wrapper around enqueue method that also check to see if the scan 
-        /// added to the queue ends up triggering the ScanQueueThresholdReached event. 
-        /// </summary>
-        public void EnqueueInstrumentScan(SingleScanDataObject ssdo)
+
+        public void StartClient(IInstrument instrument)
         {
-            InstrumentScanQueue.Enqueue(ssdo); 
-            if(InstrumentScanQueue.Count >= ScanQueueThreshold)
+            BeginInstrumentConnection(instrument);
+
+            bool readyToReceiveScan = true;
+            instrument.ScanReceived += SendDataToServer;
+            instrument.ReadyToReceiveScanInstructions += (obj, sender) =>
             {
-                var ssdoList = InstrumentScanQueue.DequeueChunk(chunkSize: ScanQueueThreshold); 
-                var handler = ScanQueueThresholdReached;
-                if(handler != null)
+                readyToReceiveScan = true;
+            };
+
+
+            while (PipeClient.IsConnected)
+            {
+                while (ScanInstructionsQueue.Count > 0 && readyToReceiveScan)
                 {
-                    handler.Invoke(this, new ScanQueueThresholdReachedEventArgs(ssdoList));
+                    readyToReceiveScan = false;
+                    instrument.SendScanAction(ScanInstructionsQueue.Dequeue());
+                    PrintoutMessage.Print(MessageSource.Client, "Instructions sent to instrument");
                 }
             }
         }
 
-        #region Client To Server Methods
-        public void ConnectClientToServer()
-        {
-            PipeConnected += (obj, sender) =>
-            {
-                Console.WriteLine("Client pipe connected to server.");
-            };
-            var connectionResult = PipeClient.ConnectAsync();
-            connectionResult.Wait();
-            // invokes the pipe connected event
-            connectionResult.ContinueWith(i => OnPipeConnected());
+        ///// <summary>
+        ///// Wrapper around enqueue method that also check to see if the scan 
+        ///// added to the queue ends up triggering the ScanQueueThresholdReached event. 
+        ///// </summary>
+        //public void EnqueueInstrumentScan(SingleScanDataObject ssdo)
+        //{
+        //    InstrumentScanQueue.Enqueue(ssdo); 
+        //    if(InstrumentScanQueue.Count >= ScanQueueThreshold)
+        //    {
+        //        var ssdoList = InstrumentScanQueue.DequeueChunk(chunkSize: ScanQueueThreshold); 
+        //        var handler = ScanQueueThresholdReached;
+        //        if(handler != null)
+        //        {
+        //            handler.Invoke(this, new ScanQueueThresholdReachedEventArgs(ssdoList));
+        //        }
+        //    }
+        //}
 
-            StartReaderAsync();
-            PipeDataReceived += HandleDataReceived;
-        }
-        public void StartReaderAsync()
-        {
-            StartByteReaderAsync((b) =>
-                PipeDataReceived?.Invoke(this, new PipeEventArgs(b)));
-        }
-        public void OnPipeConnected()
-        {
-            var handler = new EventHandler<EventArgs>(PipeConnected);
-            if (handler != null)
-            {
-                handler.Invoke(this, EventArgs.Empty);
-                Console.WriteLine("Instrument client connected to workflow server."); 
-            }
-        }
+        #region Client To Server Methods
+
         /// <summary>
         /// Handles server to client data transfer. 
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="eventArgs"></param>
-        private void HandleDataReceived(object obj, PipeEventArgs eventArgs)
+        private void HandleDataReceivedFromServer(object obj, PipeEventArgs eventArgs)
         {
             // convert the PipeEventArgs to a SingleScanDataObject
             var ssdo = eventArgs.ToSingleScanDataObject();
-            if(ssdo == null)
+            if (ssdo == null)
             {
-                return; 
+                return;
             }
 
             ScanInstructionsQueue.Enqueue(ssdo);
-            Console.WriteLine("Client: Instructions received from server");
+            PrintoutMessage.Print(MessageSource.Client, "Instructions received from server");
+        }
+
+        /// <summary>
+        /// Method for returning data to the server
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <param name="sender"></param>
+        public void SendDataToServer(object obj, MsScanArrivedEventArgs sender)
+        {
+            if (!ScanOrdersToSendToServer.Contains(sender.Ssdo.MsNOrder)) return;
+
+            string temp = JsonConvert.SerializeObject(sender.Ssdo);
+            byte[] buffer = Encoding.UTF8.GetBytes(temp);
+            byte[] length = BitConverter.GetBytes(buffer.Length);
+            byte[] finalBuffer = length.Concat(buffer).ToArray();
+            PipeClient.Write(finalBuffer, 0, finalBuffer.Length);
+            PipeClient.WaitForPipeDrain();
+
+            PrintoutMessage.Print(MessageSource.Client, $"Scan sent to server - Scan Number {sender.Ssdo.ScanNumber}");
+        }
+
+        public void ConnectClientToServer()
+        {
+            PipeConnected += (obj, sender) =>
+            {
+                PrintoutMessage.Print(MessageSource.Client, "Instrument client connected to workflow server.");
+            };
+            var connectionResult = PipeClient.ConnectAsync();
+            connectionResult.Wait();
+            connectionResult.ContinueWith(i => OnPipeConnected());
+
+            StartReaderAsync();
+            PipeDataReceived += HandleDataReceivedFromServer;
+        }
+
+        public void StartReaderAsync()
+        {
+            StartByteReaderAsync((b) =>
+                PipeDataReceived?.Invoke(this, new PipeEventArgs(b)));
         }
 
         private void StartByteReaderAsync(Action<byte[]> packetReceived)
@@ -120,6 +152,16 @@ namespace InstrumentClient
                         });
                 });
         }
+
+        public void OnPipeConnected()
+        {
+            var handler = new EventHandler<EventArgs>(PipeConnected);
+            if (handler != null)
+            {
+                handler.Invoke(this, EventArgs.Empty);
+            }
+        }
+
         #endregion
 
 
@@ -127,25 +169,12 @@ namespace InstrumentClient
         public void BeginInstrumentConnection(IInstrument instr)
         {
             bool instrReadyToReceiveScan = false; 
-            instr.OpenInstrumentConnection();
             instr.InstrumentConnected += (obj, sender) => { InstrumentConnectedBool = true; };
             instr.InstrumentDisconnected += (obj, sender) => { InstrumentConnectedBool = false; };
-
+            instr.OpenInstrumentConnection();
         }
         #endregion
-        /// <summary>
-        /// Method for returning data to the client
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="sender"></param>
-        public void SendDataThroughPipe(SingleScanDataObject ssdo)
-        {
-            string temp = JsonConvert.SerializeObject(ssdo);
-            byte[] buffer = Encoding.UTF8.GetBytes(temp);
-            byte[] length = BitConverter.GetBytes(buffer.Length);
-            byte[] finalBuffer = length.Concat(buffer).ToArray();
-            PipeClient.Write(finalBuffer, 0, finalBuffer.Length);
-            PipeClient.WaitForPipeDrain();
-        }
+
+       
     }
 }

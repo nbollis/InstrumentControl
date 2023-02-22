@@ -18,7 +18,7 @@ namespace WorkflowServer.Activities
             {
                 if (activity is IScanSender)
                 {
-                    ((IScanSender)activity).SendScan += pipe.SendDataThroughPipe;
+                    ((IScanSender)activity).SendScan += pipe.SendInstructionToClient;
                 }
 
                 if (activity is IScanReceiver)

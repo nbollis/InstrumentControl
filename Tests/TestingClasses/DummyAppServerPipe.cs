@@ -45,7 +45,7 @@ namespace Tests
             Console.WriteLine("\n");
         }
 
-        public void SendDataThroughPipe(object? obj, ProcessingCompletedEventArgs sender)
+        public void SendInstructionToClient(object? obj, ProcessingCompletedEventArgs sender)
         {
 
         }

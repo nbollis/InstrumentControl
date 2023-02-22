@@ -6,7 +6,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using ClientServerCommLibrary; 
+using ClientServerCommLibrary;
+using Newtonsoft.Json;
 
 namespace InstrumentClient
 {
@@ -16,6 +17,7 @@ namespace InstrumentClient
         {
             NamedPipeClientStream pipeClient;
             string instrumentType;
+            int[] acceptableScanOrders;
 
             if (args.Length > 1)
             {
@@ -24,6 +26,7 @@ namespace InstrumentClient
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous);
                 instrumentType = args[2];
+                acceptableScanOrders = JsonConvert.DeserializeObject<int[]>(args[3]);
             }
             else
             {
@@ -32,9 +35,10 @@ namespace InstrumentClient
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous);
                 instrumentType = args[0];
+                acceptableScanOrders = new[] { 1 };
             }
 
-            ClientPipe clientPipe = new ClientPipe(pipeClient);
+            ClientPipe clientPipe = new ClientPipe(pipeClient, acceptableScanOrders);
             IInstrumentFactory factory = null;
 
             switch (instrumentType)
@@ -60,44 +64,9 @@ namespace InstrumentClient
                 // application server. This prevents bloat and future issues. 
 
                 clientPipe.ConnectClientToServer();
-                Thread.Sleep(1000); 
-                
-                clientPipe.BeginInstrumentConnection(instrumentApi);
-                clientPipe.ScanQueueThreshold = 1;
+                Thread.Sleep(1000);
 
-
-                bool readyToReceiveScan = true;
-
-                instrumentApi.ScanReceived += (obj, sender) =>
-                {
-                    Console.WriteLine("Client: Scan received from instrument"); 
-                    clientPipe.EnqueueInstrumentScan(sender.Ssdo);
-                };
-                instrumentApi.ReadyToReceiveScanInstructions += (obj, sender) =>
-                {
-                    readyToReceiveScan = true;
-                };
-                clientPipe.ScanQueueThresholdReached += (obj, sender) =>
-                {
-
-                    if (readyToReceiveScan && clientPipe.ScanInstructionsQueue.Count > 0)
-                    {
-                        readyToReceiveScan = false;
-                        instrumentApi.SendScanAction(clientPipe.ScanInstructionsQueue.Dequeue());
-                        Console.WriteLine("Client: Instructions sent to instrument");
-                    }
-
-                    var listSsdo = sender.ListSsdo.ToList(); 
-                    foreach(var list in listSsdo)
-                    {
-                        clientPipe.SendDataThroughPipe(list);
-                        Console.WriteLine("Client: Scan sent to server"); 
-                    }
-                };
-                while (true)
-                {
-
-                }; 
+                clientPipe.StartClient(instrumentApi);
             }
             catch (Exception e)
             {
@@ -108,52 +77,6 @@ namespace InstrumentClient
             {
                 pipeClient.Dispose();
             }
-        }
-
-
-        //static void Main(string[] args)
-        //{
-        //    // fire up the pipe client
-        //    string serverPipeName = args[0];
-        //    string pipeName = args[1];
-        //    ClientPipe clientPipe = new ClientPipe(serverPipeName, pipeName,
-        //        p => p.StartByteReaderAsync());
-
-        //    string instrumentType = args[2];
-        //    IInstrumentFactory factory = null; 
-        //    switch (instrumentType)
-        //    {
-        //        case "qe":
-        //            factory = new ThermoQEFactory();
-        //            break;
-        //        case "tribrid":
-        //            factory = new ThermoTribridFactory();
-        //            break; 
-        //    }
-
-        //    try
-        //    {
-        //        IInstrument instrumentApi = factory?.CreateInstrumentApi();
-        //        instrumentApi.OpenInstrumentConnection(); 
-        //        instrumentApi.PipeClient = clientPipe;
-        //        instrumentApi?.EnterMainLoop();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        Console.WriteLine(e);
-        //    }
-        //    Console.ReadLine(); 
-        //}
-        //// TODO: Write method to query what type of instrument is attached. 
-
-
-    }
-    public class MsScanArrivedEventArgs : EventArgs
-    {
-        public SingleScanDataObject Ssdo { get; set; }
-        public MsScanArrivedEventArgs(SingleScanDataObject ssdo)
-        {
-            Ssdo = ssdo;
         }
     }
 }
