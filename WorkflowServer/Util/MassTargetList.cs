@@ -31,7 +31,7 @@ namespace WorkflowServer.Util
             Exclusion,
             Inclusion
         }
-        public double TimeToExcludeInMilliseconds { get; set; }
+        public double TimeToExcludeInSeconds { get; set; }
         public PpmTolerance Tolerance { get; set; }
 
         /// <summary>
@@ -46,9 +46,9 @@ namespace WorkflowServer.Util
 
         #region Constructor
 
-        public MassTargetList(double bufferTimeOnLists = 1000, double ppmTolerance = 10)
+        public MassTargetList(double bufferTimeOnLists = 60, double ppmTolerance = 10)
         {
-            TimeToExcludeInMilliseconds = bufferTimeOnLists;
+            TimeToExcludeInSeconds = bufferTimeOnLists / 60.0;
             Tolerance = new PpmTolerance(ppmTolerance);
             hitTargets = new();
             ExclusionList = new();
@@ -89,7 +89,18 @@ namespace WorkflowServer.Util
                     return true;
             }
 
+            RemoveOutdatedItems(rt);
+
             return false;
+        }
+
+        private void RemoveOutdatedItems(double currentRT)
+        {
+            var outDateExclusionListItems = ExclusionList.Where(p => p.EndTime < currentRT).ToList();
+            foreach (var outDatedItem in outDateExclusionListItems)
+            {
+                ExclusionList.Remove(outDatedItem);
+            }
         }
 
         /// <summary>
@@ -144,10 +155,10 @@ namespace WorkflowServer.Util
             switch (listType)
             {
                 case MassTargetListTypes.Inclusion:
-                    InclusionList.Add(new MassTargetListItem(mz, currentTime - TimeToExcludeInMilliseconds, currentTime + TimeToExcludeInMilliseconds));
+                    InclusionList.Add(new MassTargetListItem(mz, currentTime - TimeToExcludeInSeconds, currentTime + TimeToExcludeInSeconds));
                     break;
                 case MassTargetListTypes.Exclusion:
-                    ExclusionList.Add(new MassTargetListItem(mz, currentTime - TimeToExcludeInMilliseconds, currentTime + TimeToExcludeInMilliseconds));
+                    ExclusionList.Add(new MassTargetListItem(mz, currentTime - TimeToExcludeInSeconds, currentTime + TimeToExcludeInSeconds));
                     break;
             }
         }

@@ -85,7 +85,7 @@ namespace WorkflowServer
             PrintoutMessage.Print(MessageSource.Server, $"Received scan from client - Scan Number {ssdo.ScanNumber}");
         }
 
-        public async Task ConnectServerToClient()
+        public void ConnectServerToClient()
         {
             var readerConnectResultsAsync = ReadDataPipe.ConnectAsync().ContinueWith(_ =>
             {
@@ -96,8 +96,8 @@ namespace WorkflowServer
             {
                 PrintoutMessage.Print(MessageSource.Client, "Worklflow Server write pipe connected to client.");
             });
-            await readerConnectResultsAsync;
-            await senderConnectionResult;
+            readerConnectResultsAsync.Wait();
+            senderConnectionResult.Wait();
 
             StartReaderAsync();
             PipeDataReceived += HandleDataReceivedFromClient;

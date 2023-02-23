@@ -11,7 +11,7 @@ using MathNet.Numerics.Statistics;
 namespace ClientServerCommLibrary
 {
     [Serializable]
-    public class SingleScanDataObject
+    public class SingleScanDataObject 
     {
         public ScanInstructions ScanInstructions { get; set; }
         public int MsNOrder { get; set; }
@@ -26,6 +26,7 @@ namespace ClientServerCommLibrary
         {
 
         }
+
         public SingleScanDataObject(double[] xArray, double[] yArray)
         {
             XArray = xArray;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ClientServerCommLibrary
 {
-    internal interface IPipeTransmissable
+    internal interface IPipeTransmittable
     {
     }
 }

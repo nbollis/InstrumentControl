@@ -105,9 +105,9 @@ namespace Tests
                 Assert.That(Math.Abs(context.MassesToTarget.ElementAt(i).First() - top6[i].mass) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i].Mass - top6[i].mass) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i].EndTime -
-                                     (SsdoList[0].RetentionTime + context.MassTargetList.TimeToExcludeInMilliseconds)) < 0.001);
+                                     (SsdoList[0].RetentionTime + context.MassTargetList.TimeToExcludeInSeconds)) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i].StartTime -
-                                     (SsdoList[0].RetentionTime - context.MassTargetList.TimeToExcludeInMilliseconds)) < 0.001);
+                                     (SsdoList[0].RetentionTime - context.MassTargetList.TimeToExcludeInSeconds)) < 0.001);
             }
 
             // send DDa should remove each mass to target
@@ -136,9 +136,9 @@ namespace Tests
                 Assert.That(Math.Abs(context.MassesToTarget.ElementAt(i).First() - top6[i + 3].mass) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i + 3].Mass - top6[i + 3].mass) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i + 3].EndTime -
-                                     (SsdoList[1].RetentionTime + context.MassTargetList.TimeToExcludeInMilliseconds)) < 0.001);
+                                     (SsdoList[1].RetentionTime + context.MassTargetList.TimeToExcludeInSeconds)) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i + 3].StartTime -
-                                     (SsdoList[1].RetentionTime - context.MassTargetList.TimeToExcludeInMilliseconds)) < 0.001);
+                                     (SsdoList[1].RetentionTime - context.MassTargetList.TimeToExcludeInSeconds)) < 0.001);
             }
 
             // send DDa should remove each mass to target
@@ -168,9 +168,9 @@ namespace Tests
                 Assert.That(Math.Abs(context.MassesToTarget.ElementAt(i).First() - top6[i].mass) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i].Mass - top6[i].mass) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i + 6].EndTime -
-                                     (SsdoList[2].RetentionTime + context.MassTargetList.TimeToExcludeInMilliseconds)) < 0.001);
+                                     (SsdoList[2].RetentionTime + context.MassTargetList.TimeToExcludeInSeconds)) < 0.001);
                 Assert.That(Math.Abs(context.MassTargetList.ExclusionList[i + 6].StartTime -
-                                     (SsdoList[2].RetentionTime - context.MassTargetList.TimeToExcludeInMilliseconds)) < 0.001);
+                                     (SsdoList[2].RetentionTime - context.MassTargetList.TimeToExcludeInSeconds)) < 0.001);
             }
 
             // send DDa should remove each mass to target

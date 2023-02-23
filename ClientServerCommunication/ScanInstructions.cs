@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ClientServerCommLibrary
 {
     [Serializable]
-    public class ScanInstructions : ICloneable
+    public class ScanInstructions : ICloneable, IPipeTransmittable
     {
         #region ThermoTribrid Settings
         public CustomOrRepeatingScan? CustomOrRepeating { get; set; } = CustomOrRepeatingScan.Custom; 

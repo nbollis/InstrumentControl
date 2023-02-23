@@ -54,9 +54,8 @@ namespace WorkflowServer
         public static SpectraActivityContext GetSpectraActivityContext(double timeToExclude = 0, double exclusionPpmMatch = 0)
         {
             // temp
-            timeToExclude = 60000;
+            timeToExclude = 60;
             exclusionPpmMatch = 35;
-
 
             SpectraActivityContext context = new();
 

@@ -168,16 +168,23 @@ namespace InstrumentClient
         {
             var scan = s.GetScan();
             bool orderBool = scan.Header.TryGetValue("MSOrder", out string value);
+            bool rtBool = scan.Header.TryGetValue("StartTime", out string rt); 
 
             int order = 0;
             double precursorMz = 0;
             int scanNumber = 0;
             int precursorScanNumber = 0;
+            double retentionTime = 0d;
 
             bool scanbool = scan.Header.TryGetValue("Scan", out string scanNumberString);
             if (scanbool)
             {
                 scanNumber = int.Parse(scanNumberString);
+            }
+
+            if (rtBool)
+            {
+                retentionTime = double.Parse(rt); 
             }
 
             if (orderBool)
@@ -199,6 +206,7 @@ namespace InstrumentClient
                 MsNOrder = order,
                 ScanNumber = scanNumber,
                 MzPrecursor = precursorMz,
+                RetentionTime = retentionTime,
                 XArray = scan.Centroids.Select(i => i.Mz).ToArray(),
                 YArray = scan.Centroids.Select(i => i.Intensity).ToArray()
             };
