@@ -42,12 +42,12 @@ namespace Tests
             ScanQueueManager.BuildQueues(new List<int>() { 1 });
             var runner = new DefaultActivityRunner<IActivityContext>(provider);
 
-            AcceptScansActivity<IActivityContext> acceptScansActivity = new(1, 5);
+            CaptureMs1Activity<IActivityContext> captureMs1Activity = new(1, 5, WorkflowInjector.GetBaseMs1Scan());
             TopNPeakSelectionActivity<IActivityContext> topNActivity = new(3, false, false);
             SendDDAScanInstructionsActivity<IActivityContext> sendDDAActivity = new(new ScanInstructions());
 
             IActivityCollection<IActivityContext> collection = new DefaultActivityCollectionBuilder<IActivityContext>(provider)
-                .Then(acceptScansActivity)
+                .Then(captureMs1Activity)
                 .Then(topNActivity)
                 .Then(sendDDAActivity)
                 .Build();
@@ -72,12 +72,12 @@ namespace Tests
             ScanQueueManager.BuildQueues(new List<int>() {1});
             var runner = new DefaultActivityRunner<IActivityContext>(provider);
 
-            AcceptScansActivity<IActivityContext> acceptScansActivity = new(1, 5);
+            CaptureMs1Activity<IActivityContext> captureMs1Activity = new(1, 5, WorkflowInjector.GetBaseMs1Scan());
             TopNPeakSelectionActivity<IActivityContext> topNActivity = new(3, false, false);
             SendDDAScanInstructionsActivity<IActivityContext> sendDDAActivity = new(new ScanInstructions());
 
             IActivityCollection<IActivityContext> collection = new DefaultActivityCollectionBuilder<IActivityContext>(provider)
-                .Then(acceptScansActivity)
+                .Then(captureMs1Activity)
                 .Then(topNActivity)
                 .Then(sendDDAActivity)
                 .Build();
@@ -99,7 +99,7 @@ namespace Tests
 
             IActivityCollection<IActivityContext> collection =
                 new DefaultActivityCollectionBuilder<IActivityContext>(provider)
-                    .Then(new AcceptScansActivity<IActivityContext>(1, 5))
+                    .Then(new CaptureMs1Activity<IActivityContext>(1, 5, WorkflowInjector.GetBaseMs1Scan()))
                     .Then(new TopNPeakSelectionActivity<IActivityContext>(3, false, false))
                     .Build();
 

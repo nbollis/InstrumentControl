@@ -11,7 +11,7 @@ namespace InstrumentClient
         public IInstrument Api { get; }
         public ThermoTribridFactory()
         {
-            Api = CreateInstrumentApi();
+            
         }
         public IInstrument CreateInstrumentApi()
         {

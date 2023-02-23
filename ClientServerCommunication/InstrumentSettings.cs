@@ -90,7 +90,7 @@ namespace ClientServerCommLibrary
     }
     public enum Polarity
     {
-        Postive,
+        Positive,
         Negative
     }
     public enum CustomOrRepeatingScan

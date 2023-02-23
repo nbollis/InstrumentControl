@@ -10,12 +10,12 @@ namespace WorkflowServer.Activities
     public class SendDDAScanInstructionsActivity<TContext> : IActivity<TContext>, IScanSender
         where TContext : IActivityContext
     {
-        public ScanInstructions ScanInstructions { get; set; }
+        public ScanInstructions BaseScanInstructions { get; }
         public event EventHandler<ProcessingCompletedEventArgs> SendScan;
 
         public SendDDAScanInstructionsActivity(ScanInstructions baseScan)
         {
-            ScanInstructions = baseScan;
+            BaseScanInstructions = baseScan;
         }
 
         public Task ExecuteAsync(TContext context)
@@ -27,8 +27,9 @@ namespace WorkflowServer.Activities
                 var target = specContext.MassesToTarget.Dequeue();
                 if (target.Length == 1)
                 {
-                    ScanInstructions.PrecursorMass = target.First();
-                    SendScan?.Invoke(null, new ProcessingCompletedEventArgs(ScanInstructions));
+                    var instructionsToSend = (ScanInstructions)BaseScanInstructions.Clone();
+                    instructionsToSend.PrecursorMass = target.First();
+                    ScanQueueManager.InstructionQueue.Enqueue(instructionsToSend);
                 }
                 else
                 {

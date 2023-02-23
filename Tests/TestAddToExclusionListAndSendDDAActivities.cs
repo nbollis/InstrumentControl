@@ -65,10 +65,10 @@ namespace Tests
         {
             // initial setup
             var top6 = SsdoList.First().FilterByNumberOfMostIntense(6).ToList();
-            AcceptScansActivity<IActivityContext> acceptScansActivity = new(1, 1);
+            CaptureMs1Activity<IActivityContext> captureMs1Activity = new(1, 1, WorkflowInjector.GetBaseMs1Scan());
             TopNPeakSelectionActivity<IActivityContext> topNActivity = new(3, false, true);
             SendDDAScanInstructionsActivity<IActivityContext> sendDdaScanInstructionsActivity =
-                new(WorkflowInjector.GetBaseMS2Scan());
+                new(WorkflowInjector.GetBaseMs2Scan());
             SpectraActivityContext context = new SpectraActivityContext();
             ScanQueueManager.BuildQueue(1);
             ScanQueueManager.EnqueueScan(SsdoList.First());
@@ -82,7 +82,7 @@ namespace Tests
 
             // testing activities
             // accept scan moves from queue to data to process
-            await acceptScansActivity.ExecuteAsync(context);
+            await captureMs1Activity.ExecuteAsync(context);
             Assert.That(context.DataToProcess.Count == 1);
             Assert.That(ScanQueueManager.ScanQueues[1].Count == 2);
             Assert.That(context.MassesToTarget.Count == 0);
@@ -114,7 +114,7 @@ namespace Tests
             Assert.That(context.MassTargetList.ExclusionList.Count == 3);
 
             // process second scan
-            await acceptScansActivity.ExecuteAsync(context);
+            await captureMs1Activity.ExecuteAsync(context);
             Assert.That(context.DataToProcess.Count == 1);
             Assert.That(ScanQueueManager.ScanQueues[1].Count == 1);
             Assert.That(context.MassesToTarget.Count == 0);
@@ -146,7 +146,7 @@ namespace Tests
 
 
             // process third scan
-            await acceptScansActivity.ExecuteAsync(context);
+            await captureMs1Activity.ExecuteAsync(context);
             Assert.That(context.DataToProcess.Count == 1);
             Assert.That(ScanQueueManager.ScanQueues[1].Count == 0);
             Assert.That(context.MassesToTarget.Count == 0);
@@ -183,14 +183,14 @@ namespace Tests
         public static void TestExclusionListActivityInWorkflow()
         {
             var top6 = SsdoList.First().FilterByNumberOfMostIntense(6);
-            AcceptScansActivity<IActivityContext> acceptScansActivity = new(1, 1);
+            CaptureMs1Activity<IActivityContext> captureMs1Activity = new(1, 1, WorkflowInjector.GetBaseMs1Scan());
             TopNPeakSelectionActivity<IActivityContext> topNActivity = new(3, false, true);
             SendDDAScanInstructionsActivity<IActivityContext> sendDdaScanInstructionsActivity =
-                new(WorkflowInjector.GetBaseMS2Scan());
+                new(WorkflowInjector.GetBaseMs2Scan());
 
             SpectraActivityContext context = new SpectraActivityContext();
             IActivityCollection<IActivityContext> collection = new DefaultActivityCollectionBuilder<IActivityContext>(provider)
-                .Then(acceptScansActivity)
+                .Then(captureMs1Activity)
                 .Then(topNActivity)
                 .Then(sendDdaScanInstructionsActivity)
                 .Build();

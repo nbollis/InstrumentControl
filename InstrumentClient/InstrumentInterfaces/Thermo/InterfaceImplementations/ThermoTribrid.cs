@@ -11,6 +11,7 @@ using Thermo.TNG.Factory;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Modes;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Acquisition.Workflow;
 using Thermo.Interfaces.InstrumentAccess_V1.Control.Scans;
+using Thermo.Interfaces.FusionAccess_V1.Control; 
 using System.Linq;
 using System.Threading.Tasks; 
 
@@ -28,6 +29,7 @@ namespace InstrumentClient
         public static IFusionMsScanContainer MsScanContainer { get; private set; }
         public static IAcquisition InstAcq { get; private set; }
         public static IControl InstControl { get; private set; }
+        public static IFusionControl _fusionControl { get; private set; }
         // Private Properties
         private int SystemState { get; set; }
         IScans scan { get; set; }
@@ -44,6 +46,57 @@ namespace InstrumentClient
         public ThermoTribrid()
         {
             InstAccessContainer = Factory<IFusionInstrumentAccessContainer>.Create();
+            InstAccessContainer.StartOnlineAccess();
+
+            while (!InstAccessContainer.ServiceConnected) ;
+
+            InstAccess = InstAccessContainer.Get(1);
+            // do not change order. InstAccess must be filled first as the other
+            // properties depend on it to be filled themselves.
+            InstControl = InstAccess.Control;
+            _fusionControl = (IFusionControl)InstAccess.Control; 
+            
+            InstAcq = InstControl.Acquisition;
+            InstrumentId = InstAccess.InstrumentId.ToString();
+            InstrumentName = InstAccess.InstrumentName;
+            MsScanContainer = InstAccess.GetMsScanContainer(0);
+            scan = InstControl.GetScans(true);
+            PrintoutMessage.Print(MessageSource.Instrument, "Instrument access started");
+            GetInstAccess();
+            //Neither of these events work on the fusion lumos.
+            scan.CanAcceptNextCustomScan += (o, e) =>
+            {
+                EventHandler handler = ReadyToReceiveScanInstructions;
+                if (handler != null)
+                {
+                    handler.Invoke(this, EventArgs.Empty);
+                }
+            };
+            // scan.PossibleParametersChanged += (o, e) =>
+            // {
+            //     PrintoutMessage.Print(MessageSource.Instrument, "Possible Parameters Changed Event Fired");
+            // };
+            InstAccessContainer.ServiceConnectionChanged += (o, s) => { };
+            InstAccessContainer.MessagesArrived += (o, s) => { };
+            InstAcq.AcquisitionStreamClosing += (o, s) => { };
+            InstAcq.AcquisitionStreamOpening += (o, s) => { };
+
+
+            InstAcq.StateChanged += (o, s) => {
+                EventHandler<EventArgs> handler = InstrumentStateChanged;
+                if (handler != null)
+                {
+                    handler.Invoke(this, EventArgs.Empty);
+                }
+            };
+
+            // instacq systemstate also contains an enum, where each value corresponds to the acquisition state 
+            // of the system. Could potentially use this as a read-back for the client. 
+            // InstAcq.State.SystemState
+            // The pattern in the lines below passes the events received from the instrument up the 
+            // "chain of command." When operating in "smart control" mode, instrument handling and events need 
+            // to be hanlded by the "brains", whether that is the app or the instrument client interface. 
+            MsScanContainer.MsScanArrived += OnScanArrived;
         }
         #region OpenInstrumentConnection
 
@@ -56,23 +109,21 @@ namespace InstrumentClient
         {
             IDictionary<string, string> dict = ssdo.ScanInstructions.ToThermoTribridCompatibleDictionary();
             // convert the SSDO to a custom scan object. 
-
+            
             if (ssdo.ScanInstructions.CustomOrRepeating == CustomOrRepeatingScan.Custom)
             {
                 customScan = scan.CreateCustomScan();
                 customScan.SingleProcessingDelay = 0; 
+                
                 
                 foreach (var kvp in dict)
                 {
                     customScan.Values[kvp.Key] = kvp.Value; 
                 }
 
-                bool sentToInstrument = scan.SetCustomScan(customScan);
-                
-                EventHandler handler = ReadyToReceiveScanInstructions;
-                if (handler != null)
+                if (scan.SetCustomScan(customScan))
                 {
-                    handler.Invoke(this, EventArgs.Empty);
+                    PrintoutMessage.Print(MessageSource.Instrument, "Instructions sent to instrument."); 
                 }
                 customScan = null; 
             }
@@ -89,7 +140,6 @@ namespace InstrumentClient
                 {
                     handler.Invoke(this, EventArgs.Empty);
                 }
-                customScan = null;
                 repeatingScan = null; 
             }
             else
@@ -97,24 +147,13 @@ namespace InstrumentClient
                 throw new ArgumentException("ScanInstructions object no CustomOrRepeatingScan enum"); 
             }            
         }
-
+        public void ResetToBaseScan()
+        {
+            scan.CancelCustomScan();
+        }
         public void OpenInstrumentConnection()
         {
-            InstAccessContainer.StartOnlineAccess();
-            
-            while (!InstAccessContainer.ServiceConnected) ;
 
-            InstAccess = InstAccessContainer.Get(1);
-            // do not change order. InstAccess must be filled first as the other
-            // properties depend on it to be filled themselves.
-            InstControl = InstAccess.Control;
-            InstAcq = InstControl.Acquisition;
-            InstrumentId = InstAccess.InstrumentId.ToString();
-            InstrumentName = InstAccess.InstrumentName;
-            MsScanContainer = InstAccess.GetMsScanContainer(0);
-            scan = InstControl.GetScans(false);
-            PrintoutMessage.Print(MessageSource.Instrument, "Instrument access started");
-            GetInstAccess();
         }
         public void MainLoop()
         {
@@ -122,27 +161,7 @@ namespace InstrumentClient
         }
         private void GetInstAccess()
         {
-            InstAccessContainer.ServiceConnectionChanged += (o, s) => { };
-            InstAccessContainer.MessagesArrived += (o, s) => { };
-            InstAcq.AcquisitionStreamClosing += (o, s) => { };
-            InstAcq.AcquisitionStreamOpening += (o, s) => { };
             
-            
-            InstAcq.StateChanged += (o, s) => {
-                EventHandler<EventArgs> handler = InstrumentStateChanged; 
-                if(handler != null)
-                {
-                    handler.Invoke(this, EventArgs.Empty); 
-                }
-            };
-
-            // instacq systemstate also contains an enum, where each value corresponds to the acquisition state 
-            // of the system. Could potentially use this as a read-back for the client. 
-            // InstAcq.State.SystemState
-            // The pattern in the lines below passes the events received from the instrument up the 
-            // "chain of command." When operating in "smart control" mode, instrument handling and events need 
-            // to be hanlded by the "brains", whether that is the app or the instrument client interface. 
-            MsScanContainer.MsScanArrived += OnScanArrived; 
         }
         #endregion
         private void OnScanArrived(object o, Thermo.Interfaces.InstrumentAccess_V1.MsScanContainer.MsScanEventArgs s)

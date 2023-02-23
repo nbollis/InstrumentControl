@@ -8,6 +8,6 @@ namespace WorkflowServer
 {
     public interface IScanReceiver
     {
-        public int MsNOrder { get; set; }
+        public int MsNOrder { get; }
     }
 }

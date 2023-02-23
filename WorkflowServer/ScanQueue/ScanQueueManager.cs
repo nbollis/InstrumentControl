@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,12 +16,15 @@ namespace WorkflowServer
         static ScanQueueManager()
         {
             ScanQueues = new Dictionary<int, ScanQueue>();
+            InstructionQueue = new();
         }
 
         #region Public Properties
 
-        public static Dictionary<int, ScanQueue> ScanQueues { get; set; }
+        public static Dictionary<int, ScanQueue> ScanQueues { get; }
+        public static ConcurrentQueue<ScanInstructions> InstructionQueue { get; }
 
+        public static bool FirstScanSent { get; set; } = false;
         #endregion
 
         /// <summary>
@@ -30,7 +34,7 @@ namespace WorkflowServer
         public static void BuildQueues(IEnumerable<int> msNOrders)
         {
             var nOrders = msNOrders as int[] ?? msNOrders.ToArray();
-            for (var i = 0; i < nOrders.Count(); i++)
+            for (var i = 0; i < nOrders.Length; i++)
             {
                 BuildQueue(nOrders[i]);
             }

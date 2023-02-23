@@ -12,15 +12,18 @@ namespace WorkflowServer
     {
         public event EventHandler<PipeEventArgs> PipeDataReceived;
 
-        public NamedPipeServerStream PipeServer { get; set; }
+
+        public NamedPipeClientStream ReadDataPipe { get; }
+        public NamedPipeServerStream SendDataPipe { get; }
 
         private IActivityCollection<IActivityContext> activityCollection;
         private SpectraActivityContext spectraActivityContext;
         private ServiceProvider serviceProvider;
 
-        public AppServerPipe(NamedPipeServerStream pipeServer)
+        public AppServerPipe(NamedPipeClientStream readDataPipe, NamedPipeServerStream sendDataPipe)
         {
-            PipeServer = pipeServer;
+            SendDataPipe = sendDataPipe;
+            ReadDataPipe = readDataPipe;
             serviceProvider = new ServiceCollection().BuildServiceProvider();
         }
 
@@ -37,8 +40,14 @@ namespace WorkflowServer
             }
 
             DefaultActivityRunner<IActivityContext> runner = new(serviceProvider);
-            while (PipeServer.IsConnected)
+            while (SendDataPipe.IsConnected)
             {
+                while (ScanQueueManager.InstructionQueue.Count > 0)
+                {
+                    bool success = ScanQueueManager.InstructionQueue.TryDequeue(out ScanInstructions? instructions);
+                    if (success)
+                        SendInstructionToClient(null, new ProcessingCompletedEventArgs(instructions));
+                }
                 await runner.RunAsync(activityCollection, spectraActivityContext);
             }
         }
@@ -61,9 +70,9 @@ namespace WorkflowServer
             byte[] buffer = Encoding.UTF8.GetBytes(temp);
             byte[] length = BitConverter.GetBytes(buffer.Length);
             byte[] finalBuffer = length.Concat(buffer).ToArray();
-            PipeServer.Write(finalBuffer, 0, finalBuffer.Length);
-            PipeServer.WaitForPipeDrain();
-            PrintoutMessage.Print(MessageSource.Server, "Sent instruciton to client");
+            SendDataPipe.Write(finalBuffer, 0, finalBuffer.Length);
+            SendDataPipe.WaitForPipeDrain();
+            PrintoutMessage.Print(MessageSource.Server, "Sent instruction to client");
         }
 
         /// <summary>
@@ -84,12 +93,17 @@ namespace WorkflowServer
 
         public void ConnectServerToClient()
         {
-            var asyncResult = PipeServer.BeginWaitForConnection(null, null);
+            var readerConnectResultsAsync = ReadDataPipe.ConnectAsync().ContinueWith(_ =>
+            {
+                PrintoutMessage.Print(MessageSource.Client, "Workflow Server read pipe connected to client.");
+            });
 
-
-            // wait for the connection to occur before proceeding. 
-            PipeServer.EndWaitForConnection(asyncResult);
-            PrintoutMessage.Print(MessageSource.Server, "Pipe connected to instrument client");
+            var senderConnectionResult = SendDataPipe.WaitForConnectionAsync().ContinueWith(_ =>
+            {
+                PrintoutMessage.Print(MessageSource.Client, "Worklflow Server write pipe connected to client.");
+            });
+            readerConnectResultsAsync.Wait();
+            senderConnectionResult.Wait();
 
             StartReaderAsync();
             PipeDataReceived += HandleDataReceivedFromClient;
@@ -104,14 +118,14 @@ namespace WorkflowServer
         private void StartByteReaderAsync(Action<byte[]> packetReceived)
         {
             byte[] byteDataLength = new byte[sizeof(int)];
-            PipeServer.ReadAsync(byteDataLength, 0, sizeof(int))
+            ReadDataPipe.ReadAsync(byteDataLength, 0, sizeof(int))
                 .ContinueWith(t =>
                 {
                     int len = t.Result;
                     int dataLength = BitConverter.ToInt32(byteDataLength, 0);
                     byte[] data = new byte[dataLength];
 
-                    PipeServer.ReadAsync(data, 0, dataLength)
+                    ReadDataPipe.ReadAsync(data, 0, dataLength)
                         .ContinueWith(t2 =>
                         {
                             len = t2.Result;

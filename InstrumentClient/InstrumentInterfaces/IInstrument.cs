@@ -26,7 +26,8 @@ namespace InstrumentClient
         void InstrumentOn();
         void InstrumentOff();
         void InstrumentStandby();
-        void MainLoop(); 
+        void MainLoop();
+        void ResetToBaseScan(); 
         event EventHandler InstrumentConnected;
         event EventHandler InstrumentDisconnected;
         event EventHandler<MsScanArrivedEventArgs> ScanReceived;

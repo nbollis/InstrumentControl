@@ -15,30 +15,21 @@ namespace InstrumentClient
     {
         public static void Main(string[] args)
         {
-            NamedPipeClientStream pipeClient;
-            string instrumentType;
-            int[] acceptableScanOrders;
 
-            if (args.Length > 1)
-            {
-                pipeClient =
-                new NamedPipeClientStream(args[0], args[1],
-                    PipeDirection.InOut,
-                    PipeOptions.Asynchronous);
-                instrumentType = args[2];
-                acceptableScanOrders = JsonConvert.DeserializeObject<int[]>(args[3]);
-            }
-            else
-            {
-                pipeClient =
-                new NamedPipeClientStream(".", "test",
-                    PipeDirection.InOut,
-                    PipeOptions.Asynchronous);
-                instrumentType = args[0];
-                acceptableScanOrders = new[] { 1 };
-            }
 
-            ClientPipe clientPipe = new ClientPipe(pipeClient, acceptableScanOrders);
+            // Reading and writing between two processes requires that each side of the process has a NamedPipeServerStream to do the data writing 
+            // and a NamedPipeClientStream to do the listening. The pipe names are "[process doing the writing] + Write". 
+            var writePipe =
+                new NamedPipeServerStream("instrumentClientWrite", PipeDirection.Out, 1, PipeTransmissionMode.Byte);
+            var readPipe =
+                new NamedPipeClientStream(".", "workflowServerWrite", PipeDirection.In, PipeOptions.Asynchronous);
+            
+            string instrumentType = args[0];
+            var acceptableScanOrders = new[] { 1 };
+
+
+            ClientPipe clientPipe = new ClientPipe(readPipe, writePipe, acceptableScanOrders);
+            
             IInstrumentFactory factory = null;
 
             switch (instrumentType)
@@ -55,6 +46,7 @@ namespace InstrumentClient
 
             try
             {
+                PrintoutMessage.Print(MessageSource.Client, "Startup Initiated");
                 // the general architectural guideline is that if the instrument throws an 
                 // event, then the client needs to respond to it. This adds a layer of abstraction between the instrument and
                 // this client that ensures we can extend it to other instruments in the future.
@@ -62,7 +54,7 @@ namespace InstrumentClient
                 // It is the responsibility of the person implementing the instrument to client interface to only expose
                 // the absolutely necessary information to this instrument client. The instrument client should only provide the absolutely necessary information to the 
                 // application server. This prevents bloat and future issues. 
-
+                
                 clientPipe.ConnectClientToServer();
                 Thread.Sleep(1000);
 
@@ -75,7 +67,8 @@ namespace InstrumentClient
             }
             finally
             {
-                pipeClient.Dispose();
+                writePipe.Dispose();
+                readPipe.Dispose();
             }
         }
     }

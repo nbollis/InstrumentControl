@@ -16,14 +16,14 @@ namespace WorkflowServer.Activities
         {
             foreach (var activity in collection)
             {
-                if (activity is IScanSender)
+                if (activity is IScanSender sender)
                 {
-                    ((IScanSender)activity).SendScan += pipe.SendInstructionToClient;
+                    sender.SendScan += pipe.SendInstructionToClient;
                 }
 
-                if (activity is IScanReceiver)
+                if (activity is IScanReceiver receiver)
                 {
-                    ScanQueueManager.BuildQueue(((IScanReceiver)activity).MsNOrder);
+                    ScanQueueManager.BuildQueue(receiver.MsNOrder);
                 }
 
             }

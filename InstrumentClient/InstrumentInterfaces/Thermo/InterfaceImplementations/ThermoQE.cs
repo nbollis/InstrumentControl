@@ -119,5 +119,10 @@ namespace InstrumentClient
         {
             throw new NotImplementedException();
         }
+
+        public void ResetToBaseScan()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

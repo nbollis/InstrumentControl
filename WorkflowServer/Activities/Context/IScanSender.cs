@@ -9,7 +9,7 @@ namespace WorkflowServer
 {
     public interface IScanSender
     {
-        public ScanInstructions ScanInstructions { get; set; }
+        public ScanInstructions BaseScanInstructions { get; }
         public event EventHandler<ProcessingCompletedEventArgs> SendScan;
     }
 }

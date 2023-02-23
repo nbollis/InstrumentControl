@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ClientServerCommLibrary
 {
     [Serializable]
-    public class ScanInstructions
+    public class ScanInstructions : ICloneable
     {
         #region ThermoTribrid Settings
         public CustomOrRepeatingScan? CustomOrRepeating { get; set; } = CustomOrRepeatingScan.Custom; 
@@ -87,12 +87,25 @@ namespace ClientServerCommLibrary
                         continue; 
                     }
 
+                    if (key == "Polarity")
+                    {
+                        if (temp.ToString() == "Positive")
+                            temp = 0;
+                        if (temp.ToString() == "Negative")
+                            temp = 1;
+                    }
+
                     thermoDict.Add(key, temp.ToString()); 
                 }
             }
             return thermoDict; 
 
                         
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
     }
 }
