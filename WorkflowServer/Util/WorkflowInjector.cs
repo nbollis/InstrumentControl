@@ -31,8 +31,12 @@ namespace WorkflowServer
         /// <param name="useExclusionList"></param>
         /// <returns></returns>
         public static IActivityCollection<IActivityContext> GetDdaActivityCollection(int scansToProcess = 1,
-            int topN = 3, ScanInstructions? baseMs1 = null, ScanInstructions? baseMs2 = null, bool useExclusionList = false)
+            int topN = 5, ScanInstructions? baseMs1 = null, ScanInstructions? baseMs2 = null, bool useExclusionList = false)
         {
+            // temp
+            useExclusionList = true;
+
+
             CaptureMs1Activity<IActivityContext> captureMs1Activity = new(1, scansToProcess, baseMs1 ?? GetBaseMs1Scan());
             TopNPeakSelectionActivity<IActivityContext> topNPeakSelectionActivity = new(topN, false, useExclusionList);
             SendDDAScanInstructionsActivity<IActivityContext> sendDdaScanInstructionsActivity =
@@ -49,6 +53,11 @@ namespace WorkflowServer
 
         public static SpectraActivityContext GetSpectraActivityContext(double timeToExclude = 0, double exclusionPpmMatch = 0)
         {
+            // temp
+            timeToExclude = 60000;
+            exclusionPpmMatch = 35;
+
+
             SpectraActivityContext context = new();
 
             if (timeToExclude != 0 && exclusionPpmMatch != 0)
@@ -63,21 +72,20 @@ namespace WorkflowServer
         {
             ScanInstructions instructions = new()
             {
+                IsolationMode = IsolationMode.Quadrupole,
+                IsolationWidth = 4,
+                ActivationType = ActivationType.HCD,
+                CollisionEnergy = 45,
+                Analyzer = AnalyzerType.Orbitrap,
+                OrbitrapResolution = OrbitrapResolution.X_120000,
                 FirstMass = 300,
                 LastMass = 1500,
-                Analyzer = AnalyzerType.Orbitrap,
-                ScanType = ScanType.MSn,
-                SourceCIDEnergy = 15,
-                Polarity = Polarity.Positive,
+                AGCTarget = 400,
+                MaxIT = 500,
+                Microscans = 4,
                 DataType = DataType.Profile,
-                IsolationMode = IsolationMode.Quadrupole,
-                AGCTarget = 100,
-                MaxIT = 200,
-                Microscans = 5,
-                OrbitrapResolution = OrbitrapResolution.X_60000,
-                CollisionEnergy = 30,
-                IsolationWidth = 4,
-                ActivationType = ActivationType.HCD
+                ScanType = ScanType.MSn,
+                SourceCIDEnergy = 15
             };
 
             return instructions;
@@ -87,18 +95,17 @@ namespace WorkflowServer
         {
             ScanInstructions instructions = new()
             {
-                FirstMass = 200,
-                LastMass = 2000,
                 Analyzer = AnalyzerType.Orbitrap,
-                ScanType = ScanType.Full,
-                SourceCIDEnergy = 15,
-                Polarity = Polarity.Positive,
-                DataType = DataType.Profile,
+                OrbitrapResolution = OrbitrapResolution.X_120000,
                 IsolationMode = IsolationMode.Quadrupole,
+                FirstMass = 500,
+                LastMass = 2000,
+                ScanType = ScanType.Full,
                 AGCTarget = 100,
-                MaxIT = 200,
-                Microscans = 5,
-                OrbitrapResolution = OrbitrapResolution.X_120000
+                MaxIT = 100,
+                Microscans = 4,
+                DataType = DataType.Profile,
+                SourceCIDEnergy = 15
             };
 
             return instructions;

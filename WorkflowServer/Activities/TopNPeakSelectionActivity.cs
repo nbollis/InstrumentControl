@@ -1,4 +1,5 @@
-﻿using WorkflowServer.Util;
+﻿using System.Collections;
+using WorkflowServer.Util;
 
 namespace WorkflowServer.Activities
 {
@@ -52,25 +53,26 @@ namespace WorkflowServer.Activities
                 }
                 else
                 {
-                    var potentialTargets =
-                        singleScanDataObject.FilterByNumberOfMostIntense(topNPeaksToIsolateAndFragment * 10)
-                            .OrderByDescending(p => p.intensity);
-                    if (useExclusionList)
-                    {
-                        var nonExcludedTargets =
-                            targetList.GetTargetsNotExcludedAtSpecificRetentionTime(
-                                potentialTargets.Select(p => p.mass).ToList(),
-                                singleScanDataObject.RetentionTime).ToList();
+                    
+                    var peakQueue = new Queue<(double, double)>(singleScanDataObject
+                        .FilterByNumberOfMostIntense(topNPeaksToIsolateAndFragment * 10)
+                        .OrderByDescending(p => p.intensity));
 
-                        targets = nonExcludedTargets.Count() < topNPeaksToIsolateAndFragment ?
-                            nonExcludedTargets :
-                            nonExcludedTargets.Take(topNPeaksToIsolateAndFragment).ToList(); ;
-                    }
-                    else
+                    while (targets.Count < topNPeaksToIsolateAndFragment)
                     {
-                        targets = potentialTargets.Count() < topNPeaksToIsolateAndFragment ?
-                            potentialTargets.Select(p => p.mass).ToList() :
-                            potentialTargets.Select(p => p.mass).Take(topNPeaksToIsolateAndFragment).ToList();
+                        var potentialTarget = peakQueue.Dequeue();
+                        if (useExclusionList )
+                        {
+                            if (!specContext.MassTargetList.IsExcluded(potentialTarget.Item1,
+                                    singleScanDataObject.RetentionTime))
+                            {
+                                targets.Add(potentialTarget.Item1);
+                            }
+                        }
+                        else
+                        {
+                            targets.Add(potentialTarget.Item1);
+                        }
                     }
                 }
 

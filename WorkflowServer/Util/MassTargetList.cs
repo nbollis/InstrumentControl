@@ -81,6 +81,17 @@ namespace WorkflowServer.Util
             hitTargets.Add(target);
         }
 
+        public bool IsExcluded(double mz, double rt)
+        {
+            foreach (var excludedItem in GetExclusionListItemsAtSpecificRetentionTime(rt))
+            {
+                if (Tolerance.Within(mz, excludedItem.Mass))
+                    return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// returns all masses to be searched for at a specific retention time
         /// </summary>
@@ -102,10 +113,9 @@ namespace WorkflowServer.Util
         /// <returns></returns>
         public IEnumerable<MassTargetListItem> GetExclusionListItemsAtSpecificRetentionTime(double retentionTime)
         {
-            foreach (var item in ExclusionList)
+            foreach (var item in ExclusionList.Where(p => p.WithinTimeSpan(retentionTime)))
             {
-                if (item.WithinTimeSpan(retentionTime))
-                    yield return item;
+                yield return item;
             }
         }
 
@@ -118,10 +128,9 @@ namespace WorkflowServer.Util
         public IEnumerable<double> GetTargetsNotExcludedAtSpecificRetentionTime(List<double> valuesToCheck, double retentionTime)
         {
             var exclusionListItemsWithinTime = ExclusionList.Where(p => p.WithinTimeSpan(retentionTime));
-            foreach (var val in valuesToCheck)
+            foreach (var val in valuesToCheck.Where(m => !exclusionListItemsWithinTime.Any(p => Tolerance.Within(p.Mass, m))))
             {
-                if (!exclusionListItemsWithinTime.Any(p => Tolerance.Within(p.Mass, val)))
-                    yield return val;
+                yield return val;
             }
         }
 

@@ -29,7 +29,8 @@ namespace WorkflowServer.Activities
                 {
                     var instructionsToSend = (ScanInstructions)BaseScanInstructions.Clone();
                     instructionsToSend.PrecursorMass = target.First();
-                    ScanQueueManager.InstructionQueue.Enqueue(instructionsToSend);
+                    SendScan.Invoke(null, new ProcessingCompletedEventArgs(instructionsToSend));
+                    //ScanQueueManager.InstructionQueue.Enqueue(instructionsToSend);
                 }
                 else
                 {

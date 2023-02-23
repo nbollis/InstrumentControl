@@ -42,12 +42,6 @@ namespace WorkflowServer
             DefaultActivityRunner<IActivityContext> runner = new(serviceProvider);
             while (SendDataPipe.IsConnected)
             {
-                while (ScanQueueManager.InstructionQueue.Count > 0)
-                {
-                    bool success = ScanQueueManager.InstructionQueue.TryDequeue(out ScanInstructions? instructions);
-                    if (success)
-                        SendInstructionToClient(null, new ProcessingCompletedEventArgs(instructions));
-                }
                 await runner.RunAsync(activityCollection, spectraActivityContext);
             }
         }
@@ -91,7 +85,7 @@ namespace WorkflowServer
             PrintoutMessage.Print(MessageSource.Server, $"Received scan from client - Scan Number {ssdo.ScanNumber}");
         }
 
-        public void ConnectServerToClient()
+        public async Task ConnectServerToClient()
         {
             var readerConnectResultsAsync = ReadDataPipe.ConnectAsync().ContinueWith(_ =>
             {
@@ -102,8 +96,8 @@ namespace WorkflowServer
             {
                 PrintoutMessage.Print(MessageSource.Client, "Worklflow Server write pipe connected to client.");
             });
-            readerConnectResultsAsync.Wait();
-            senderConnectionResult.Wait();
+            await readerConnectResultsAsync;
+            await senderConnectionResult;
 
             StartReaderAsync();
             PipeDataReceived += HandleDataReceivedFromClient;

@@ -27,7 +27,7 @@ namespace WorkflowServer.Activities
                 context as SpectraActivityContext ?? throw new NullReferenceException();
 
             // send instructions to capture a ms1
-            ScanQueueManager.InstructionQueue.Enqueue(BaseScanInstructions);
+            SendScan.Invoke(null, new ProcessingCompletedEventArgs(BaseScanInstructions));
 
             IEnumerable<SingleScanDataObject> singleScanDataObjects;
             while (!ScanQueueManager.TryDequeueMany(MsNOrder, scansToDequeue,

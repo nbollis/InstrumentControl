@@ -16,15 +16,12 @@ namespace WorkflowServer
         static ScanQueueManager()
         {
             ScanQueues = new Dictionary<int, ScanQueue>();
-            InstructionQueue = new();
         }
 
         #region Public Properties
 
         public static Dictionary<int, ScanQueue> ScanQueues { get; }
-        public static ConcurrentQueue<ScanInstructions> InstructionQueue { get; }
-
-        public static bool FirstScanSent { get; set; } = false;
+        
         #endregion
 
         /// <summary>

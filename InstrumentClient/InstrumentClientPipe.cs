@@ -124,14 +124,13 @@ namespace InstrumentClient
             PrintoutMessage.Print(MessageSource.Client, $"Scan sent to server - Scan Number {ssdo.ScanNumber}");
         }
 
-        public async Task ConnectClientToServer()
+        public void ConnectClientToServer()
         {
             var readerConnectResultsAsync = ReadDataPipe.ConnectAsync().ContinueWith(_ =>
             {
                 PrintoutMessage.Print(MessageSource.Client, "Instrument client ready to read data from workflow server.");
             });
             
-
             var senderConnectionResult = SendDataPipe.WaitForConnectionAsync().ContinueWith(_ =>
             {
                 PrintoutMessage.Print(MessageSource.Client, "Instrument client ready to send data to workflow server.");

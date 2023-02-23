@@ -58,6 +58,10 @@ namespace Tests
 
             Assert.That(context.MassesToTarget.Count == 3);
             Assert.That(context.MassTargetList.ExclusionList.Count == 3);
+
+            context.DataToProcess.Enqueue(SsdoList.First());
+            topNActivity.ExecuteAsync(context);
+
         }
 
         [Test]
