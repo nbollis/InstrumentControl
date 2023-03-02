@@ -67,48 +67,49 @@ namespace WorkflowServer
             return context;
         }
 
-        public static ScanInstructions GetBaseMs2Scan()
-        {
-            ScanInstructions instructions = new()
-            {
-                IsolationMode = IsolationMode.Quadrupole,
-                IsolationWidth = 4,
-                ActivationType = ActivationType.HCD,
-                CollisionEnergy = 45,
-                Analyzer = AnalyzerType.Orbitrap,
-                OrbitrapResolution = OrbitrapResolution.X_120000,
-                FirstMass = 300,
-                LastMass = 1500,
-                AGCTarget = 400,
-                MaxIT = 500,
-                Microscans = 4,
-                DataType = DataType.Profile,
-                ScanType = ScanType.MSn,
-                SourceCIDEnergy = 15
-            };
-
-            return instructions;
-        }
-
         public static ScanInstructions GetBaseMs1Scan()
         {
             ScanInstructions instructions = new()
             {
                 Analyzer = AnalyzerType.Orbitrap,
-                OrbitrapResolution = OrbitrapResolution.X_120000,
+                OrbitrapResolution = OrbitrapResolution.X_240000,
                 IsolationMode = IsolationMode.Quadrupole,
                 FirstMass = 500,
                 LastMass = 2000,
                 ScanType = ScanType.Full,
-                AGCTarget = 100,
+                AGCTarget = 800000,
                 MaxIT = 100,
-                Microscans = 4,
+                Microscans = 5,
                 DataType = DataType.Profile,
                 SourceCIDEnergy = 15
             };
 
             return instructions;
         }
+        public static ScanInstructions GetBaseMs2Scan()
+        {
+            ScanInstructions instructions = new()
+            {
+                Analyzer = AnalyzerType.Orbitrap,
+                OrbitrapResolution = OrbitrapResolution.X_120000,
+                IsolationMode = IsolationMode.Quadrupole,
+                FirstMass = 300,
+                LastMass = 1500,
+                ScanType = ScanType.MSn,
+                AGCTarget = 200000,
+                MaxIT = 500,
+                Microscans = 3,
+                DataType = DataType.Profile,
+                SourceCIDEnergy = 15,
+                IsolationWidth = 4,
+                ActivationType = ActivationType.HCD,
+                CollisionEnergy = 35,
+            };
+
+            return instructions;
+        }
+
+        
 
     }
 }
